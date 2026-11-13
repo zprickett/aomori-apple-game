@@ -1,0 +1,3376 @@
+{
+  "schema_version": "1.0",
+  "research_date": "2026-10-02",
+  "status": "source-backed game-design baseline; provisional cooking behavior remains",
+  "counts": {
+    "apples": 10,
+    "recipes": 5,
+    "pairings": 50
+  },
+  "apples": [
+    {
+      "id": "a048",
+      "poster_index": 48,
+      "poster_row": 5,
+      "poster_column": 8,
+      "name_ja": "ふじ",
+      "name_en": "Fuji",
+      "aliases": [],
+      "identity_group": "fuji",
+      "identity_kind": "bagged_growing_style",
+      "overview_for_kids": "Bag-grown Fuji keeps the familiar sweet, juicy crunch.",
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/hu/huji.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9ad2d446cf"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9ad2d446cf"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9ad2d446cf"
+          ]
+        },
+        "raw_firmness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9ad2d446cf"
+          ]
+        },
+        "aroma": {
+          "status": "unknown",
+          "source_ids": []
+        }
+      },
+      "harvest_window_source_text": "11月上中旬",
+      "size_source_text": "300～400g・円～長円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_red_flesh_verified",
+      "browning_behavior": null,
+      "real_world_rarity": "major_commercial",
+      "game_unlock_order": 1,
+      "game_delivery_tier": 1,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 4,
+        "tartness": 2,
+        "juiciness": 5,
+        "raw_firmness": 4,
+        "aroma": 3
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "qualitative_trait_translation",
+        "aroma": "neutral_game_prior_not_measured"
+      },
+      "source_conflicts_and_notes": [
+        "Poster slot denotes bagged Fuji; the selected Apple University page foregrounds Sun Fuji. Growing-style distinction follows Aomori official guidance."
+      ],
+      "great_for": [
+        {
+          "recipe_id": "whole_apple_pie",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "rabbit_apples",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "fresh_juice",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Whole Apple Pie, Rabbit Apples, Fresh Aomori Apple Juice."
+    },
+    {
+      "id": "a081",
+      "poster_index": 81,
+      "poster_row": 9,
+      "poster_column": 1,
+      "name_ja": "つがる",
+      "name_en": "Tsugaru",
+      "aliases": [],
+      "identity_group": "tsugaru",
+      "identity_kind": "cultivar",
+      "overview_for_kids": "Early red apple with gentle sweetness and abundant juice.",
+      "source_ids": [
+        "src_9332e45658"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/tu/tugaru.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9332e45658"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9332e45658"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9332e45658"
+          ]
+        },
+        "raw_firmness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_9332e45658"
+          ]
+        },
+        "aroma": {
+          "status": "unknown",
+          "source_ids": []
+        }
+      },
+      "harvest_window_source_text": "9月上旬～中旬",
+      "size_source_text": "300g前後・円～長円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "major_commercial",
+      "game_unlock_order": 2,
+      "game_delivery_tier": 1,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 4,
+        "tartness": 1,
+        "juiciness": 5,
+        "raw_firmness": 4,
+        "aroma": 3
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "qualitative_trait_translation",
+        "aroma": "neutral_game_prior_not_measured"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "rabbit_apples",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "fresh_juice",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "yogurt_parfait",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Rabbit Apples, Fresh Aomori Apple Juice, Apple Yogurt Parfait."
+    },
+    {
+      "id": "a023",
+      "poster_index": 23,
+      "poster_row": 3,
+      "poster_column": 3,
+      "name_ja": "王林",
+      "name_en": "Orin",
+      "aliases": [],
+      "identity_group": "apple_023",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Green-yellow apple famous for sweetness and fragrance.",
+      "source_ids": [
+        "src_f879dc301e"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/o/ourin.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f879dc301e"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f879dc301e"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f879dc301e"
+          ]
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f879dc301e"
+          ]
+        }
+      },
+      "harvest_window_source_text": "晩生種・10月下旬",
+      "size_source_text": "300g前後・長円～長円錐",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "major_commercial",
+      "game_unlock_order": 3,
+      "game_delivery_tier": 1,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 5,
+        "tartness": 1,
+        "juiciness": 5,
+        "raw_firmness": 3,
+        "aroma": 5
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "qualitative_trait_translation"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "fresh_juice",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_dorayaki",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_daifuku",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Fresh Aomori Apple Juice, Apple Nama Dorayaki, Azuki Apple Daifuku."
+    },
+    {
+      "id": "a066",
+      "poster_index": 66,
+      "poster_row": 7,
+      "poster_column": 6,
+      "name_ja": "ジョナゴールド",
+      "name_en": "Jonagold",
+      "aliases": [],
+      "identity_group": "jonagold",
+      "identity_kind": "cultivar",
+      "overview_for_kids": "Sweet-tart apple suited to fresh eating and processing.",
+      "source_ids": [
+        "src_e15a48df67"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/si/jyonagold.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_e15a48df67"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_e15a48df67"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_e15a48df67"
+          ]
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "unknown",
+          "source_ids": []
+        }
+      },
+      "harvest_window_source_text": "中生種・10月中旬",
+      "size_source_text": "300～400g・円～長円錐形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "major_commercial",
+      "game_unlock_order": 4,
+      "game_delivery_tier": 1,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 4,
+        "tartness": 4,
+        "juiciness": 4,
+        "raw_firmness": 3,
+        "aroma": 3
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "neutral_game_prior_not_measured"
+      },
+      "source_conflicts_and_notes": [
+        "Selected Apple University page describes unbagged fruit; poster growing style is unspecified. Do not infer exact sweetness from one growing style."
+      ],
+      "great_for": [
+        {
+          "recipe_id": "hirosaki_pie",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "fresh_juice",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_jelly",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Hirosaki Apple Pie, Fresh Aomori Apple Juice, Fresh Apple Jelly."
+    },
+    {
+      "id": "a006",
+      "poster_index": 6,
+      "poster_row": 1,
+      "poster_column": 6,
+      "name_ja": "トキ",
+      "name_en": "Toki",
+      "aliases": [],
+      "identity_group": "apple_006",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Sweet, juicy yellow apple with a lovely fragrance.",
+      "source_ids": [
+        "src_865882f959"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/to/toki.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_865882f959"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_865882f959"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_865882f959"
+          ]
+        },
+        "raw_firmness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_865882f959"
+          ]
+        },
+        "aroma": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_865882f959"
+          ]
+        }
+      },
+      "harvest_window_source_text": "9月下旬～10月上旬",
+      "size_source_text": "300～400g程で、大きさにバラつきがみられる・円～扁円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "smaller_commercial",
+      "game_unlock_order": 5,
+      "game_delivery_tier": 1,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 5,
+        "tartness": 1,
+        "juiciness": 5,
+        "raw_firmness": 4,
+        "aroma": 5
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "qualitative_trait_translation",
+        "aroma": "qualitative_trait_translation"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "rabbit_apples",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "fresh_juice",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "yogurt_parfait",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Rabbit Apples, Fresh Aomori Apple Juice, Apple Yogurt Parfait."
+    },
+    {
+      "id": "a094",
+      "poster_index": 94,
+      "poster_row": 10,
+      "poster_column": 4,
+      "name_ja": "紅玉",
+      "name_en": "Kogyoku (Jonathan)",
+      "aliases": [],
+      "identity_group": "apple_094",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Tart red cooking apple that holds its shape when heated.",
+      "source_ids": [
+        "src_f1f4763ccf"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kougyoku.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f1f4763ccf"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f1f4763ccf"
+          ]
+        },
+        "juiciness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f1f4763ccf"
+          ]
+        },
+        "raw_firmness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f1f4763ccf"
+          ]
+        },
+        "aroma": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_f1f4763ccf"
+          ]
+        }
+      },
+      "harvest_window_source_text": "10月上旬～中旬",
+      "size_source_text": "200g前後・円形",
+      "heat_behavior": {
+        "value": "retains_shape",
+        "source_ids": [
+          "src_f1f4763ccf"
+        ],
+        "status": "documented"
+      },
+      "flesh_color": "not_red_flesh_verified",
+      "browning_behavior": null,
+      "real_world_rarity": "not_quantified",
+      "game_unlock_order": 6,
+      "game_delivery_tier": 2,
+      "game_size_class": "small",
+      "game_stats_1to5": {
+        "sweetness": 2,
+        "tartness": 5,
+        "juiciness": 4,
+        "raw_firmness": 4,
+        "aroma": 4
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "qualitative_trait_translation",
+        "raw_firmness": "qualitative_trait_translation",
+        "aroma": "qualitative_trait_translation"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "hirosaki_pie",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "baked_apple",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "whole_apple_pie",
+          "fit_stars": 3,
+          "provisional": false
+        }
+      ],
+      "gameplay_tip": "Try Hirosaki Apple Pie, Baked Apple, Whole Apple Pie."
+    },
+    {
+      "id": "a091",
+      "poster_index": 91,
+      "poster_row": 10,
+      "poster_column": 1,
+      "name_ja": "アルプス乙女",
+      "name_en": "Alps Otome",
+      "aliases": [],
+      "identity_group": "apple_091",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Tiny sweet-tart apple, only about 25 to 50 grams.",
+      "source_ids": [
+        "src_cefc8dee09"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/a/alpsmaiden.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_cefc8dee09"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_cefc8dee09"
+          ]
+        },
+        "juiciness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "unknown",
+          "source_ids": []
+        }
+      },
+      "harvest_window_source_text": "中生種・10月中旬",
+      "size_source_text": "25～50g程・長円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "not_quantified",
+      "game_unlock_order": 7,
+      "game_delivery_tier": 2,
+      "game_size_class": "mini",
+      "game_stats_1to5": {
+        "sweetness": 4,
+        "tartness": 3,
+        "juiciness": 3,
+        "raw_firmness": 3,
+        "aroma": 3
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "neutral_game_prior_not_measured",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "neutral_game_prior_not_measured"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "ringo_ame",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_kinton",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "rabbit_apples",
+          "fit_stars": 3,
+          "provisional": true
+        }
+      ],
+      "gameplay_tip": "Try Mini Ringo Ame, Golden Apple Kinton, Rabbit Apples."
+    },
+    {
+      "id": "a032",
+      "poster_index": 32,
+      "poster_row": 4,
+      "poster_column": 2,
+      "name_ja": "ブラムリー",
+      "name_en": "Bramley",
+      "aliases": [],
+      "identity_group": "apple_032",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Very tart green cooking apple that softens quickly with heat.",
+      "source_ids": [
+        "src_5e0a5f6788"
+      ],
+      "source_url": "https://obuse.or.jp/produce/bramley.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_5e0a5f6788"
+          ]
+        },
+        "juiciness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_5e0a5f6788"
+          ]
+        }
+      },
+      "harvest_window_source_text": "Late August to early September in Obuse; Aomori timing unverified",
+      "size_source_text": "up to about 300 g in the cited Obuse description",
+      "heat_behavior": {
+        "value": "breaks_down_quickly",
+        "source_ids": [
+          "src_5e0a5f6788"
+        ],
+        "status": "documented"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": null,
+      "real_world_rarity": "not_quantified",
+      "game_unlock_order": 21,
+      "game_delivery_tier": 3,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 3,
+        "tartness": 5,
+        "juiciness": 3,
+        "raw_firmness": 3,
+        "aroma": 4
+      },
+      "game_stat_basis": {
+        "sweetness": "neutral_game_prior_not_measured",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "neutral_game_prior_not_measured",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "qualitative_trait_translation"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "apple_jam",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "hirosaki_pie",
+          "fit_stars": 3,
+          "provisional": true
+        },
+        {
+          "recipe_id": "apple_dorayaki",
+          "fit_stars": 3,
+          "provisional": true
+        }
+      ],
+      "gameplay_tip": "Try Two-Colour Apple Jam, Hirosaki Apple Pie, Apple Nama Dorayaki."
+    },
+    {
+      "id": "a058",
+      "poster_index": 58,
+      "poster_row": 6,
+      "poster_column": 8,
+      "name_ja": "紅の夢",
+      "name_en": "Kurenai no Yume",
+      "aliases": [],
+      "identity_group": "apple_058",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Red-fleshed Hirosaki University apple with a strong tang.",
+      "source_ids": [
+        "src_3d674d0d88"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/ku/kurenainoyume.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_3d674d0d88"
+          ]
+        },
+        "tartness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_3d674d0d88"
+          ]
+        },
+        "juiciness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "unknown",
+          "source_ids": []
+        }
+      },
+      "harvest_window_source_text": "晩生種・10月下旬～11月上旬",
+      "size_source_text": "350g程度・円～楕円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "pink_or_red",
+      "browning_behavior": null,
+      "real_world_rarity": "not_quantified",
+      "game_unlock_order": 22,
+      "game_delivery_tier": 3,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 3,
+        "tartness": 5,
+        "juiciness": 3,
+        "raw_firmness": 3,
+        "aroma": 3
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "qualitative_trait_translation",
+        "juiciness": "neutral_game_prior_not_measured",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "neutral_game_prior_not_measured"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "hirosaki_pie",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_kinton",
+          "fit_stars": 3,
+          "provisional": false
+        },
+        {
+          "recipe_id": "apple_jam",
+          "fit_stars": 3,
+          "provisional": true
+        }
+      ],
+      "gameplay_tip": "Try Hirosaki Apple Pie, Golden Apple Kinton, Two-Colour Apple Jam."
+    },
+    {
+      "id": "a086",
+      "poster_index": 86,
+      "poster_row": 9,
+      "poster_column": 6,
+      "name_ja": "千雪",
+      "name_en": "Chiyuki",
+      "aliases": [
+        "あおり27"
+      ],
+      "identity_group": "apple_086",
+      "identity_kind": "cultivar_or_market_name",
+      "overview_for_kids": "Sweet, fragrant apple whose cut flesh resists browning.",
+      "source_ids": [
+        "src_35298a204f"
+      ],
+      "source_url": "https://www.ringodaigaku.com/main/hinshu/ti/tiyuki.html",
+      "factual_traits": {
+        "sweetness": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_35298a204f"
+          ]
+        },
+        "tartness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "juiciness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "raw_firmness": {
+          "status": "unknown",
+          "source_ids": []
+        },
+        "aroma": {
+          "status": "qualitative_source_available",
+          "source_ids": [
+            "src_35298a204f"
+          ]
+        }
+      },
+      "harvest_window_source_text": "中生種・10月中旬",
+      "size_source_text": "250～350g・円～長円形",
+      "heat_behavior": {
+        "value": null,
+        "source_ids": [],
+        "status": "unknown"
+      },
+      "flesh_color": "not_reported_red",
+      "browning_behavior": "resistant",
+      "real_world_rarity": "not_quantified",
+      "game_unlock_order": 13,
+      "game_delivery_tier": 2,
+      "game_size_class": "standard",
+      "game_stats_1to5": {
+        "sweetness": 4,
+        "tartness": 3,
+        "juiciness": 3,
+        "raw_firmness": 3,
+        "aroma": 5
+      },
+      "game_stat_basis": {
+        "sweetness": "qualitative_trait_translation",
+        "tartness": "neutral_game_prior_not_measured",
+        "juiciness": "neutral_game_prior_not_measured",
+        "raw_firmness": "neutral_game_prior_not_measured",
+        "aroma": "qualitative_trait_translation"
+      },
+      "source_conflicts_and_notes": [],
+      "great_for": [
+        {
+          "recipe_id": "rabbit_apples",
+          "fit_stars": 3,
+          "provisional": true
+        },
+        {
+          "recipe_id": "apple_jam",
+          "fit_stars": 3,
+          "provisional": true
+        },
+        {
+          "recipe_id": "yogurt_parfait",
+          "fit_stars": 3,
+          "provisional": true
+        }
+      ],
+      "gameplay_tip": "Try Rabbit Apples, Two-Colour Apple Jam, Apple Yogurt Parfait."
+    }
+  ],
+  "recipes": [
+    {
+      "id": "fresh_juice",
+      "order": 3,
+      "name_en": "Fresh Aomori Apple Juice",
+      "name_ja": "青森りんごジュース",
+      "profile": "juice",
+      "skill_sequence": [
+        "Press the apple"
+      ],
+      "cultural_context": "Aomori apple product; the game adds a sweet-tart blending task.",
+      "authenticity_class": "documented_local_product_game_process",
+      "source_ids": [
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ],
+      "source_urls": [
+        "https://alaringo.com/brand/menu/",
+        "https://www.aomori-ringo.or.jp/variety/"
+      ],
+      "recipe_variant": "fixed default order brief; adaptations can change suitability",
+      "estimated_game_session_seconds": 21,
+      "ingredient_roles": [
+        "single apple choice"
+      ],
+      "action_plan_id": "fresh_juice_game_v2",
+      "action_count": 1,
+      "action_source_urls": [
+        "https://delishkitchen.tv/recipes/335882553422512430"
+      ]
+    },
+    {
+      "id": "rabbit_apples",
+      "order": 2,
+      "name_en": "Rabbit Apples",
+      "name_ja": "うさぎりんご",
+      "profile": "fresh_sweet",
+      "skill_sequence": [
+        "Cut apple wedges",
+        "Cut the rabbit ears"
+      ],
+      "cultural_context": "Japanese decorative cuts; red ears are classic, green and yellow ears are also welcome.",
+      "authenticity_class": "documented_local_recipe",
+      "source_ids": [
+        "src_fed0b464a4"
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/20211214/5112/"
+      ],
+      "recipe_variant": "fixed default order brief; adaptations can change suitability",
+      "estimated_game_session_seconds": 27,
+      "ingredient_roles": [
+        "single apple choice"
+      ],
+      "action_plan_id": "rabbit_apples_game_v2",
+      "action_count": 2,
+      "action_source_urls": [
+        "https://www.aomori-ringo.or.jp/20211214/5112/"
+      ]
+    },
+    {
+      "id": "apple_jam",
+      "order": 6,
+      "name_en": "Two-Colour Apple Jam",
+      "name_ja": "2色のりんごジャム",
+      "profile": "jam",
+      "skill_sequence": [
+        "Cut small apple pieces",
+        "Add fruit and sugar",
+        "Mix in lemon juice"
+      ],
+      "cultural_context": "Pink jam can come from red skin; red flesh is a separate source of color.",
+      "authenticity_class": "documented_japanese_recipe",
+      "source_ids": [
+        "src_0916460e87"
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/033.html"
+      ],
+      "recipe_variant": "fixed default order brief; adaptations can change suitability",
+      "estimated_game_session_seconds": 35,
+      "ingredient_roles": [
+        "single apple choice"
+      ],
+      "action_plan_id": "apple_jam_game_v2",
+      "action_count": 3,
+      "action_source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/033.html"
+      ]
+    },
+    {
+      "id": "hirosaki_pie",
+      "order": 1,
+      "name_en": "Hirosaki Apple Pie",
+      "name_ja": "弘前アップルパイ",
+      "profile": "tart_pastry",
+      "skill_sequence": [
+        "Slice the apples",
+        "Add apples to the pan",
+        "Stir the filling",
+        "Fill the pastry",
+        "Take out the golden pie"
+      ],
+      "cultural_context": "Aomori apple-pie culture; the starting game version favors a bright, tart filling.",
+      "authenticity_class": "documented_local_recipe",
+      "source_ids": [
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/applepie/sakusaku-applepie/",
+        "https://journal.parco.jp/news/?id=709"
+      ],
+      "recipe_variant": "fixed default order brief; adaptations can change suitability",
+      "estimated_game_session_seconds": 47,
+      "ingredient_roles": [
+        "single apple choice"
+      ],
+      "action_plan_id": "hirosaki_pie_game_v2",
+      "action_count": 5,
+      "action_source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/184.html"
+      ]
+    },
+    {
+      "id": "ringo_ame",
+      "order": 4,
+      "name_en": "Mini Ringo Ame",
+      "name_ja": "ミニりんご飴",
+      "profile": "mini_candy",
+      "skill_sequence": [
+        "Skewer the whole apple",
+        "Stop heating the syrup",
+        "Dip the whole apple",
+        "Set it on the cooling tray"
+      ],
+      "cultural_context": "Whole-fruit mini festival candy; cut-fruit candy is an alternate preparation for large apples.",
+      "authenticity_class": "documented_japanese_dish",
+      "source_ids": [
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/185.html",
+        "https://www.zennoh.or.jp/am/recipe/ssi/post-53.html"
+      ],
+      "recipe_variant": "fixed default order brief; adaptations can change suitability",
+      "estimated_game_session_seconds": 39,
+      "ingredient_roles": [
+        "single apple choice"
+      ],
+      "action_plan_id": "ringo_ame_game_v2",
+      "action_count": 4,
+      "action_source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/185.html"
+      ]
+    }
+  ],
+  "pairings": [
+    {
+      "apple_id": "a006",
+      "apple_name_en": "Toki",
+      "apple_name_ja": "トキ",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_865882f959",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a006",
+      "apple_name_en": "Toki",
+      "apple_name_ja": "トキ",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, raw_firmness, juiciness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_865882f959",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a006",
+      "apple_name_en": "Toki",
+      "apple_name_ja": "トキ",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, juiciness. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_865882f959",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a006",
+      "apple_name_en": "Toki",
+      "apple_name_ja": "トキ",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_865882f959",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a006",
+      "apple_name_en": "Toki",
+      "apple_name_ja": "トキ",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_865882f959",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a023",
+      "apple_name_en": "Orin",
+      "apple_name_ja": "王林",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f879dc301e",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a023",
+      "apple_name_en": "Orin",
+      "apple_name_ja": "王林",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, juiciness. Less suited on raw_firmness.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_f879dc301e",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a023",
+      "apple_name_en": "Orin",
+      "apple_name_ja": "王林",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, juiciness. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f879dc301e",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a023",
+      "apple_name_en": "Orin",
+      "apple_name_ja": "王林",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_f879dc301e",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a023",
+      "apple_name_en": "Orin",
+      "apple_name_ja": "王林",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f879dc301e",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a032",
+      "apple_name_en": "Bramley",
+      "apple_name_ja": "ブラムリー",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [
+        "sweetness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_5e0a5f6788",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a032",
+      "apple_name_en": "Bramley",
+      "apple_name_ja": "ブラムリー",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 0,
+      "fit_label": "Bad fit",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Strong cooking-apple acidity conflicts with this sweet raw-snack order.",
+      "uncertain_inputs": [
+        "sweetness",
+        "raw_firmness",
+        "juiciness"
+      ],
+      "adaptation": "Cook and sweeten it for jam, or accept a special tart-apple customer order.",
+      "source_ids": [
+        "src_5e0a5f6788",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a032",
+      "apple_name_en": "Bramley",
+      "apple_name_ja": "ブラムリー",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness. Less suited on tartness, juiciness.",
+      "uncertain_inputs": [
+        "sweetness",
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_5e0a5f6788",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a032",
+      "apple_name_en": "Bramley",
+      "apple_name_ja": "ブラムリー",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [
+        "sweetness",
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_5e0a5f6788",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a032",
+      "apple_name_en": "Bramley",
+      "apple_name_ja": "ブラムリー",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Original Bramley jam recipe uses its rapid softening and acidity.",
+      "uncertain_inputs": [
+        "sweetness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_5e0a5f6788",
+        "src_0916460e87",
+        "src_d337f8a4f0"
+      ]
+    },
+    {
+      "apple_id": "a048",
+      "apple_name_en": "Fuji",
+      "apple_name_ja": "ふじ",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Sweet Fuji pie is documented; this default brief favors a tart filling. Lemon or a tart blend can raise fit.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a048",
+      "apple_name_en": "Fuji",
+      "apple_name_ja": "ふじ",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, raw_firmness, juiciness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a048",
+      "apple_name_en": "Fuji",
+      "apple_name_ja": "ふじ",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, juiciness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816",
+        "src_9036c3754c"
+      ]
+    },
+    {
+      "apple_id": "a048",
+      "apple_name_en": "Fuji",
+      "apple_name_ja": "ふじ",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a048",
+      "apple_name_en": "Fuji",
+      "apple_name_ja": "ふじ",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_9ad2d446cf",
+        "src_7cb8cbc816",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a058",
+      "apple_name_en": "Kurenai no Yume",
+      "apple_name_ja": "紅の夢",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Published cooking substitute for Kogyoku; adds a colored filling.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_3d674d0d88",
+        "src_1dd2918587",
+        "src_cae5b3cb13",
+        "src_f1f4763ccf"
+      ]
+    },
+    {
+      "apple_id": "a058",
+      "apple_name_en": "Kurenai no Yume",
+      "apple_name_ja": "紅の夢",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches juiciness. Less suited on sweetness, tartness, raw_firmness.",
+      "uncertain_inputs": [
+        "raw_firmness",
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_3d674d0d88",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a058",
+      "apple_name_en": "Kurenai no Yume",
+      "apple_name_ja": "紅の夢",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness. Less suited on tartness, juiciness.",
+      "uncertain_inputs": [
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_3d674d0d88",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a058",
+      "apple_name_en": "Kurenai no Yume",
+      "apple_name_ja": "紅の夢",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_3d674d0d88",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a058",
+      "apple_name_en": "Kurenai no Yume",
+      "apple_name_ja": "紅の夢",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_3d674d0d88",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a066",
+      "apple_name_en": "Jonagold",
+      "apple_name_ja": "ジョナゴールド",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Listed as a cooking substitute for Kogyoku; good sweet-tart filling.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_e15a48df67",
+        "src_1dd2918587",
+        "src_cae5b3cb13",
+        "src_f1f4763ccf"
+      ]
+    },
+    {
+      "apple_id": "a066",
+      "apple_name_en": "Jonagold",
+      "apple_name_ja": "ジョナゴールド",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, juiciness. Less suited on tartness, raw_firmness.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_e15a48df67",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a066",
+      "apple_name_en": "Jonagold",
+      "apple_name_ja": "ジョナゴールド",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, juiciness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_e15a48df67",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a066",
+      "apple_name_en": "Jonagold",
+      "apple_name_ja": "ジョナゴールド",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_e15a48df67",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a066",
+      "apple_name_en": "Jonagold",
+      "apple_name_ja": "ジョナゴールド",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_e15a48df67",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a081",
+      "apple_name_en": "Tsugaru",
+      "apple_name_ja": "つがる",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_9332e45658",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a081",
+      "apple_name_en": "Tsugaru",
+      "apple_name_ja": "つがる",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, raw_firmness, juiciness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_9332e45658",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a081",
+      "apple_name_en": "Tsugaru",
+      "apple_name_ja": "つがる",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, juiciness. Less suited on tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_9332e45658",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a081",
+      "apple_name_en": "Tsugaru",
+      "apple_name_ja": "つがる",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_9332e45658",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a081",
+      "apple_name_en": "Tsugaru",
+      "apple_name_ja": "つがる",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_9332e45658",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a086",
+      "apple_name_en": "Chiyuki",
+      "apple_name_ja": "千雪",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [
+        "tartness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_35298a204f",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a086",
+      "apple_name_en": "Chiyuki",
+      "apple_name_ja": "千雪",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, juiciness. Less suited on raw_firmness.",
+      "uncertain_inputs": [
+        "tartness",
+        "raw_firmness",
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_35298a204f",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a086",
+      "apple_name_en": "Chiyuki",
+      "apple_name_ja": "千雪",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness. Less suited on juiciness.",
+      "uncertain_inputs": [
+        "tartness",
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_35298a204f",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a086",
+      "apple_name_en": "Chiyuki",
+      "apple_name_ja": "千雪",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 1,
+      "fit_label": "OK",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Too large for the default mini whole-fruit candy order, but cut-fruit candy is valid.",
+      "uncertain_inputs": [
+        "tartness",
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_35298a204f",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a086",
+      "apple_name_en": "Chiyuki",
+      "apple_name_ja": "千雪",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [
+        "tartness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_35298a204f",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a091",
+      "apple_name_en": "Alps Otome",
+      "apple_name_ja": "アルプス乙女",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, aroma. Less suited on tartness.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_cefc8dee09",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a091",
+      "apple_name_en": "Alps Otome",
+      "apple_name_ja": "アルプス乙女",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, juiciness. Less suited on raw_firmness.",
+      "uncertain_inputs": [
+        "raw_firmness",
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_cefc8dee09",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a091",
+      "apple_name_en": "Alps Otome",
+      "apple_name_ja": "アルプス乙女",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness. Less suited on juiciness.",
+      "uncertain_inputs": [
+        "juiciness"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_cefc8dee09",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a091",
+      "apple_name_en": "Alps Otome",
+      "apple_name_ja": "アルプス乙女",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Tiny whole apples are documented festival candy apples.",
+      "uncertain_inputs": [
+        "raw_firmness"
+      ],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_cefc8dee09",
+        "src_a19d8384f6",
+        "src_8c85809313",
+        "src_e11cff6d44"
+      ]
+    },
+    {
+      "apple_id": "a091",
+      "apple_name_en": "Alps Otome",
+      "apple_name_ja": "アルプス乙女",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "low",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [
+        "aroma"
+      ],
+      "adaptation": null,
+      "source_ids": [
+        "src_cefc8dee09",
+        "src_0916460e87"
+      ]
+    },
+    {
+      "apple_id": "a094",
+      "apple_name_en": "Kogyoku (Jonathan)",
+      "apple_name_ja": "紅玉",
+      "recipe_id": "hirosaki_pie",
+      "recipe_name_en": "Hirosaki Apple Pie",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "documented_use_game_rating",
+      "confidence": "high_for_use_not_numeric_rating",
+      "reason": "Documented pie apple; tart flavor and heat shape retention match this brief.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f1f4763ccf",
+        "src_1dd2918587",
+        "src_cae5b3cb13"
+      ]
+    },
+    {
+      "apple_id": "a094",
+      "apple_name_en": "Kogyoku (Jonathan)",
+      "apple_name_ja": "紅玉",
+      "recipe_id": "rabbit_apples",
+      "recipe_name_en": "Rabbit Apples",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches raw_firmness, juiciness. Less suited on sweetness, tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f1f4763ccf",
+        "src_fed0b464a4"
+      ]
+    },
+    {
+      "apple_id": "a094",
+      "apple_name_en": "Kogyoku (Jonathan)",
+      "apple_name_ja": "紅玉",
+      "recipe_id": "fresh_juice",
+      "recipe_name_en": "Fresh Aomori Apple Juice",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches juiciness. Less suited on sweetness, tartness.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f1f4763ccf",
+        "src_9036c3754c",
+        "src_7cb8cbc816"
+      ]
+    },
+    {
+      "apple_id": "a094",
+      "apple_name_en": "Kogyoku (Jonathan)",
+      "apple_name_ja": "紅玉",
+      "recipe_id": "ringo_ame",
+      "recipe_name_en": "Mini Ringo Ame",
+      "fit_stars": 2,
+      "fit_label": "Good",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Small fruit fits the whole-fruit candy brief; exact handling is a game inference.",
+      "uncertain_inputs": [],
+      "adaptation": "Switch to diced candy-apple skewers; Sun Fuji is documented for this alternate recipe.",
+      "source_ids": [
+        "src_f1f4763ccf",
+        "src_a19d8384f6",
+        "src_8c85809313"
+      ]
+    },
+    {
+      "apple_id": "a094",
+      "apple_name_en": "Kogyoku (Jonathan)",
+      "apple_name_ja": "紅玉",
+      "recipe_id": "apple_jam",
+      "recipe_name_en": "Two-Colour Apple Jam",
+      "fit_stars": 3,
+      "fit_label": "Best",
+      "rating_status": "game_design_not_empirical",
+      "evidence_basis": "trait_based_game_inference",
+      "confidence": "medium",
+      "reason": "Matches sweetness, tartness, aroma.",
+      "uncertain_inputs": [],
+      "adaptation": null,
+      "source_ids": [
+        "src_f1f4763ccf",
+        "src_0916460e87"
+      ]
+    }
+  ],
+  "scoring": {
+    "version": "1.0",
+    "rating_scale": {
+      "0": "Bad fit",
+      "1": "OK",
+      "2": "Good",
+      "3": "Best"
+    },
+    "numeric_stats": "1-5 ordinal game translations; not Brix, acidity measurements, or cultivar rankings",
+    "profiles": {
+      "tart_pastry": {
+        "sweetness": {
+          "min": 2,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 4,
+          "max": 5,
+          "weight": 3
+        },
+        "aroma": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "fresh_sweet": {
+        "sweetness": {
+          "min": 4,
+          "max": 5,
+          "weight": 3
+        },
+        "tartness": {
+          "min": 1,
+          "max": 3,
+          "weight": 2
+        },
+        "raw_firmness": {
+          "min": 4,
+          "max": 5,
+          "weight": 2
+        },
+        "juiciness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "juice": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 2
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "juiciness": {
+          "min": 4,
+          "max": 5,
+          "weight": 3
+        }
+      },
+      "mini_candy": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "raw_firmness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "whole_heat": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "aroma": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "jam": {
+        "sweetness": {
+          "min": 2,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 3,
+          "max": 5,
+          "weight": 2
+        },
+        "aroma": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "cooked_filling": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 2
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "aroma": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "mash": {
+        "sweetness": {
+          "min": 2,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 3,
+          "max": 5,
+          "weight": 2
+        }
+      },
+      "compote": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 2
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "aroma": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "savory_sweet": {
+        "sweetness": {
+          "min": 4,
+          "max": 5,
+          "weight": 2
+        },
+        "tartness": {
+          "min": 2,
+          "max": 4,
+          "weight": 1
+        },
+        "juiciness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "savory_juicy": {
+        "sweetness": {
+          "min": 3,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 1,
+          "max": 3,
+          "weight": 1
+        },
+        "juiciness": {
+          "min": 4,
+          "max": 5,
+          "weight": 3
+        }
+      },
+      "red_display": {
+        "sweetness": {
+          "min": 2,
+          "max": 5,
+          "weight": 1
+        },
+        "tartness": {
+          "min": 2,
+          "max": 5,
+          "weight": 1
+        }
+      },
+      "festival_role": {
+        "sweetness": {
+          "min": 1,
+          "max": 5,
+          "weight": 1
+        }
+      }
+    },
+    "weighted_fit": "For each trait use max(0, 1 - distance_from_target_range/4), weighted mean; >=0.88 gives 3, >=0.65 gives 2, >=0.40 gives 1, otherwise 0. Explicit brief constraints and documented-use overrides then apply.",
+    "default_unknown": "Neutral 3/5 game prior, unknown factual trait retained; cooked shape unknown caps whole/piece cooking ratings at 2 unless documented use overrides.",
+    "final_dish_stars": "clamp(fit_stars + technique_bonus + recipe_adaptation_delta + customer_delta - execution_penalty, 0, 3)",
+    "technique_bonus": "0 or +1 for assisted or skilled execution; available during onboarding so starter Fuji pie can earn 3.",
+    "recipe_adaptation_delta": "0 or +1 after an explicit valid recipe adjustment such as lemon or a complementary apple. Mini-candy -> diced skewers and red-tart -> ordinary tart require recomputing the alternate brief, not simply adding 1.",
+    "customer_delta": "Normally 0; optional -1/0/+1 for explicitly shown customer preference after onboarding. Avoid double-counting traits already scored in the order profile.",
+    "execution_penalty": "0 early with help; later 0-3 for visibly burnt, underdone or mishandled food. No hard fail or loss of apples during onboarding.",
+    "child_feedback": {
+      "3": "Best! Lovely apple choice and cooking.",
+      "2": "Good! Tasty work.",
+      "1": "OK! Try another apple or a small cooking change.",
+      "0": "Not quite this time. Let us try a different recipe!"
+    },
+    "bad_fit_meaning": "Bad fit for this specific brief, never a rotten apple, unsafe food claim, or insult to a variety.",
+    "blend_rule": "Recompute weighted sweetness, tartness, juice and aroma by edible mass; track shape and color per component, not averaged. For the festival pie, judge three roles and execution separately. Single-apple matrix rows are component suitability only.",
+    "season_rule": "A compressed in-game seasonal calendar; unlocks persist and stored apples remain available. Do not make children wait for real-world months.",
+    "rarity_rule": "Delivery tiers and unlock order are authored pacing, not a claim to actual rarity; sourced commercial status is separate.",
+    "red_flesh_rule": "Only four confirmed whole red/pink-flesh slots qualify by default. 4-23 can show red streaks near its skin but is not equivalent to a reliably red-fleshed cultivar."
+  },
+  "sources": [
+    {
+      "id": "src_a9de4bcdb6",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/goldfarm.html",
+      "title": "ゴールドファーム - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_5498d05f9e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ki/kinsei_yuutai.html",
+      "title": "金星（有袋） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_afefdfc30d",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ha/haruka.html",
+      "title": "はるか - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_23be816e3a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/hi/hirodaimisaki.html",
+      "title": "弘大みさき（ひろだいみさき） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_933e794b24",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ki/kiou.html",
+      "title": "きおう｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_865882f959",
+      "url": "https://www.ringodaigaku.com/main/hinshu/to/toki.html",
+      "title": "トキ｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_dc23c7ecf2",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/goldendeli.html",
+      "title": "ゴールデンデリシャス - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_84e5a3706e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ki/cute.html",
+      "title": "キュート - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_c9131eb104",
+      "url": "https://www.ringodaigaku.com/main/hinshu/su/sweetmelody.html",
+      "title": "スイートメロディー - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_1a33b3b4cd",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ho/hosinokinka.html",
+      "title": "星の金貨（ほしのきんか）・あおり15 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_764d1d0be7",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mu/mutu.html",
+      "title": "陸奥（無袋） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_7cb8cbc816",
+      "url": "https://www.aomori-ringo.or.jp/variety/",
+      "title": "りんごの品種 | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_48942b6826",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kouki.html",
+      "title": "黄輝（こうき） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_a7ffe831e1",
+      "url": "https://www.ringodaigaku.com/main/hinshu/me/mercy.html",
+      "title": "メルシー - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_224ba20356",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mo/forestshine.html",
+      "title": "もりのかがやき - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_26fa866b2c",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/ambitious.html",
+      "title": "アンビシャス - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_4b3c8c616d",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ki/kimito.html",
+      "title": "きみと・HFF63 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e626d2816f",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ku/gunmameigetu.html",
+      "title": "名月（ぐんま名月） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_eaaa320fc0",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koukou.html",
+      "title": "こうこう - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_27b9cf5f5e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koganehuji.html",
+      "title": "黄金ふじ（こがねふじ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e67282404a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/sinanogold.html",
+      "title": "シナノゴールド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_449464ab2e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ro/rosepearl.html",
+      "title": "ローズパール - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_40ebd9eb70",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koumei.html",
+      "title": "黄明（こうめい） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_f879dc301e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/o/ourin.html",
+      "title": "王林（おうりん） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_8f429a91aa",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/goldenmelon.html",
+      "title": "ゴールデンメロン - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_05dc56d038",
+      "url": "https://www.ringodaigaku.com/main/hinshu/se/seirin.html",
+      "title": "青林（せいりん） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_5d50bac8ed",
+      "url": "https://www.ringodaigaku.com/main/hinshu/me/mellow.html",
+      "title": "メロー - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b08007b586",
+      "url": "https://www.ringodaigaku.com/main/hinshu/tu/tsugarugold.html",
+      "title": "津軽ゴールド、石川ゴールド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_420eee37ad",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ku/granny-smith.html",
+      "title": "グラニースミス（Granny Smith） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_466eb594d7",
+      "url": "https://www.ringodaigaku.com/main/hinshu/i/iwai.html",
+      "title": "祝（いわい）・大中（だいなか） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_8de3dbcc6c",
+      "url": "https://www.ringodaigaku.com/main/hinshu/na/natsumidori.html",
+      "title": "夏緑（なつみどり）｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e11cff6d44",
+      "url": "https://www.aomori-ringo.or.jp/starcut/variety.html",
+      "title": "青森りんご大図鑑｜（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "search_excerpt"
+    },
+    {
+      "id": "src_5e0a5f6788",
+      "url": "https://obuse.or.jp/produce/bramley.html",
+      "title": "ブラムリー｜小布施屋",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_879e7def67",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mi/miyoshired.html",
+      "title": "みよしレッド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_042656bfad",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koutoku.html",
+      "title": "こうとく - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_0c1bd29af0",
+      "url": "https://www.ringodaigaku.com/main/hinshu/su/slimred.html",
+      "title": "スリムレッド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_110b4c8468",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mi/mikilife.html",
+      "title": "未希ライフ（みきらいふ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_7a9a5dd802",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ha/hanaiwai.html",
+      "title": "花祝（はないわい） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9634a5ff2a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/hu/firstlady.html",
+      "title": "ファーストレディ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_a85c24b896",
+      "url": "https://www.ringodaigaku.com/main/hinshu/he/benika.html",
+      "title": "紅夏（べにか） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9ad2d446cf",
+      "url": "https://www.ringodaigaku.com/main/hinshu/hu/huji.html",
+      "title": "サンふじ（無袋）｜ふじ｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_f841171cee",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/sinsekai.html",
+      "title": "新世界（しんせかい） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9eaf83ef28",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ru/rubysweet.html",
+      "title": "ルビースイート - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_d5248e092d",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kokkou.html",
+      "title": "国光（こっこう）・雪の下（ゆきのした） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_f42987af45",
+      "url": "https://www.ringodaigaku.com/main/hinshu/se/sekaiiti.html",
+      "title": "世界一（せかいいち） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_3ae523b308",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/sinanosweet.html",
+      "title": "シナノスイート｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_416056d2df",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kouju.html",
+      "title": "幸寿（こうじゅ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_60d7faee75",
+      "url": "https://www.ringodaigaku.com/main/hinshu/yo/youkou.html",
+      "title": "陽光（ようこう） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_d162ac2a34",
+      "url": "https://agresearcher.maff.go.jp/seika/show/232372",
+      "title": "リンゴ新品種「秋田紅あかり」の育成 | 研究成果詳細 | アグリサーチャー",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "government_or_breeder",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_fc615b1460",
+      "url": "https://www.ringodaigaku.com/main/hinshu/i/indo.html",
+      "title": "印度（いんど） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_04cb18500e",
+      "url": "https://www.ringodaigaku.com/main/hinshu/hi/pinklady.html",
+      "title": "ピンクレディー・クリプスピンク - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_54b4cca8b0",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kourin.html",
+      "title": "昂林（こうりん） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_481b2c42e9",
+      "url": "https://www.ringodaigaku.com/main/hinshu/hi/hirosakihuji.html",
+      "title": "ひろさきふじ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e283250a7b",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ho/honoka.html",
+      "title": "ほのか - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_2d45149c19",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ya/yataka.html",
+      "title": "やたか - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_bbbf5b7a30",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koutarou.html",
+      "title": "こうたろう - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_3d674d0d88",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ku/kurenainoyume.html",
+      "title": "紅の夢（くれないのゆめ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_f4592ad495",
+      "url": "https://www.ringodaigaku.com/main/hinshu/su/suta-kujumbo.html",
+      "title": "スタークジャンボ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_68b7ff11d6",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/sinanodolce.html",
+      "title": "シナノドルチェ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b7e9e184f4",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/syuuyou.html",
+      "title": "秋陽（しゅうよう） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9fc6a3652a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/se/sensyuu.html",
+      "title": "千秋（せんしゅう） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e6afe32db3",
+      "url": "https://www.ringodaigaku.com/main/hinshu/he/benihatumi.html",
+      "title": "紅はつみ（べにはつみ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b856e7e67a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/sa/saika.html",
+      "title": "あおり9（旧名：彩香） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e15a48df67",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/jyonagold.html",
+      "title": "ジョナゴールド（無袋） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_077bf8f377",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ho/hokuto.html",
+      "title": "北斗（ほくと） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_bbaba7a6e8",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/aikanokaori.html",
+      "title": "あいかの香り - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_16b26c7401",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/akane.html",
+      "title": "あかね - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_6168a7f6e1",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/syunmei21.html",
+      "title": "春明（しゅんめい）21・あおり21 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_5945f6d520",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ka/kahou.html",
+      "title": "華宝（かほう） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_210e82e9e4",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/akiyo.html",
+      "title": "安祈世（あきよ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_09c9cbe446",
+      "url": "https://www.ringodaigaku.com/main/hinshu/sa/sansa.html",
+      "title": "さんさ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_a18ea20ab8",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/siorinouta.html",
+      "title": "しおりの詩（しおりのうた）・あおり12 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_8f3020692c",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/asahi.html",
+      "title": "旭（あさひ）・マッキントッシュ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_00c57ef3d0",
+      "url": "https://www.ringodaigaku.com/main/hinshu/tu/tugaruhime.html",
+      "title": "つがる姫（つがるひめ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_0fc961eb17",
+      "url": "https://www.ringodaigaku.com/main/hinshu/he/benisibori.html",
+      "title": "紅絞（べにしぼり）・タマカン - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b8a559acf6",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ri/ryouka.html",
+      "title": "涼香の季節（りょうかのきせつ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_cb50788fe6",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ni/newjyonagold.html",
+      "title": "ニュージョナゴールド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_57454de9b7",
+      "url": "https://www.ringodaigaku.com/main/hinshu/si/sinanored.html",
+      "title": "シナノレッド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9332e45658",
+      "url": "https://www.ringodaigaku.com/main/hinshu/tu/tugaru.html",
+      "title": "つがる（無袋）｜つがる・あおり2号｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_33675845a1",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kougetu.html",
+      "title": "紅月（こうげつ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_692f496398",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ka/kanki.html",
+      "title": "かんき - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_93f535bd8d",
+      "url": "https://www.agries-nagano.jp/original_breed/478.html",
+      "title": "シナノピッコロ（オリジナル開発品種） | 長野県農業関係試験場",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "government_or_breeder",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_0e4fe19d94",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ki/kitakurenai.html",
+      "title": "北紅（きたくれない）・あおり13 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_35298a204f",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ti/tiyuki.html",
+      "title": "千雪（ちゆき）・あおり27 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_d98ca7b4fb",
+      "url": "https://www.ringodaigaku.com/main/hinshu/re/redgold.html",
+      "title": "レッドゴールド - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_926815c3bb",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mi/mioka.html",
+      "title": "美丘（みおか）・さしゃ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9c1ff49395",
+      "url": "https://www.ringodaigaku.com/main/hinshu/mi/miku.html",
+      "title": "美紅（みく）・HFF33 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_cefc8dee09",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/alpsmaiden.html",
+      "title": "アルプス乙女（あるぷすおとめ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_1add7c84af",
+      "url": "https://www.ringodaigaku.com/main/hinshu/su/starking.html",
+      "title": "スターキングデリシャス - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_5b51a1621f",
+      "url": "https://www.ringodaigaku.com/main/hinshu/yo/4-23.html",
+      "title": "4-23（よんのにじゅうさん） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_f1f4763ccf",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/kougyoku.html",
+      "title": "紅玉（こうぎょく）・千成（せんなり）・満紅（まんこう）｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_c47aa069ef",
+      "url": "https://www.ringodaigaku.com/ringo_blog/blog/2025/02/04/16010.html",
+      "title": "りんごパラダイス vol.139『りんご「明秋」を食べてみました』 - りんご大学ブログ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b2c6f535cb",
+      "url": "https://www.ringodaigaku.com/main/hinshu/o/oirase.html",
+      "title": "おいらせ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e61bfff252",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ko/koizora.html",
+      "title": "恋空（こいぞら）・あおり16｜りんごの品種｜品種・統計｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_11822be10a",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/earlyjyona.html",
+      "title": "アーリージョナ - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_3debafd931",
+      "url": "https://www.ringodaigaku.com/main/hinshu/ta/daikouei.html",
+      "title": "大紅栄（だいこうえい） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_8020e40970",
+      "url": "https://www.ringodaigaku.com/main/hinshu/a/akibae.html",
+      "title": "秋映（あきばえ） - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_1dd2918587",
+      "url": "https://www.aomori-ringo.or.jp/applepie/sakusaku-applepie/",
+      "title": "さくさくアップルパイ | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_cae5b3cb13",
+      "url": "https://journal.parco.jp/news/?id=709",
+      "title": "弘前アップルパイレシピBOOK　～洋菓子工房ノエルの「りんごたっぷりパイ」～　 | パルコ ジャーナル",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_fed0b464a4",
+      "url": "https://www.aomori-ringo.or.jp/20211214/5112/",
+      "title": "りんごの花ウサギ | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_9036c3754c",
+      "url": "https://alaringo.com/brand/menu/",
+      "title": "メニュー｜【公式】青森りんご専門店「a la ringo あら、りんご。」",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_a19d8384f6",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/185.html",
+      "title": "りんご飴の作り方｜パリパリ食感に仕上げるコツ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "search_excerpt"
+    },
+    {
+      "id": "src_8c85809313",
+      "url": "https://www.zennoh.or.jp/am/recipe/ssi/post-53.html",
+      "title": "青森県産りんご「サンふじ」のりんご飴 | ＪＡ全農青森県本部",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_fe47e170a7",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/157.html",
+      "title": "レンジで簡単！焼きりんごの作り方｜りんご大学レシピ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_0916460e87",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/033.html",
+      "title": "2色のりんごジャム",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_4df67ab6f1",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/034.html",
+      "title": "りんごジャム（キャラメル風味）の作り方｜りんご大学レシピ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_fcece3e8e8",
+      "url": "https://www.aomori-ringo.or.jp/bifidus/",
+      "title": "青森りんご×ビヒダスヨーグルト食べ合わせレシピ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_640ad6f030",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/169.html",
+      "title": "りんごの生どら焼 - りんごのレシピ【りんご大学キッチン】 - りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_1b1a3b3df7",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/106.html",
+      "title": "あずきりんご大福の作り方｜りんご大学レシピ",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_20dbe307dc",
+      "url": "https://www.zennoh.or.jp/am/recipe/ssi/post-36.html",
+      "title": "フレッシュりんごゼリー | ＪＡ全農青森県本部",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_faf3bafdd8",
+      "url": "https://ragueneau.co.jp/products",
+      "title": "ラグノオのお菓子 | 株式会社ラグノオささき",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_42182bbf7a",
+      "url": "https://aspam.jp/item/670/",
+      "title": "【ラグノオ】気になるリンゴ　１個入 | アスパム物産オンライン",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "search_excerpt"
+    },
+    {
+      "id": "src_cffefcb7b3",
+      "url": "https://www.morinaga.co.jp/recipe/detail/765",
+      "title": "簡単！炊飯器 de 青森県産りんごチーズケーキ | 天使のお菓子レシピ | 森永製菓株式会社",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_cbc3cded22",
+      "url": "https://www.aomori-ringo.or.jp/20221128/6204/",
+      "title": "りんごきんとん | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_1e603f0368",
+      "url": "https://www.aomori-ringo.or.jp/20191201/3134/",
+      "title": "りんごとはちみつの栗きんとん | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e267bec706",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/191.html",
+      "title": "レンチンコンポート｜りんご大学キッチン（りんごレシピ）｜食べる｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_e8cc319b38",
+      "url": "https://www.aomori-ringo.or.jp/20190701/3124/",
+      "title": "りんごまるごとキーマカレー | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_b06ff3cd93",
+      "url": "https://www.aomori-ringo.or.jp/20260219/9127/",
+      "title": "りんごしゅうまい ～佐賀の呼子名物イカしゅうまい風～ | 青森りんご公式サイト（一社）青森県りんご対策協議会",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_069ad134f3",
+      "url": "https://www.pref.aomori.lg.jp/soshiki/nourin/brand/files/20ryori_117.pdf",
+      "title": "材料（４人分）",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "government_or_breeder",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_c9ae95b6f5",
+      "url": "https://www.ringodaigaku.com/eat/recipe_new/038.html",
+      "title": "りんごのプチタルト｜りんご大学キッチン（りんごレシピ）｜食べる｜りんご大学",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_apple_industry",
+      "retrieval": "full_page"
+    },
+    {
+      "id": "src_d337f8a4f0",
+      "url": "https://www.obuse-ya.jp/recipe/recipe_bramley00.html",
+      "title": "ブラムリージャムの作り方｜クッキングアップルブラムリーのレシピ【小布施屋】",
+      "accessed_on": "2026-10-02",
+      "publisher_type": "primary_recipe_creator_or_product_producer",
+      "retrieval": "full_page"
+    }
+  ],
+  "prototype_scope": {
+    "apple_order": [
+      "a048",
+      "a081",
+      "a023",
+      "a066",
+      "a006",
+      "a094",
+      "a091",
+      "a032",
+      "a058",
+      "a086"
+    ],
+    "recipe_order": [
+      "fresh_juice",
+      "rabbit_apples",
+      "apple_jam",
+      "hirosaki_pie",
+      "ringo_ame"
+    ],
+    "note": "Prototype unlock schedule in CODEX_BUILD_PROMPT.md supersedes full-game unlock fields; other recipe references in apple great_for are future content."
+  },
+  "action_system_version": "2.0"
+}

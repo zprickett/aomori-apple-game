@@ -1,0 +1,41 @@
+{
+  "name": "aomori-apple-kitchen",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "build:single": "tsc -b && SINGLE=1 vite build",
+    "test:ref": "node src/data/test_timing_reference.mjs",
+    "test:e2e": "node e2e/checks.mjs",
+    "play:e2e": "node e2e/play.mjs --orders 3 --fresh",
+    "assets": "python3 assets/blender/build_assets.py && cp assets/aomori.glb src/assets/models/aomori.glb && python3 scripts/icons.py",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:preview": "npm run build && wrangler versions upload"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^5.0.4",
+    "wrangler": "^4.161.0"
+  }
+}

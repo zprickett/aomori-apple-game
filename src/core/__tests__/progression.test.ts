@@ -1,0 +1,121 @@
+import { describe, expect, it } from 'vitest';
+import {
+  DEFAULT_SEED,
+  isCollectionComplete,
+  orderForIndex,
+  stallLevel,
+  unlockConditionText,
+  unlockedApples,
+  unlockedRecipes,
+  unlocksEarnedAt,
+} from '../progression.ts';
+
+describe('unlock schedule', () => {
+  it('apples unlock at 0/3/6/9/12/15', () => {
+    expect(unlockedApples(0)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006']);
+    expect(unlockedApples(2)).toHaveLength(5);
+    expect(unlockedApples(3)).toContain('a094');
+    expect(unlockedApples(5)).not.toContain('a091');
+    expect(unlockedApples(6)).toContain('a091');
+    expect(unlockedApples(9)).toContain('a032');
+    expect(unlockedApples(12)).toContain('a058');
+    expect(unlockedApples(14)).not.toContain('a086');
+    expect(unlockedApples(15)).toHaveLength(10);
+    expect(unlockedApples(999)).toHaveLength(10);
+  });
+
+  it('recipes unlock at 0/2/4/6/7', () => {
+    expect(unlockedRecipes(0)).toEqual(['fresh_juice']);
+    expect(unlockedRecipes(1)).toEqual(['fresh_juice']);
+    expect(unlockedRecipes(2)).toEqual(['fresh_juice', 'rabbit_apples']);
+    expect(unlockedRecipes(4)).toContain('apple_jam');
+    expect(unlockedRecipes(6)).toContain('ringo_ame');
+    expect(unlockedRecipes(6)).not.toContain('hirosaki_pie');
+    expect(unlockedRecipes(7)).toHaveLength(5);
+  });
+
+  it('each unlock is earned exactly once across 0..60', () => {
+    const seen: string[] = [];
+    for (let c = 0; c <= 60; c++) {
+      const u = unlocksEarnedAt(c);
+      seen.push(...u.apples, ...u.recipes);
+    }
+    expect(seen.sort()).toEqual(
+      ['a094', 'a091', 'a032', 'a058', 'a086', 'rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie'].sort(),
+    );
+    expect(unlocksEarnedAt(3)).toEqual({ apples: ['a094'], recipes: [] });
+    expect(unlocksEarnedAt(6)).toEqual({ apples: ['a091'], recipes: ['ringo_ame'] });
+    expect(unlocksEarnedAt(5)).toEqual({ apples: [], recipes: [] });
+    expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });
+  });
+
+  it('stall level and collection completion', () => {
+    expect([0, 4, 5, 9, 10, 14, 15, 40].map(stallLevel)).toEqual([0, 0, 1, 1, 2, 2, 3, 3]);
+    expect(isCollectionComplete(14)).toBe(false);
+    expect(isCollectionComplete(15)).toBe(true);
+    expect(unlockConditionText('a091')).toBe('Arrives after 6 orders');
+  });
+});
+
+describe('order queue', () => {
+  it('onboarding and demo sequence for orders 1–20', () => {
+    for (const seed of [1, 7, DEFAULT_SEED, 123456789]) {
+      const o = (n: number) => orderForIndex(n, seed);
+      expect(o(1)).toMatchObject({ recipeId: 'fresh_juice', intro: true });
+      expect(o(2).recipeId).toBe('fresh_juice'); // only juice is unlocked
+      expect(o(3)).toMatchObject({ recipeId: 'rabbit_apples', intro: true });
+      expect(o(4).recipeId).toBe('fresh_juice'); // not rabbit twice
+      expect(o(5)).toMatchObject({ recipeId: 'apple_jam', intro: true, demo: true, suggestedAppleId: 'a094' });
+      expect(o(7)).toMatchObject({ recipeId: 'ringo_ame', intro: true, demo: true, suggestedAppleId: 'a091' });
+      expect(o(8)).toMatchObject({ recipeId: 'hirosaki_pie', intro: true });
+      expect(o(10)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a032' });
+      expect(o(13)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a058' });
+      expect(o(13).line).toMatch(/pink/i);
+      expect(o(16)).toMatchObject({ recipeId: 'rabbit_apples', demo: true, suggestedAppleId: 'a086' });
+      // Each recipe is introduced on the first order after it unlocks.
+      for (const [rid, first] of [['fresh_juice', 1], ['rabbit_apples', 3], ['apple_jam', 5], ['ringo_ame', 7], ['hirosaki_pie', 8]] as const) {
+        const firstSeen = Array.from({ length: 20 }, (_, i) => o(i + 1)).find((x) => x.recipeId === rid)!;
+        expect(firstSeen.orderNumber).toBe(first);
+      }
+      // Demo apples are unlocked by the time of their demo order.
+      for (let n = 1; n <= 20; n++) {
+        const x = o(n);
+        if (x.suggestedAppleId) expect(unlockedApples(n - 1)).toContain(x.suggestedAppleId);
+        expect(x.line).toContain(
+          { fresh_juice: 'Apple Juice', rabbit_apples: 'Rabbit Apple Wedges', apple_jam: 'Apple Jam', hirosaki_pie: 'Hirosaki Apple Pie', ringo_ame: 'Mini Candy Apple' }[x.recipeId],
+        );
+      }
+    }
+  });
+
+  it('never requests a locked recipe and avoids repeats for orders 1–60', () => {
+    for (const seed of [0, 1, 2, 3, 99, DEFAULT_SEED]) {
+      let prev: string | null = null;
+      for (let n = 1; n <= 60; n++) {
+        const o = orderForIndex(n, seed);
+        expect(unlockedRecipes(n - 1)).toContain(o.recipeId);
+        expect(o.orderId).toBe(`o-${String(n).padStart(4, '0')}`);
+        expect(['A', 'B', 'C', 'D']).toContain(o.customerId);
+        if (n > 2) expect(o.recipeId).not.toBe(prev);
+        prev = o.recipeId;
+      }
+    }
+  });
+
+  it('is deterministic for the same seed', () => {
+    const a = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 42));
+    const b = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 42));
+    expect(a).toEqual(b);
+    // Out-of-order access gives the same result as sequential access.
+    expect(orderForIndex(37, 777)).toEqual(orderForIndex(37, 777));
+    const c = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 43));
+    expect(c).not.toEqual(a);
+  });
+
+  it('rotation in free play covers all recipes', () => {
+    const counts: Record<string, number> = {};
+    for (let n = 21; n <= 60; n++) counts[orderForIndex(n, 5).recipeId] = (counts[orderForIndex(n, 5).recipeId] ?? 0) + 1;
+    expect(Object.keys(counts)).toHaveLength(5);
+    for (const v of Object.values(counts)) expect(v).toBeGreaterThanOrEqual(6);
+  });
+});

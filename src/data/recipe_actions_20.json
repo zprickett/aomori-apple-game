@@ -1,0 +1,1693 @@
+{
+  "schema_version": "2.0",
+  "research_date": "2026-10-15",
+  "authority": "Action plans override legacy skill_sequence fields; fit scores are unchanged. Only prototype_playable recipes are active.",
+  "gesture_vocabulary": [
+    "swipe",
+    "tap",
+    "circle"
+  ],
+  "timings_are": "Authored game tuning in milliseconds, not actual cooking times. Not playtested yet.",
+  "recipe_count": 20,
+  "prototype_recipe_count": 5,
+  "recipes": [
+    {
+      "recipe_id": "hirosaki_pie",
+      "name": "Hirosaki Apple Pie",
+      "prototype_playable": true,
+      "action_count": 5,
+      "apple_form": "wedges",
+      "preserve_whole_apple": false,
+      "variant_id": "hirosaki_pie_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores fruit; pastry is prepared.",
+        "Cool and drain cooked filling before assembly; pastry closure and egg wash animate automatically; baking is compressed."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/184.html"
+      ],
+      "research_note": "Selected cooked-filling pastry variant. Supports cut apples, cooked filling, cooling, assembly and baking; all numerical game timings are invented tuning values, not cooking instructions.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "hirosaki_pie_01",
+          "gesture": "swipe",
+          "label": "Slice the apples",
+          "prompt": "Swipe along the apple cut guide.",
+          "target_object": "apple",
+          "animation_event": "apple_sliced",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "hirosaki_pie_02",
+          "gesture": "tap",
+          "label": "Add apples to the pan",
+          "prompt": "Tap the pan to add apples, butter and sugar.",
+          "target_object": "pan",
+          "animation_event": "pie_filling_added",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "hirosaki_pie_03",
+          "gesture": "circle",
+          "label": "Stir the filling",
+          "prompt": "Circle gently while the filling reduces; finish on the cue.",
+          "target_object": "pan",
+          "animation_event": "pie_filling_cooked",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "hirosaki_pie_04",
+          "gesture": "tap",
+          "label": "Fill the pastry",
+          "prompt": "Tap the pastry to place cooled filling; chef closes and glazes it.",
+          "target_object": "pastry",
+          "animation_event": "pie_assembled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "hirosaki_pie_05",
+          "gesture": "tap",
+          "label": "Take out the golden pie",
+          "prompt": "Tap when the golden-bake cue reaches its target.",
+          "target_object": "oven_button",
+          "animation_event": "pie_baked",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "rabbit_apples",
+      "name": "Rabbit Apples",
+      "prototype_playable": true,
+      "action_count": 2,
+      "apple_form": "wedges",
+      "preserve_whole_apple": false,
+      "variant_id": "rabbit_apples_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes the apple and automatically removes the core after the first cut.",
+        "Chef plates finished rabbit wedges automatically."
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/20211214/5112/"
+      ],
+      "research_note": "Simplified rabbit-ear presentation based on documented decorative wedge cuts; automatic core removal and plating.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "rabbit_apples_01",
+          "gesture": "swipe",
+          "label": "Cut apple wedges",
+          "prompt": "Swipe through the apple along the cut guide.",
+          "target_object": "apple",
+          "animation_event": "apple_wedged",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "rabbit_apples_02",
+          "gesture": "swipe",
+          "label": "Cut the rabbit ears",
+          "prompt": "Swipe along the V-shaped peel guide; one stroke animates the paired ear incisions.",
+          "target_object": "apple_wedge",
+          "animation_event": "rabbit_ears_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "fresh_juice",
+      "name": "Fresh Aomori Apple Juice",
+      "prototype_playable": true,
+      "action_count": 1,
+      "apple_form": "prepared_chunks",
+      "preserve_whole_apple": false,
+      "variant_id": "fresh_juice_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, cores and cuts the selected apple; loads the juicer automatically.",
+        "Chef pours the pressed juice and adds the reference garnish automatically."
+      ],
+      "source_urls": [
+        "https://delishkitchen.tv/recipes/335882553422512430"
+      ],
+      "research_note": "Original one-action juice service using pre-cut fruit. Source supports cutting/core removal and machine extraction; game uses a juicer, not the source's exact blender ingredient formula.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "fresh_juice_01",
+          "gesture": "tap",
+          "label": "Press the apple",
+          "prompt": "Tap the press button on the cue.",
+          "target_object": "juicer_button",
+          "animation_event": "juice_pressed",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "ringo_ame",
+      "name": "Mini Ringo Ame",
+      "prototype_playable": true,
+      "action_count": 4,
+      "apple_form": "whole",
+      "preserve_whole_apple": true,
+      "variant_id": "ringo_ame_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes and thoroughly dries the apple.",
+        "Sugar and water are combined before heat automatically; boil undisturbed; cool on baking paper automatically after dipping."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/185.html"
+      ],
+      "research_note": "Whole mini-apple candy variant, served intact. No swipe, no manual circle, and no stirring boiling sugar. Coating rotation is automatic and is not a mixing gesture.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "ringo_ame_01",
+          "gesture": "tap",
+          "label": "Skewer the whole apple",
+          "prompt": "Tap the apple to insert its stick.",
+          "target_object": "apple",
+          "animation_event": "apple_skewered",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "ringo_ame_02",
+          "gesture": "tap",
+          "label": "Stop heating the syrup",
+          "prompt": "Tap when the syrup readiness cue reaches the target.",
+          "target_object": "heat_button",
+          "animation_event": "syrup_ready",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "ringo_ame_03",
+          "gesture": "tap",
+          "label": "Dip the whole apple",
+          "prompt": "Tap to dip and automatically turn the apple once or twice.",
+          "target_object": "syrup_pan",
+          "animation_event": "whole_apple_coated",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "ringo_ame_04",
+          "gesture": "tap",
+          "label": "Set it on the cooling tray",
+          "prompt": "Tap the tray to place the whole coated apple; cooling animates.",
+          "target_object": "cooling_tray",
+          "animation_event": "candy_apple_cooled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "baked_apple",
+      "name": "Baked Apple",
+      "prototype_playable": false,
+      "action_count": 3,
+      "apple_form": "whole_cored",
+      "preserve_whole_apple": true,
+      "variant_id": "baked_apple_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes the apple.",
+        "Microwave heating and resting animate between fill and final removal."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/157.html"
+      ],
+      "research_note": "Uses the documented microwave whole cored apple variant. No swipe even though coring removes the centre; model a corer, not a slicing knife.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "baked_apple_01",
+          "gesture": "tap",
+          "label": "Core the whole apple",
+          "prompt": "Tap to lower the coring tool; keep the outer apple intact.",
+          "target_object": "apple",
+          "animation_event": "whole_apple_cored",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "baked_apple_02",
+          "gesture": "tap",
+          "label": "Fill the apple centre",
+          "prompt": "Tap to add butter and the selected topping.",
+          "target_object": "apple_core",
+          "animation_event": "whole_apple_filled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "baked_apple_03",
+          "gesture": "tap",
+          "label": "Finish heating the apple",
+          "prompt": "Tap the tenderness cue to finish heating.",
+          "target_object": "microwave_button",
+          "animation_event": "whole_apple_cooked",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_jam",
+      "name": "Two-Colour Apple Jam",
+      "prototype_playable": true,
+      "action_count": 3,
+      "apple_form": "small_slices",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_jam_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels, cores and weighs the apple.",
+        "Maceration and simmering are compressed automatic bridges; chef fills a jar after mixing."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/033.html"
+      ],
+      "research_note": "Retains cutting, measured ingredients and final mixing. Simmering happens before the final circle; do not interpret three gestures as the entire recipe. Default single jar; two-colour presentation is future optional styling.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_jam_01",
+          "gesture": "swipe",
+          "label": "Cut small apple pieces",
+          "prompt": "Swipe along the small-piece guide.",
+          "target_object": "apple",
+          "animation_event": "apple_chopped",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_jam_02",
+          "gesture": "tap",
+          "label": "Add fruit and sugar",
+          "prompt": "Tap the pot to add the measured ingredients.",
+          "target_object": "pot",
+          "animation_event": "jam_ingredients_added",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_jam_03",
+          "gesture": "circle",
+          "label": "Mix in lemon juice",
+          "prompt": "Circle with the spoon near the end of reduction; finish on the cue.",
+          "target_object": "pot",
+          "animation_event": "jam_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "jam_toast",
+      "name": "Apple Jam Shokupan Toast",
+      "prototype_playable": false,
+      "action_count": 1,
+      "apple_form": "prepared_jam",
+      "preserve_whole_apple": false,
+      "variant_id": "jam_toast_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef toasts a slice of shokupan and provides jam made from the selected apple.",
+        "Chef spreads the deposited jam automatically."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/148.html"
+      ],
+      "research_note": "Original single-slice jam toast adaptation. Source describes toast with apple jam and fresh apple in a sandwich; this simpler game variant omits sandwiching and raw slices. No fresh apple cutting in this service.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "jam_toast_01",
+          "gesture": "tap",
+          "label": "Add apple jam to toast",
+          "prompt": "Tap the toast on the cue to add jam.",
+          "target_object": "toast",
+          "animation_event": "jam_toast_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "yogurt_parfait",
+      "name": "Apple Yogurt Parfait",
+      "prototype_playable": false,
+      "action_count": 2,
+      "apple_form": "diced",
+      "preserve_whole_apple": false,
+      "variant_id": "yogurt_parfait_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, cores and dices the selected apple.",
+        "Yogurt and crunchy topping portions are prepared."
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/bifidus/"
+      ],
+      "research_note": "Original parfait presentation of documented apple/yogurt pairing. Pre-cut fruit is explicit; no fictional stirring of layered parfait.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "yogurt_parfait_01",
+          "gesture": "tap",
+          "label": "Add yogurt",
+          "prompt": "Tap the glass to add yogurt.",
+          "target_object": "parfait_glass",
+          "animation_event": "yogurt_layer_added",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "yogurt_parfait_02",
+          "gesture": "tap",
+          "label": "Layer apple and crunch",
+          "prompt": "Tap on the layer cue to add diced apple and topping.",
+          "target_object": "parfait_glass",
+          "animation_event": "parfait_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_dorayaki",
+      "name": "Apple Nama Dorayaki",
+      "prototype_playable": false,
+      "action_count": 5,
+      "apple_form": "small_slices",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_dorayaki_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores apple.",
+        "After cutting chef simmers apple in apple juice, cools and drains it; ingredients are measured."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/169.html"
+      ],
+      "research_note": "Preserves cooked and drained apple filling, mixed batter, pancake cooking, cream and azuki assembly.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_dorayaki_01",
+          "gesture": "swipe",
+          "label": "Cut apple filling",
+          "prompt": "Swipe to cut small apple slices.",
+          "target_object": "apple",
+          "animation_event": "dorayaki_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_dorayaki_02",
+          "gesture": "circle",
+          "label": "Mix pancake batter",
+          "prompt": "Circle the whisk; finish on the cue.",
+          "target_object": "batter_bowl",
+          "animation_event": "dorayaki_batter_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_dorayaki_03",
+          "gesture": "tap",
+          "label": "Pour pancake batter",
+          "prompt": "Tap the pan to pour a pancake.",
+          "target_object": "pan",
+          "animation_event": "dorayaki_pancake_poured",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_dorayaki_04",
+          "gesture": "tap",
+          "label": "Flip at the bubble cue",
+          "prompt": "Tap as bubbles appear; chef flips and finishes both sides, repeating automatically for a second pancake.",
+          "target_object": "pan",
+          "animation_event": "dorayaki_pancakes_ready",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_dorayaki_05",
+          "gesture": "tap",
+          "label": "Fill and sandwich",
+          "prompt": "Tap to add cooled apple, cream and azuki; chef closes the sandwich.",
+          "target_object": "pancake",
+          "animation_event": "dorayaki_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_daifuku",
+      "name": "Azuki Apple Daifuku",
+      "prototype_playable": false,
+      "action_count": 4,
+      "apple_form": "diced",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_daifuku_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores apple.",
+        "Cook apple with sugar/lemon then dry and cool it after cutting; heat mochi between mixing and wrapping; chef coats apple with azuki."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/106.html"
+      ],
+      "research_note": "Cooked diced apple, not a whole raw apple. Heating, drying, azuki coating and mochi heating are visible automatic bridges.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_daifuku_01",
+          "gesture": "swipe",
+          "label": "Dice the apple",
+          "prompt": "Swipe along the dice guide.",
+          "target_object": "apple",
+          "animation_event": "daifuku_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_daifuku_02",
+          "gesture": "circle",
+          "label": "Mix the mochi",
+          "prompt": "Circle to combine mochi ingredients; chef heats and stirs to translucency.",
+          "target_object": "mochi_bowl",
+          "animation_event": "mochi_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_daifuku_03",
+          "gesture": "tap",
+          "label": "Place apple and azuki filling",
+          "prompt": "Tap to place cooled dry apple in azuki on flattened mochi.",
+          "target_object": "mochi",
+          "animation_event": "daifuku_filled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_daifuku_04",
+          "gesture": "tap",
+          "label": "Close the mochi",
+          "prompt": "Tap on the closing cue; chef folds and seals.",
+          "target_object": "mochi",
+          "animation_event": "daifuku_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_jelly",
+      "name": "Fresh Apple Jelly",
+      "prototype_playable": false,
+      "action_count": 4,
+      "apple_form": "diced",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_jelly_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores fruit; gelatin is bloomed and dissolved automatically.",
+        "Use prepared juice; automatic chilling begins after mould filling."
+      ],
+      "source_urls": [
+        "https://www.zennoh.or.jp/am/recipe/ssi/post-36.html"
+      ],
+      "research_note": "Retains fresh cubes, juice plus dissolved gelatin, moulding and chilling. Game set cue represents time compression.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_jelly_01",
+          "gesture": "swipe",
+          "label": "Dice apple cubes",
+          "prompt": "Swipe along the cube guide.",
+          "target_object": "apple",
+          "animation_event": "jelly_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_jelly_02",
+          "gesture": "circle",
+          "label": "Mix juice and gelatin",
+          "prompt": "Circle to combine juice and dissolved gelatin.",
+          "target_object": "jelly_bowl",
+          "animation_event": "jelly_liquid_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_jelly_03",
+          "gesture": "tap",
+          "label": "Fill the mould",
+          "prompt": "Tap to add cubes and liquid.",
+          "target_object": "jelly_mould",
+          "animation_event": "jelly_mould_filled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_jelly_04",
+          "gesture": "tap",
+          "label": "Unmould the chilled jelly",
+          "prompt": "Tap the set cue; chef unmoulds after compressed chilling.",
+          "target_object": "jelly_mould",
+          "animation_event": "jelly_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "whole_apple_pie",
+      "name": "Whole Apple Pie",
+      "prototype_playable": false,
+      "action_count": 3,
+      "apple_form": "whole_cored",
+      "preserve_whole_apple": true,
+      "variant_id": "whole_apple_pie_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes the apple; pastry is prepared.",
+        "After coring chef syrup-soaks and drains the apple automatically; cooling follows baking."
+      ],
+      "source_urls": [
+        "https://aspam.jp/item/670/"
+      ],
+      "research_note": "Product evidence confirms cored syrup-treated whole Fuji wrapped and baked in pastry. Gesture sequence is an authored reconstruction, not the producer's published manufacturing recipe. No swipe anywhere, including pastry.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "whole_apple_pie_01",
+          "gesture": "tap",
+          "label": "Core the whole apple",
+          "prompt": "Tap to lower the corer; no apple slices.",
+          "target_object": "apple",
+          "animation_event": "whole_pie_apple_cored",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "whole_apple_pie_02",
+          "gesture": "tap",
+          "label": "Wrap apple in pastry",
+          "prompt": "Tap to place the syrup-prepared apple; chef wraps and glazes.",
+          "target_object": "pastry",
+          "animation_event": "whole_pie_wrapped",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "whole_apple_pie_03",
+          "gesture": "tap",
+          "label": "Remove the golden whole pie",
+          "prompt": "Tap the bake cue; the apple remains whole inside.",
+          "target_object": "oven_button",
+          "animation_event": "whole_pie_baked",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_cheesecake",
+      "name": "Rice-Cooker Apple Cheesecake",
+      "prototype_playable": false,
+      "action_count": 5,
+      "apple_form": "slices",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_cheesecake_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels, cores apple and measures batter ingredients.",
+        "Cook and cool apple slices after cutting; rice-cooker cycle and cooling are automatic bridges."
+      ],
+      "source_urls": [
+        "https://www.morinaga.co.jp/recipe/detail/765"
+      ],
+      "research_note": "Rice-cooker cheesecake with cooked apple slices and mixed batter; no oven substitution.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_cheesecake_01",
+          "gesture": "swipe",
+          "label": "Slice the apple",
+          "prompt": "Swipe the slice guide.",
+          "target_object": "apple",
+          "animation_event": "cheesecake_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_cheesecake_02",
+          "gesture": "circle",
+          "label": "Mix cheesecake batter",
+          "prompt": "Circle to combine softened cheese and batter ingredients.",
+          "target_object": "batter_bowl",
+          "animation_event": "cheesecake_batter_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_cheesecake_03",
+          "gesture": "tap",
+          "label": "Arrange cooked apples",
+          "prompt": "Tap to arrange cooled apple slices in the cooker.",
+          "target_object": "rice_cooker",
+          "animation_event": "cheesecake_apples_arranged",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_cheesecake_04",
+          "gesture": "tap",
+          "label": "Add batter and start cooker",
+          "prompt": "Tap to add batter and start.",
+          "target_object": "rice_cooker",
+          "animation_event": "cheesecake_cooking",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_cheesecake_05",
+          "gesture": "tap",
+          "label": "Turn out the cooled cake",
+          "prompt": "Tap after the cooking and cooling cues; chef turns out the cake.",
+          "target_object": "cake_plate",
+          "animation_event": "cheesecake_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_kinton",
+      "name": "Golden Apple Kinton",
+      "prototype_playable": false,
+      "action_count": 3,
+      "apple_form": "small_slices",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_kinton_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores apple; cooks and mashes sweet potato.",
+        "After cutting chef cooks and cools apple automatically."
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/20221128/6204/"
+      ],
+      "research_note": "Sweet-potato and cooked-apple kinton; mashing is a visible chef bridge, circle is combining rather than pretending to cut.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_kinton_01",
+          "gesture": "swipe",
+          "label": "Cut apple pieces",
+          "prompt": "Swipe the slice guide.",
+          "target_object": "apple",
+          "animation_event": "kinton_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_kinton_02",
+          "gesture": "circle",
+          "label": "Combine apple and sweet potato",
+          "prompt": "Circle to fold cooked apple into prepared sweet potato mash.",
+          "target_object": "kinton_bowl",
+          "animation_event": "kinton_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_kinton_03",
+          "gesture": "tap",
+          "label": "Shape golden kinton",
+          "prompt": "Tap to portion and shape the soft mixture.",
+          "target_object": "plate",
+          "animation_event": "kinton_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_compote",
+      "name": "Shiny Apple Compote",
+      "prototype_playable": false,
+      "action_count": 3,
+      "apple_form": "wedges",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_compote_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes, peels and cores the apple.",
+        "Cover and microwave after arranging; rest covered before serving."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/191.html"
+      ],
+      "research_note": "Microwave wedge compote variant. No stirring or pot glazing invented for the cited microwave method.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_compote_01",
+          "gesture": "swipe",
+          "label": "Cut even apple wedges",
+          "prompt": "Swipe the wedge guide.",
+          "target_object": "apple",
+          "animation_event": "compote_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_compote_02",
+          "gesture": "tap",
+          "label": "Arrange and sweeten",
+          "prompt": "Tap to arrange wedges, sugar and optional butter.",
+          "target_object": "compote_dish",
+          "animation_event": "compote_arranged",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_compote_03",
+          "gesture": "tap",
+          "label": "Finish heating",
+          "prompt": "Tap the tenderness cue; chef rests the covered dish automatically.",
+          "target_object": "microwave_button",
+          "animation_event": "compote_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_keema",
+      "name": "Apple Keema Curry Rice",
+      "prototype_playable": false,
+      "action_count": 4,
+      "apple_form": "diced_skin_on",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_keema_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes/cores apple and prepares aromatics, vegetables, mince and rice.",
+        "Cook aromatics first, then apple/vegetables, then mince, then tomato/water and simmer; these phases bridge the player steps in order."
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/20190701/3124/"
+      ],
+      "research_note": "The Japanese title says marugoto but the recipe dices apple with skin on. Whole-fruit wording does not mean intact geometry here; swipe is correct.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_keema_01",
+          "gesture": "swipe",
+          "label": "Dice apple and vegetables",
+          "prompt": "Swipe to dice the apple and prepared vegetables.",
+          "target_object": "apple_and_vegetables",
+          "animation_event": "keema_produce_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_keema_02",
+          "gesture": "tap",
+          "label": "Add apple and vegetables",
+          "prompt": "Tap to add produce to the aromatic pan.",
+          "target_object": "pan",
+          "animation_event": "keema_produce_added",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_keema_03",
+          "gesture": "circle",
+          "label": "Stir the curry",
+          "prompt": "Circle to saute produce; chef then cooks mince and adds tomato and water before simmering.",
+          "target_object": "pan",
+          "animation_event": "keema_stirred",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_keema_04",
+          "gesture": "tap",
+          "label": "Add curry roux",
+          "prompt": "Tap the simmer cue to add roux; chef dissolves it, finishes cooking and serves with rice.",
+          "target_object": "pan",
+          "animation_event": "keema_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_shumai",
+      "name": "Fluffy Apple Shumai",
+      "prototype_playable": false,
+      "action_count": 4,
+      "apple_form": "chopped_cooked",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_shumai_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef washes/cores apple; initial slicing, heating and cooling are automatic.",
+        "Onion, mince, ginger and seasonings are prepared; crushed somen is ready."
+      ],
+      "source_urls": [
+        "https://www.aomori-ringo.or.jp/20260219/9127/"
+      ],
+      "research_note": "Modern contest recipe with crushed somen coating; no conventional folded wrapper substituted.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_shumai_01",
+          "gesture": "swipe",
+          "label": "Chop the cooked apple",
+          "prompt": "Swipe to coarsely chop cooled cooked apple.",
+          "target_object": "cooked_apple",
+          "animation_event": "shumai_apple_chopped",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_shumai_02",
+          "gesture": "circle",
+          "label": "Mix the filling",
+          "prompt": "Circle to combine apple, onion, mince and seasonings.",
+          "target_object": "filling_bowl",
+          "animation_event": "shumai_filling_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_shumai_03",
+          "gesture": "tap",
+          "label": "Shape and coat",
+          "prompt": "Tap to portion balls and coat with crushed somen.",
+          "target_object": "somen_tray",
+          "animation_event": "shumai_shaped",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_shumai_04",
+          "gesture": "tap",
+          "label": "Finish steaming",
+          "prompt": "Tap the steam cue after compressed cooking.",
+          "target_object": "steamer_button",
+          "animation_event": "shumai_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "apple_pork",
+      "name": "Apple and Pork Rolls",
+      "prototype_playable": false,
+      "action_count": 5,
+      "apple_form": "slices_and_dice",
+      "preserve_whole_apple": false,
+      "variant_id": "apple_pork_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef prepares mashed potato and measures sauce ingredients.",
+        "After cutting chef sautes the apple slices; sauce apple cubes cook in stock/corn and are thickened automatically."
+      ],
+      "source_urls": [
+        "https://www.pref.aomori.lg.jp/soshiki/nourin/brand/files/20ryori_117.pdf"
+      ],
+      "research_note": "Preserves sauteed apple and mashed potato filling, pan cooking and apple-corn sauce. Game cue is not real-world meat safety verification.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "apple_pork_01",
+          "gesture": "swipe",
+          "label": "Cut apple slices and cubes",
+          "prompt": "Swipe; chef makes slices for filling and cubes for sauce.",
+          "target_object": "apple",
+          "animation_event": "pork_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_pork_02",
+          "gesture": "tap",
+          "label": "Add apple and potato to pork",
+          "prompt": "Tap to add sauteed slices and mashed potato.",
+          "target_object": "pork_slice",
+          "animation_event": "pork_filled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_pork_03",
+          "gesture": "tap",
+          "label": "Roll the pork",
+          "prompt": "Tap the seam cue; chef rolls the filling.",
+          "target_object": "pork_slice",
+          "animation_event": "pork_rolled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_pork_04",
+          "gesture": "tap",
+          "label": "Place rolls in the pan",
+          "prompt": "Tap to begin pan cooking.",
+          "target_object": "pan",
+          "animation_event": "pork_in_pan",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "apple_pork_05",
+          "gesture": "tap",
+          "label": "Finish cooking and sauce",
+          "prompt": "Tap the cooked cue; chef finishes through-cooking, plates and adds prepared apple-corn sauce.",
+          "target_object": "pan",
+          "animation_event": "pork_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "red_flesh_tart",
+      "name": "Pink-Flesh Apple Tart",
+      "prototype_playable": false,
+      "action_count": 5,
+      "apple_form": "slices",
+      "preserve_whole_apple": false,
+      "variant_id": "red_flesh_tart_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Chef prepares tart base and mousse; washes and cores apple.",
+        "Apple compote cooking/cooling occurs after slicing; setting occurs before unmoulding."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/038.html"
+      ],
+      "research_note": "Original pink-flesh styling of the documented compote/yogurt-mousse/biscuit-base tart. Not an oven-baked rose tart; reference art needs to reflect this variant.",
+      "evidence_status": "source_informed_game_abstraction",
+      "steps": [
+        {
+          "id": "red_flesh_tart_01",
+          "gesture": "swipe",
+          "label": "Cut pink apple pieces",
+          "prompt": "Swipe through the red-fleshed apple.",
+          "target_object": "apple",
+          "animation_event": "red_tart_apple_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "red_flesh_tart_02",
+          "gesture": "tap",
+          "label": "Add cooked fruit to mould",
+          "prompt": "Tap to arrange cooled compote pieces.",
+          "target_object": "tart_mould",
+          "animation_event": "red_tart_fruit_arranged",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "red_flesh_tart_03",
+          "gesture": "circle",
+          "label": "Mix yogurt mousse",
+          "prompt": "Circle to mix prepared whipped cream, yogurt and dissolved gelatin.",
+          "target_object": "mousse_bowl",
+          "animation_event": "red_tart_mousse_mixed",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "red_flesh_tart_04",
+          "gesture": "tap",
+          "label": "Add mousse and tart base",
+          "prompt": "Tap to fill and close with the prepared biscuit base.",
+          "target_object": "tart_mould",
+          "animation_event": "red_tart_assembled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "red_flesh_tart_05",
+          "gesture": "tap",
+          "label": "Unmould the chilled tart",
+          "prompt": "Tap the set cue to unmould.",
+          "target_object": "tart_mould",
+          "animation_event": "red_tart_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    },
+    {
+      "recipe_id": "festival_pie",
+      "name": "100 Apples Collection Festival Pie",
+      "prototype_playable": false,
+      "action_count": 5,
+      "apple_form": "mixed_cut",
+      "preserve_whole_apple": false,
+      "variant_id": "festival_pie_game_v2",
+      "automatic_preparation_and_bridges": [
+        "Player chooses three complementary apples before cooking; this selection is not a timed action.",
+        "Chef washes/cores apples and prepares pastry; cools fillings before assembly."
+      ],
+      "source_urls": [
+        "https://www.ringodaigaku.com/eat/recipe_new/184.html"
+      ],
+      "research_note": "Original game finale, not a traditional 100-apple recipe. Generic pie preparation supports actions only; three-role composition needs separate future scoring, never sum matrix rows.",
+      "evidence_status": "original_game_recipe",
+      "steps": [
+        {
+          "id": "festival_pie_01",
+          "gesture": "swipe",
+          "label": "Cut the three apple batches",
+          "prompt": "Swipe the batch guide; chef processes all three selections.",
+          "target_object": "three_apples",
+          "animation_event": "festival_apples_cut",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "swipe_default",
+          "timing_event": "first_valid_guide_crossing",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "festival_pie_02",
+          "gesture": "tap",
+          "label": "Add apple batches to pans",
+          "prompt": "Tap to distribute the batches into pans.",
+          "target_object": "three_pans",
+          "animation_event": "festival_fillings_added",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "festival_pie_03",
+          "gesture": "circle",
+          "label": "Mix the fillings",
+          "prompt": "Circle to cook the fillings; chef cools them.",
+          "target_object": "three_pans",
+          "animation_event": "festival_fillings_cooked",
+          "timing": {
+            "duration_ms": 8000,
+            "target_ms": 6000,
+            "perfect_ms": 450,
+            "good_ms": 1000,
+            "ok_ms": 1600
+          },
+          "geometry_profile": "circle_default",
+          "timing_event": "completion_of_required_arc",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "festival_pie_04",
+          "gesture": "tap",
+          "label": "Assemble the festival pie",
+          "prompt": "Tap to place complementary fillings; chef adds lattice and glaze.",
+          "target_object": "festival_pastry",
+          "animation_event": "festival_pie_assembled",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        },
+        {
+          "id": "festival_pie_05",
+          "gesture": "tap",
+          "label": "Finish the celebration bake",
+          "prompt": "Tap the golden-bake cue.",
+          "target_object": "oven_button",
+          "animation_event": "festival_pie_finished",
+          "timing": {
+            "duration_ms": 6000,
+            "target_ms": 3500,
+            "perfect_ms": 350,
+            "good_ms": 800,
+            "ok_ms": 1300
+          },
+          "geometry_profile": "tap_default",
+          "timing_event": "pointer_down_on_target",
+          "failure_animation": "gentle_wobble_no_food_loss"
+        }
+      ]
+    }
+  ]
+}
