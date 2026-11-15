@@ -97,7 +97,7 @@ function Collection({ state }: { state: GameState }) {
         const a = APPLES.find((x) => x.id === open)!;
         return (
           <div className="coll-detail">
-            <div className="ad-head"><img src={appleIcon(a.id)} alt="" /><div><div className="ad-name">{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></div><div className="ad-trait">{a.overviewForKids}</div></div></div>
+            <div className="ad-head"><img src={appleIcon(a.id)} alt="" /><div><div className="ad-name">{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></div><div className="ad-trait">{a.overviewForKids}</div><div className="ad-size"><span className={`size-chip inline s-${a.sizeLabel}`}>{a.sizeLabel}</span> about {a.weightG} g</div></div></div>
             <div className="stats">
               {Object.entries(a.stats).map(([k, v]) => (
                 <div key={k} className="stat"><span>{STAT_LABEL[k] ?? k}</span><div className="bar"><i style={{ width: `${(v / 5) * 100}%` }} /></div></div>

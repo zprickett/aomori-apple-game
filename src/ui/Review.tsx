@@ -45,7 +45,7 @@ function ApplesTab() {
             <button key={x.id} className={`rv-card ${x.id === sel ? 'sel' : ''}`} onClick={() => setSel(x.id)}>
               <img src={appleIcon(x.id)} alt="" />
               <span className="nm">{x.nameEn.replace(' (Jonathan)', '')}</span>
-              <span className="sub">#{appleUnlockAt(x.id)} · {x.id}</span>
+              <span className="sub">#{appleUnlockAt(x.id)} · {x.sizeLabel} {x.weightG}g</span>
             </button>
           ))}
         </div>
@@ -59,7 +59,8 @@ function ApplesTab() {
         <p className="muted">{a.overviewForKids}</p>
         <div className="rv-facts">
           <span>Unlocks after <b>{appleUnlockAt(a.id)}</b> orders</span>
-          <span>Size <b>{String(a.sizeClass)}</b></span>
+          <span>Size <b>{a.sizeLabel}</b> · about <b>{a.weightG} g</b>{a.sizeEstimated ? ' (estimate)' : ''} · 3D scale {a.scale}</span>
+          {a.sizeText && <span className="muted">Source: {a.sizeText}</span>}
           <span>Flesh <b>{a.fleshRed ? 'pink/red' : 'cream'}</b></span>
           <span>Skin <i className="swatch" style={{ background: a.skin.base }} /><i className="swatch" style={{ background: a.skin.second }} /> {a.skin.pattern}</span>
         </div>

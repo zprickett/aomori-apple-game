@@ -525,3 +525,12 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .rv-caption { position: absolute; left: 8px; right: 8px; bottom: 8px; background: rgba(255, 250, 240, 0.95); border-radius: 12px; padding: 6px 10px; font-size: 0.8rem; display: grid; gap: 2px; }
 .rv-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; font-weight: 800; }
 .rv-playbtn { display: flex; align-items: center; justify-content: center; text-decoration: none; max-width: 380px; margin: 12px auto 0; }
+/* ---------- apple size S / M / L ---------- */
+.apple-card { position: relative; }
+.size-chip { position: absolute; top: 3px; right: 3px; min-width: 18px; height: 18px; border-radius: 6px; font-size: 0.68rem; font-weight: 900; line-height: 18px; text-align: center; color: #fff; background: var(--wood); }
+.size-chip.inline { position: static; display: inline-block; vertical-align: middle; margin-right: 4px; }
+.size-chip.s-S { background: #7d9d3f; }
+.size-chip.s-M { background: #e0963a; }
+.size-chip.s-L { background: var(--red); }
+.ad-size, .ov-size { font-size: 0.85rem; font-weight: 800; color: var(--ink-soft); margin-top: 2px; }
+.ov-size { margin: -6px 0 12px; }

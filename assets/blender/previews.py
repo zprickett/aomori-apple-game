@@ -162,9 +162,12 @@ def apple_icons(cam, out, ids=None):
     root = obj('Apple')
     orig = body.data.materials[0]
     orig_mesh = body.data
+    import json
+    vis_scale = {k: v.get('scale') for k, v in json.load(open(os.path.join(_DATA, 'apple_visuals.json'))).items()}
     for aid, base, second, dirv, lo, hi, streak, sc, extra in APPLES + _expansion_apples():
         if ids is not None and aid not in ids:
             continue
+        sc = vis_scale.get(aid) or sc  # weight-based size (S/M/L) so icons show relative size
         m = var_material('ICON_' + aid, base, second, dirv or (0, 0, 1), lo, hi, streak)
         body.data.materials[0] = m
         root.scale = (sc, sc, sc)

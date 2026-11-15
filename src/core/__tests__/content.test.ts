@@ -41,7 +41,12 @@ describe('content counts and matrix', () => {
     expect(fitStars('a094', 'baked_apple')).toBe(3); // Kogyoku
     expect(fitStars('a032', 'yogurt_parfait')).toBe(0); // Bramley
     expect(apple('a021').fleshRed).toBe(true);
-    expect(apple('a005').sizeClass).toBe('large');
+    expect(apple('a005')).toMatchObject({ sizeLabel: 'M', weightG: 300 }); // Kio "300g程"
+    expect(apple('a059')).toMatchObject({ sizeLabel: 'L', weightG: 850, sizeClass: 'large' });
+    expect(apple('a091')).toMatchObject({ sizeLabel: 'S', sizeClass: 'mini' });
+    expect(apple('a084').sizeEstimated).toBe(true);
+    expect(APPLES.every((a) => ['S', 'M', 'L'].includes(a.sizeLabel) && a.weightG > 0)).toBe(true);
+    for (const a of APPLES) expect(a.sizeLabel).toBe(a.weightG < 250 ? 'S' : a.weightG < 350 ? 'M' : 'L');
   });
 
   it('matrix values equal the JSON for all 50 pairings', () => {
@@ -103,10 +108,11 @@ describe('apples', () => {
     expect(apple('a058').fleshRed).toBe(true);
     expect(apple('a094').fleshRed).toBe(false); // red skin ≠ red flesh
     expect(apple('a048').flesh).toBe('#FFF1C9');
-    expect(apple('a091').scale).toBe(0.65);
-    expect(apple('a094').scale).toBe(0.85);
-    expect(apple('a032').scale).toBe(1.12);
-    expect(apple('a048').scale).toBe(1);
+    // 3D scale follows the typical weight (cube root vs a 300 g apple, clamped 0.6–1.3)
+    expect(apple('a091').scale).toBe(0.6); // Alps Otome ~38 g
+    expect(apple('a094').scale).toBeCloseTo(0.874, 3); // Kogyoku ~200 g
+    expect(apple('a032').scale).toBe(1); // Bramley ~300 g
+    expect(apple('a059').scale).toBe(1.3); // Stark Jumbo ~850 g
     expect(apple('a086').browning).toBe('resistant');
     expect(apple('a091').sizeClass).toBe('mini');
     expect(APPLES.every((a) => a.traitHint.length > 0 && !a.traitHint.includes('\n'))).toBe(true);

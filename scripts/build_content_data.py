@@ -6,6 +6,7 @@ Inputs
   src/data/source/apple_matrix_100x20.csv   fit stars 0-3 for 100 apples x 20 recipes (authoritative)
   src/data/prototype_game_data.json         the 10 researched prototype apples (kept as-is)
   src/data/source/apple_unlock_cards.md     researched one-line overview + game unlock order per apple
+  src/data/source/apple_sizes_ringodaigaku.json  typical size text per apple (fetched from each card's evidence page)
   DRAFTS below                              provisional stats / size / visuals for the other 90 apples
 
 Outputs
@@ -166,6 +167,46 @@ def read_cards():
     return cards
 
 
+# Weights for apples whose evidence page lists no size (estimates, flagged in the data).
+SIZE_FALLBACK = {
+    'a012': (300, 'estimate'),   # Koki: Hirosaki Fuji sport
+    'a031': (300, 'estimate'),   # Hatsukoi Green
+    'a032': (300, 'prototype research: up to about 300 g'),  # Bramley
+    'a049': (350, 'estimate'),   # Akita Beniakari (page not reachable)
+    'a060': (300, 'estimate'),   # Clio Five
+    'a084': (100, 'estimate'),   # Shinano Piccolo: bred as a small apple
+    'a088': (300, 'estimate'),   # Mollie's Delicious
+    'a095': (375, 'estimate'),   # Meishu
+}
+S_MAX, M_MAX = 250, 350   # S < 250 g <= M < 350 g <= L
+
+
+def parse_weight(text):
+    """Typical weight (g) from Japanese size text: midpoint of the first 'a～b g' range, else first 'n g'."""
+    if not text:
+        return None
+    t = text.replace('～', '~').replace('〜', '~').replace('ｇ', 'g')
+    m = re.search(r'(\d{2,4})\s*g?\s*~\s*(\d{2,4})\s*g', t)
+    if m:
+        return (int(m.group(1)) + int(m.group(2))) / 2
+    m = re.search(r'(\d{2,4})\s*g', t)
+    return float(m.group(1)) if m else None
+
+
+def size_info(aid, sizes):
+    rec = sizes.get(aid, {})
+    w = parse_weight(rec.get('size_text'))
+    basis = 'ringodaigaku'
+    if w is None:
+        w, basis = SIZE_FALLBACK[aid]
+    label = 'S' if w < S_MAX else 'M' if w < M_MAX else 'L'
+    # 3D scale ~ cube root of weight relative to a 300 g apple, clamped for readability.
+    scale = round(max(0.6, min(1.3, (w / 300) ** (1 / 3))), 3)
+    cls = 'mini' if w < 100 else 'small' if label == 'S' else 'standard' if label == 'M' else 'large'
+    return {'weight_g': round(w), 'size': label, 'scale': scale, 'size_class': cls, 'size_basis': basis,
+            'size_text': rec.get('size_text')}
+
+
 def main():
     proto = json.load(open(os.path.join(DATA, 'prototype_game_data.json'), encoding='utf-8'))
     rows = list(csv.DictReader(open(os.path.join(DATA, 'source', 'apple_matrix_100x20.csv'), encoding='utf-8-sig')))
@@ -189,6 +230,8 @@ def main():
         assert all(0 <= x <= 3 for x in v), aid
 
     cards = read_cards()
+    sizes = json.load(open(os.path.join(DATA, 'source', 'apple_sizes_ringodaigaku.json'), encoding='utf-8'))
+    size = {r['apple_id']: size_info(r['apple_id'], sizes) for r in rows}
     # unlock order: new apples in the cards' researched game-unlock order
     queue = sorted((r['apple_id'] for r in rows if r['apple_id'] not in proto_ids), key=lambda a: cards[a]['unlock'])
     order = list(STARTERS)
@@ -203,12 +246,12 @@ def main():
 
     # apples + visuals
     apples = []
-    visuals = dict(PROTO_VISUALS)
+    visuals = {k: dict(v) for k, v in PROTO_VISUALS.items()}
     for r in rows:
         aid = r['apple_id']
         if aid in proto_ids:
             continue
-        line, sw, ta, ju, fi, ar, size, skin, red, heat = DRAFTS[aid]
+        line, sw, ta, ju, fi, ar, _draft_size, skin, red, heat = DRAFTS[aid]
         apples.append({
             'id': aid,
             'poster_index': int(r['poster_index']),
@@ -217,7 +260,8 @@ def main():
             'overview_for_kids': cards[aid]['overview'],
             'source_url': cards[aid]['url'],
             'game_delivery_tier': cards[aid]['tier'],
-            'game_size_class': size,
+            'game_size_class': size[aid]['size_class'],
+            'size_source_text': size[aid]['size_text'] or size[aid]['size_basis'],
             'flesh_color': 'pink_or_red' if red else 'cream',
             'browning_behavior': None,
             'heat_behavior': {'value': heat, 'status': 'provisional'} if heat else None,
@@ -229,6 +273,13 @@ def main():
         if red:
             v['flesh'] = PINK_FLESH
         visuals[aid] = v
+
+    for aid, v in visuals.items():
+        z = size[aid]
+        v['scale'] = z['scale']
+        v['weight_g'] = z['weight_g']
+        v['size'] = z['size']
+        v['size_basis'] = z['size_basis']
 
     out = {
         'schema_version': '1.0',

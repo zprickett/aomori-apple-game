@@ -168,6 +168,12 @@ export interface AppleInfo {
   /** Documented heat behaviour (e.g. 'retains_shape') or null = unknown. */
   heatBehavior: string | null;
   sizeText: string | null;
+  /** S / M / L from the typical weight (S < 250 g ≤ M < 350 g ≤ L). */
+  sizeLabel: 'S' | 'M' | 'L';
+  /** Typical weight in grams (midpoint of the researched range, or an estimate). */
+  weightG: number;
+  /** True when the weight is an estimate (no researched size found). */
+  sizeEstimated: boolean;
   skin: SkinVisual;
   flesh: string;
   scale: number;
@@ -267,7 +273,9 @@ const RAW_RECIPES: readonly string[] = ['fresh_juice', 'rabbit_apples', 'yogurt_
 
 export const DEFAULT_FLESH = '#FFF1C9';
 
-const VISUALS = rawVisuals as unknown as Record<string, { skin: SkinVisual; flesh?: string; scale?: number }>;
+const VISUALS = rawVisuals as unknown as Record<string, {
+  skin: SkinVisual; flesh?: string; scale?: number; weight_g?: number; size?: 'S' | 'M' | 'L'; size_basis?: string;
+}>;
 
 const SIZE_SCALE: Record<string, number> = { mini: 0.65, small: 0.85, standard: 1, large: 1.15 };
 
@@ -428,6 +436,9 @@ function buildApple(raw: RawApple): AppleInfo {
     browning: raw.browning_behavior ?? null,
     heatBehavior: raw.heat_behavior && raw.heat_behavior.status === 'documented' ? raw.heat_behavior.value : null,
     sizeText: typeof raw.size_source_text === 'string' ? raw.size_source_text : null,
+    sizeLabel: vis.size ?? 'M',
+    weightG: vis.weight_g ?? 300,
+    sizeEstimated: vis.size_basis === 'estimate',
     skin: { ...vis.skin },
     flesh: vis.flesh ?? DEFAULT_FLESH,
     scale: vis.scale ?? SIZE_SCALE[sizeClass] ?? 1,

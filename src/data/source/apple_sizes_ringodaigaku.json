@@ -1,0 +1,602 @@
+{
+ "a001": {
+  "name": "Gold Farm",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/goldfarm.html",
+  "size_text": "300～400g・円～長円",
+  "weight_g": 350.0
+ },
+ "a002": {
+  "name": "Kinsei",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ki/kinsei_yuutai.html",
+  "size_text": "350g程・円～円錐形",
+  "weight_g": 350
+ },
+ "a003": {
+  "name": "Haruka",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ha/haruka.html",
+  "size_text": "300g程・長円錐形",
+  "weight_g": 300
+ },
+ "a004": {
+  "name": "Hirodai Misaki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hi/hirodaimisaki.html",
+  "size_text": "450～500g程・円形",
+  "weight_g": 475.0
+ },
+ "a005": {
+  "name": "Kio",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ki/kiou.html",
+  "size_text": "300g程だが、400gを越す場合もある・円～円錐形",
+  "weight_g": 300
+ },
+ "a006": {
+  "name": "Toki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/to/toki.html",
+  "size_text": "300～400g程で、大きさにバラつきがみられる・円～扁円形",
+  "weight_g": 350.0
+ },
+ "a007": {
+  "name": "Golden Delicious",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/goldendeli.html",
+  "size_text": "250～300g程・円～長円形",
+  "weight_g": 275.0
+ },
+ "a008": {
+  "name": "Cute",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ki/cute.html",
+  "size_text": "300g程・円錐形",
+  "weight_g": 300
+ },
+ "a009": {
+  "name": "Sweet Melody",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/su/sweetmelody.html",
+  "size_text": "300～400g・円～長円形",
+  "weight_g": 350.0
+ },
+ "a010": {
+  "name": "Hoshi no Kinka",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ho/hosinokinka.html",
+  "size_text": "250～300g前後・円～円錐形",
+  "weight_g": 275.0
+ },
+ "a011": {
+  "name": "Sun Mutsu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mu/mutu.html",
+  "size_text": "400g程。1kgを超すものもある。・長円形 400g程。1kgを超すものもあり大玉傾向。長円形。",
+  "weight_g": 400
+ },
+ "a012": {
+  "name": "Koki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kouki.html",
+  "size_text": "円錐形",
+  "weight_g": null
+ },
+ "a013": {
+  "name": "Merci",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/me/mercy.html",
+  "size_text": "300～330g程・円錐形",
+  "weight_g": 315.0
+ },
+ "a014": {
+  "name": "Mori no Kagayaki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mo/forestshine.html",
+  "size_text": "400gほど・円形",
+  "weight_g": 400
+ },
+ "a015": {
+  "name": "Ambitious",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/ambitious.html",
+  "size_text": "200～300g程・円形",
+  "weight_g": 250.0
+ },
+ "a016": {
+  "name": "Kimito",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ki/kimito.html",
+  "size_text": "果重350g前後。王林に似た縦長になる。",
+  "weight_g": 350
+ },
+ "a017": {
+  "name": "Gunma Meigetsu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ku/gunmameigetu.html",
+  "size_text": "350～450g・扁円形",
+  "weight_g": 400.0
+ },
+ "a018": {
+  "name": "Koko",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koukou.html",
+  "size_text": "350g程・円～扁円形",
+  "weight_g": 350
+ },
+ "a019": {
+  "name": "Kogane Fuji",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koganehuji.html",
+  "size_text": "250～300g・円～長円",
+  "weight_g": 275.0
+ },
+ "a020": {
+  "name": "Shinano Gold",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/sinanogold.html",
+  "size_text": "350g程・円～長円形",
+  "weight_g": 350
+ },
+ "a021": {
+  "name": "Rose Pearl",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ro/rosepearl.html",
+  "size_text": "390g前後・円錐形",
+  "weight_g": 390
+ },
+ "a022": {
+  "name": "Komei",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koumei.html",
+  "size_text": "340g程・扁円錐形",
+  "weight_g": 340
+ },
+ "a023": {
+  "name": "Orin",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/o/ourin.html",
+  "size_text": "300g前後・長円～長円錐",
+  "weight_g": 300
+ },
+ "a024": {
+  "name": "Golden Melon",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/goldenmelon.html",
+  "size_text": "200～300g・円形",
+  "weight_g": 250.0
+ },
+ "a025": {
+  "name": "Seirin",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/se/seirin.html",
+  "size_text": "320g程度・扁円形",
+  "weight_g": 320
+ },
+ "a026": {
+  "name": "Mellow",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/me/mellow.html",
+  "size_text": "300g程・円形～長円形",
+  "weight_g": 300
+ },
+ "a027": {
+  "name": "Tsugaru Gold",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/tu/tsugarugold.html",
+  "size_text": "300g前後、円～長円形",
+  "weight_g": 300
+ },
+ "a028": {
+  "name": "Granny Smith",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ku/granny-smith.html",
+  "size_text": "300g程・円～長円形",
+  "weight_g": 300
+ },
+ "a029": {
+  "name": "Iwai",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/i/iwai.html",
+  "size_text": "150～200g程・長円形",
+  "weight_g": 175.0
+ },
+ "a030": {
+  "name": "Natsumidori",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/na/natsumidori.html",
+  "size_text": "150～200g程・扁円形",
+  "weight_g": 175.0
+ },
+ "a031": {
+  "name": "Hatsukoi Green",
+  "source_url": "https://www.aomori-ringo.or.jp/starcut/variety.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a032": {
+  "name": "Bramley",
+  "source_url": "https://obuse.or.jp/produce/bramley.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a033": {
+  "name": "Miyoshi Red",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mi/miyoshired.html",
+  "size_text": "300～350g・扁円形",
+  "weight_g": 325.0
+ },
+ "a034": {
+  "name": "Kotoku",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koutoku.html",
+  "size_text": "200～300g・円形",
+  "weight_g": 250.0
+ },
+ "a035": {
+  "name": "Slim Red",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/su/slimred.html",
+  "size_text": "180g程度・円筒形",
+  "weight_g": 180
+ },
+ "a036": {
+  "name": "Miki Life",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mi/mikilife.html",
+  "size_text": "240～280g・円形",
+  "weight_g": 260.0
+ },
+ "a037": {
+  "name": "Hanaiwai",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ha/hanaiwai.html",
+  "size_text": "230～280g程・円形～扁円形",
+  "weight_g": 255.0
+ },
+ "a038": {
+  "name": "First Lady",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hu/firstlady.html",
+  "size_text": "300g前後・円形",
+  "weight_g": 300
+ },
+ "a039": {
+  "name": "Benika",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/he/benika.html",
+  "size_text": "150～300g程",
+  "weight_g": 225.0
+ },
+ "a040": {
+  "name": "Sun Fuji",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hu/huji.html",
+  "size_text": "300～400g・円～長円形",
+  "weight_g": 350.0
+ },
+ "a041": {
+  "name": "Shinsekai",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/sinsekai.html",
+  "size_text": "300～400g・円～長円形",
+  "weight_g": 350.0
+ },
+ "a042": {
+  "name": "Ruby Sweet",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ru/rubysweet.html",
+  "size_text": "450g程度・扁円形",
+  "weight_g": 450
+ },
+ "a043": {
+  "name": "Kokko",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kokkou.html",
+  "size_text": "200g前後・円形",
+  "weight_g": 200
+ },
+ "a044": {
+  "name": "Sekai Ichi",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/se/sekaiiti.html",
+  "size_text": "350～800g。1kgを超えるものもある。円錐形",
+  "weight_g": 575.0
+ },
+ "a045": {
+  "name": "Shinano Sweet",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/sinanosweet.html",
+  "size_text": "300～400g・円形",
+  "weight_g": 350.0
+ },
+ "a046": {
+  "name": "Koju",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kouju.html",
+  "size_text": "290～300g程・円形",
+  "weight_g": 295.0
+ },
+ "a047": {
+  "name": "Yoko",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/yo/youkou.html",
+  "size_text": "300～350g程・円形～長円形",
+  "weight_g": 325.0
+ },
+ "a048": {
+  "name": "Fuji",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hu/huji.html",
+  "size_text": "300～400g・円～長円形",
+  "weight_g": 350.0
+ },
+ "a049": {
+  "name": "Akita Beniakari",
+  "source_url": "https://agresearcher.maff.go.jp/seika/show/232372",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a050": {
+  "name": "Indo",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/i/indo.html",
+  "size_text": "250～300g程・長円錐、斜形の独特の形",
+  "weight_g": 275.0
+ },
+ "a051": {
+  "name": "Mutsu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mu/mutu.html",
+  "size_text": "400g程。1kgを超すものもある。・長円形 400g程。1kgを超すものもあり大玉傾向。長円形。",
+  "weight_g": 400
+ },
+ "a052": {
+  "name": "Pink Lady",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hi/pinklady.html",
+  "size_text": "200g前後、長円形",
+  "weight_g": 200
+ },
+ "a053": {
+  "name": "Korin",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kourin.html",
+  "size_text": "300～350g・円形～長円形",
+  "weight_g": 325.0
+ },
+ "a054": {
+  "name": "Hirosaki Fuji",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/hi/hirosakihuji.html",
+  "size_text": "300～350g程。特別大きくて500g。円～長円形",
+  "weight_g": 325.0
+ },
+ "a055": {
+  "name": "Honoka",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ho/honoka.html",
+  "size_text": "350～450g・円形",
+  "weight_g": 400.0
+ },
+ "a056": {
+  "name": "Yataka",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ya/yataka.html",
+  "size_text": "350～450g程・円形",
+  "weight_g": 400.0
+ },
+ "a057": {
+  "name": "Kotaro",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koutarou.html",
+  "size_text": "250～300g程・円形",
+  "weight_g": 275.0
+ },
+ "a058": {
+  "name": "Kurenai no Yume",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ku/kurenainoyume.html",
+  "size_text": "350g程度・円～楕円形",
+  "weight_g": 350
+ },
+ "a059": {
+  "name": "Stark Jumbo",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/su/suta-kujumbo.html",
+  "size_text": "700~1000g・凹凸のある形",
+  "weight_g": 850.0
+ },
+ "a060": {
+  "name": "Clio Five",
+  "source_url": "https://www.aomori-ringo.or.jp/starcut/variety.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a061": {
+  "name": "Shinano Dolce",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/sinanodolce.html",
+  "size_text": "300～400g・円形",
+  "weight_g": 350.0
+ },
+ "a062": {
+  "name": "Shuyo",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/syuuyou.html",
+  "size_text": "300～350g程・円形",
+  "weight_g": 325.0
+ },
+ "a063": {
+  "name": "Senshu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/se/sensyuu.html",
+  "size_text": "300g程・円～円錐形",
+  "weight_g": 25.0
+ },
+ "a064": {
+  "name": "Beni Hatsumi",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/he/benihatumi.html",
+  "size_text": "300～350g・円錐形",
+  "weight_g": 325.0
+ },
+ "a065": {
+  "name": "Aori 9 (Saika)",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/sa/saika.html",
+  "size_text": "300g程・円～長円形",
+  "weight_g": 300
+ },
+ "a066": {
+  "name": "Jonagold",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/jyonagold.html",
+  "size_text": "300～400g・円～長円錐形",
+  "weight_g": 350.0
+ },
+ "a067": {
+  "name": "Hokuto",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ho/hokuto.html",
+  "size_text": "350g程だが、600gを超すことも多い。円～扁円形。",
+  "weight_g": 350
+ },
+ "a068": {
+  "name": "Aika no Kaori",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/aikanokaori.html",
+  "size_text": "400g～500g程・長円形",
+  "weight_g": 450.0
+ },
+ "a069": {
+  "name": "Akane",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/akane.html",
+  "size_text": "200～250g程。100gや300gのものもある。扁円錐形",
+  "weight_g": 225.0
+ },
+ "a070": {
+  "name": "Shunmei 21",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/syunmei21.html",
+  "size_text": "300～400g・円～長円形",
+  "weight_g": 350.0
+ },
+ "a071": {
+  "name": "Kaho",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ka/kahou.html",
+  "size_text": "300～350g程だが、若木の果実にバラツキがみられる。円錐形",
+  "weight_g": 325.0
+ },
+ "a072": {
+  "name": "Akiyo",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/akiyo.html",
+  "size_text": "280g程・円形",
+  "weight_g": 280
+ },
+ "a073": {
+  "name": "Sansa",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/sa/sansa.html",
+  "size_text": "200～300g・円錐形",
+  "weight_g": 250.0
+ },
+ "a074": {
+  "name": "Shiori no Uta",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/siorinouta.html",
+  "size_text": "350g前後、長円形～やや円形",
+  "weight_g": 350
+ },
+ "a075": {
+  "name": "Asahi (McIntosh)",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/asahi.html",
+  "size_text": "280g程・円形",
+  "weight_g": 280
+ },
+ "a076": {
+  "name": "Tsugaru Hime",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/tu/tugaruhime.html",
+  "size_text": "300g～350g、長円形",
+  "weight_g": 325.0
+ },
+ "a077": {
+  "name": "Beni Shibori (Tamakan)",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/he/benisibori.html",
+  "size_text": "200g程・円形",
+  "weight_g": 200
+ },
+ "a078": {
+  "name": "Ryoka no Kisetsu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ri/ryouka.html",
+  "size_text": "350～400g、500gもある・円形",
+  "weight_g": 375.0
+ },
+ "a079": {
+  "name": "New Jonagold",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ni/newjyonagold.html",
+  "size_text": "300～350g程・円～長円錐",
+  "weight_g": 325.0
+ },
+ "a080": {
+  "name": "Shinano Red",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/si/sinanored.html",
+  "size_text": "300g前後・円～長円形",
+  "weight_g": 300
+ },
+ "a081": {
+  "name": "Tsugaru",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/tu/tugaru.html",
+  "size_text": "300g前後・円～長円形",
+  "weight_g": 300
+ },
+ "a082": {
+  "name": "Kogetsu",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kougetu.html",
+  "size_text": "300～350g程・円錐形",
+  "weight_g": 325.0
+ },
+ "a083": {
+  "name": "Kanki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ka/kanki.html",
+  "size_text": "300～340g程・円形",
+  "weight_g": 320.0
+ },
+ "a084": {
+  "name": "Shinano Piccolo",
+  "source_url": "https://www.agries-nagano.jp/original_breed/478.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a085": {
+  "name": "Kita Kurenai",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ki/kitakurenai.html",
+  "size_text": "350～400g・扁円形",
+  "weight_g": 375.0
+ },
+ "a086": {
+  "name": "Chiyuki",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ti/tiyuki.html",
+  "size_text": "250～350g・円～長円形",
+  "weight_g": 300.0
+ },
+ "a087": {
+  "name": "Red Gold",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/re/redgold.html",
+  "size_text": "250g前後・円～扁円形",
+  "weight_g": 250
+ },
+ "a088": {
+  "name": "Mollie's Delicious",
+  "source_url": "https://www.aomori-ringo.or.jp/starcut/variety.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a089": {
+  "name": "Mioka",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mi/mioka.html",
+  "size_text": "550gほど、円形～やや楕円形",
+  "weight_g": 550
+ },
+ "a090": {
+  "name": "Miku",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/mi/miku.html",
+  "size_text": "果重350g以上。肩の張った丸型。",
+  "weight_g": 350
+ },
+ "a091": {
+  "name": "Alps Otome",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/alpsmaiden.html",
+  "size_text": "25～50g程・長円形",
+  "weight_g": 37.5
+ },
+ "a092": {
+  "name": "Starking Delicious",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/su/starking.html",
+  "size_text": "280～300g程・長円錐形",
+  "weight_g": 290.0
+ },
+ "a093": {
+  "name": "4-23",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/yo/4-23.html",
+  "size_text": "300g前後・円形～長円形",
+  "weight_g": 300
+ },
+ "a094": {
+  "name": "Kogyoku (Jonathan)",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/kougyoku.html",
+  "size_text": "200g前後・円形",
+  "weight_g": 200
+ },
+ "a095": {
+  "name": "Meishu",
+  "source_url": "https://www.ringodaigaku.com/ringo_blog/blog/2025/02/04/16010.html",
+  "size_text": null,
+  "weight_g": null
+ },
+ "a096": {
+  "name": "Oirase",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/o/oirase.html",
+  "size_text": "350～450g・扁円形",
+  "weight_g": 400.0
+ },
+ "a097": {
+  "name": "Koizora",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ko/koizora.html",
+  "size_text": "250g前後、円形",
+  "weight_g": 250
+ },
+ "a098": {
+  "name": "Early Jona",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/earlyjyona.html",
+  "size_text": "350～400g程度・円～長円錐形",
+  "weight_g": 375.0
+ },
+ "a099": {
+  "name": "Daikoei",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/ta/daikouei.html",
+  "size_text": "400～600g程・円形",
+  "weight_g": 500.0
+ },
+ "a100": {
+  "name": "Akibae",
+  "source_url": "https://www.ringodaigaku.com/main/hinshu/a/akibae.html",
+  "size_text": "300～350g・円形",
+  "weight_g": 325.0
+ }
+}
