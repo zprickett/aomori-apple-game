@@ -6,6 +6,7 @@ import {
 } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
+import { appleIcon, dishIcon } from './icons.tsx';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
 
@@ -27,31 +28,29 @@ export function Welcome({ onStart }: { onStart: () => void }) {
   );
 }
 
-const STORY = [
-  { icon: '🗾', title: 'Welcome to Aomori', body: 'Aomori is the home of apples in Japan. Its orchards grow more apples than anywhere else in the country!' },
-  { icon: '🧺', title: 'Your own apple stall', body: 'Customers will ask for dishes. Pick the best apple, then tap, swipe and stir to cook it.' },
-  { icon: '🏆', title: 'Become a Master Apple Chef', body: 'Collect all 100 apples, unlock new recipes and earn points to level up. Ready?' },
+const STORY: { pic: () => React.ReactNode; title: string; line: string }[] = [
+  { pic: () => <img src={appleIcon('a048')} alt="" />, title: 'Welcome to Aomori', line: 'Japan’s home of apples.' },
+  { pic: () => <img src={dishIcon('hirosaki_pie')} alt="" />, title: 'Run your apple stall', line: 'Pick an apple. Cook for customers.' },
+  { pic: () => <span className="st-trophy" aria-hidden>🏆</span>, title: 'Become a Master Apple Chef', line: 'Collect 100 apples and level up!' },
 ];
 
 export function Story({ onDone, onBack }: { onDone: () => void; onBack: () => void }) {
-  const [i, setI] = useState(0);
-  const s = STORY[i];
-  const last = i === STORY.length - 1;
   return (
     <div className="onb story" data-testid="story">
       <div className="onb-sky" />
-      <div className="st-card" key={i}>
-        <div className="st-icon" aria-hidden>{s.icon}</div>
-        <h2>{s.title}</h2>
-        <p>{s.body}</p>
-      </div>
+      <h2 className="st-head">Your apple adventure</h2>
+      <ol className="st-list">
+        {STORY.map((s, i) => (
+          <li key={s.title} className="st-item" style={{ animationDelay: `${i * 0.12}s` }}>
+            <div className="st-pic">{s.pic()}</div>
+            <div><b>{s.title}</b><span>{s.line}</span></div>
+          </li>
+        ))}
+      </ol>
       <div className="onb-foot">
-        <div className="ov-dots">{STORY.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>
         <div className="row onb-row">
-          <button className="btn" onClick={() => { tap(); if (i === 0) onBack(); else setI(i - 1); }}>‹ Back</button>
-          <button className="btn primary big" data-testid="story-next" onClick={() => { tap(); if (last) onDone(); else setI(i + 1); }}>
-            {last ? 'Make my chef' : 'Next'}
-          </button>
+          <button className="btn" onClick={() => { tap(); onBack(); }}>‹ Back</button>
+          <button className="btn primary big" data-testid="story-next" onClick={() => { tap(); onDone(); }}>Make my chef</button>
         </div>
       </div>
     </div>
@@ -72,7 +71,7 @@ export function ChefMaker({ initial, mode, onDone, onBack }: {
         {onBack && <button className="btn small ghost" onClick={() => { tap(); onBack(); }}>‹ Back</button>}
         <h2>{mode === 'create' ? 'Make your chef' : 'Edit your chef'}</h2>
       </div>
-      <ChefPreview look={look} className="mk-preview" />
+      <ChefPreview look={look} framing="large" className="mk-preview" />
       <div className="mk-body">
         <label className="mk-row mk-name">
           <span>Name</span>
@@ -98,7 +97,7 @@ export function ChefMaker({ initial, mode, onDone, onBack }: {
           </div>
         </div>
         <div className="mk-row">
-          <span>Eyes</span>
+          <span>Eyes<small>{EYE_COLORS[look.eyes].label}</small></span>
           <div className="swatches">
             {(Object.keys(EYE_COLORS) as EyeColor[]).map((c) => (
               <button key={c} className={`swatch-btn ${look.eyes === c ? 'on' : ''}`} style={{ background: EYE_COLORS[c].hex }}
@@ -107,7 +106,7 @@ export function ChefMaker({ initial, mode, onDone, onBack }: {
           </div>
         </div>
         <div className="mk-row">
-          <span>Outfit</span>
+          <span>Outfit<small>{OUTFIT_COLORS[look.outfit].label}</small></span>
           <div className="swatches">
             {(Object.keys(OUTFIT_COLORS) as OutfitColor[]).map((c) => (
               <button key={c} className={`swatch-btn ${look.outfit === c ? 'on' : ''}`} style={{ background: OUTFIT_COLORS[c].hex }}

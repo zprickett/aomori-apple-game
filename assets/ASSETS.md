@@ -55,14 +55,14 @@ Re-import check (facing): Chef_Eyes z=0.201 vs Chef_Head centre z=0.006 -> OK; C
 
 - Size (x, y, z): **0.664 x 1.652 x 0.500 m**; bbox min (-0.358, 0.000, -0.244) max (0.306, 1.652, 0.256); 9198 tris
 - Pivot: feet at origin, faces +Z; game places at z~-0.25
-- Materials: `M_AppleRed`, `M_Black`, `M_Blush`, `M_ChefButton`, `M_ChefIris`, `M_ChefSkirt`, `M_Cloth_Charcoal`, `M_Cream`, `M_EyeWhite`, `M_Hair`, `M_Mouth`, `M_Skin`, `M_White`, `M_WoodDark`
+- Materials: `M_AppleRed`, `M_Black`, `M_Blush`, `M_ChefButton`, `M_ChefHat`, `M_ChefIris`, `M_ChefSkirt`, `M_Cloth_Charcoal`, `M_Cream`, `M_EyeWhite`, `M_Hair`, `M_Mouth`, `M_Skin`, `M_White`, `M_WoodDark`
 - Children:
   - `Chef_ArmL` size 0.178x0.488x0.125, origin (0.180, 1.110, -0.000) - origin at left shoulder (+X); rot.x -70deg = reach forward to counter [M_Skin, M_White]
   - `Chef_ArmR` size 0.178x0.488x0.125, origin (-0.180, 1.110, -0.000) - origin at right shoulder (-X); rot.z -130..-150deg = raised wave [M_Skin, M_White]
   - `Chef_Body` size 0.468x1.215x0.367, origin (0.000, 0.000, -0.000) [M_AppleRed, M_ChefButton, M_ChefSkirt, M_Cloth_Charcoal, M_Cream, M_White, M_WoodDark]
     - `Chef_Apron` size 0.468x0.652x0.367, origin (0.000, 0.000, -0.000) [M_ChefSkirt, M_Cream]
     - `Chef_Buttons` size 0.156x0.156x0.018, origin (0.000, 0.000, -0.000) [M_ChefButton]
-  - `Chef_Head` size 0.664x0.752x0.500, origin (0.000, 1.180, -0.000) - origin at neck [M_AppleRed, M_Black, M_Blush, M_ChefIris, M_ChefSkirt, M_EyeWhite, M_Hair, M_Mouth, M_Skin, M_WoodDark]
+  - `Chef_Head` size 0.664x0.752x0.500, origin (0.000, 1.180, -0.000) - origin at neck [M_Black, M_Blush, M_ChefHat, M_ChefIris, M_ChefSkirt, M_EyeWhite, M_Hair, M_Mouth, M_Skin, M_WoodDark]
     - `Chef_Eyes` size 0.251x0.126x0.055, origin (0.000, 1.354, 0.201) - origin at eye centre (scale Y to blink) [M_Black, M_ChefIris, M_EyeWhite]
     - `Chef_Hair_F1` size 0.622x0.657x0.496, origin (0.000, 1.180, -0.000) [M_ChefSkirt, M_Hair]
     - `Chef_Hair_F2` size 0.529x0.703x0.496, origin (0.000, 1.180, -0.000) [M_Hair]
@@ -401,7 +401,7 @@ Re-import check (facing): Chef_Eyes z=0.201 vs Chef_Head centre z=0.006 -> OK; C
 
 ## Materials
 
-`M_AppleRed`, `M_AppleSkin`, `M_AppleYellow`, `M_Black`, `M_Blush`, `M_Butter`, `M_Candy`, `M_Caramel`, `M_Ceramic`, `M_Chalk`, `M_ChalkLine`, `M_ChefButton`, `M_ChefIris`, `M_ChefSkirt`, `M_Cloth_Blue`, `M_Cloth_Brown`, `M_Cloth_Charcoal`, `M_Cloth_Green`, `M_Cloth_LightBlue`, `M_Cloth_Mustard`, `M_Cloth_Navy`, `M_Cloth_Pink`, `M_Cloth_Red`, `M_Cloth_Shirt`, `M_Cloth_Tweed`, `M_Cloth_White`, `M_Cloth_Yellow`, `M_Compote`, `M_CompoteSyrup`, `M_CoreHole`, `M_Cream`, `M_Crust`, `M_EyeWhite`, `M_Filling`, `M_Flesh`, `M_Glass`, `M_Granola`, `M_Ground`, `M_Hair`, `M_HairBlack`, `M_HairGrey`, `M_Jam`, `M_JuiceGold`, `M_Lantern`, `M_Leaf`, `M_LeafDark`, `M_Metal`, `M_MetalDark`, `M_Mint`, `M_Mouth`, `M_OvenWindow`, `M_Paper`, `M_Pastry`, `M_PastryBaked`, `M_Plate`, `M_Skin`, `M_Stone`, `M_Straw`, `M_Sugar`, `M_Toast`, `M_Whip`, `M_White`, `M_Wood`, `M_WoodDark`, `M_WoodLight`, `M_Yogurt`
+`M_AppleRed`, `M_AppleSkin`, `M_AppleYellow`, `M_Black`, `M_Blush`, `M_Butter`, `M_Candy`, `M_Caramel`, `M_Ceramic`, `M_Chalk`, `M_ChalkLine`, `M_ChefButton`, `M_ChefHat`, `M_ChefIris`, `M_ChefSkirt`, `M_Cloth_Blue`, `M_Cloth_Brown`, `M_Cloth_Charcoal`, `M_Cloth_Green`, `M_Cloth_LightBlue`, `M_Cloth_Mustard`, `M_Cloth_Navy`, `M_Cloth_Pink`, `M_Cloth_Red`, `M_Cloth_Shirt`, `M_Cloth_Tweed`, `M_Cloth_White`, `M_Cloth_Yellow`, `M_Compote`, `M_CompoteSyrup`, `M_CoreHole`, `M_Cream`, `M_Crust`, `M_EyeWhite`, `M_Filling`, `M_Flesh`, `M_Glass`, `M_Granola`, `M_Ground`, `M_Hair`, `M_HairBlack`, `M_HairGrey`, `M_Jam`, `M_JuiceGold`, `M_Lantern`, `M_Leaf`, `M_LeafDark`, `M_Metal`, `M_MetalDark`, `M_Mint`, `M_Mouth`, `M_OvenWindow`, `M_Paper`, `M_Pastry`, `M_PastryBaked`, `M_Plate`, `M_Skin`, `M_Stone`, `M_Straw`, `M_Sugar`, `M_Toast`, `M_Whip`, `M_White`, `M_Wood`, `M_WoodDark`, `M_WoodLight`, `M_Yogurt`
 
 ## Icons and previews
 

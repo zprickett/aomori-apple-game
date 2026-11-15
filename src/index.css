@@ -576,3 +576,36 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .wl-chef { position: relative; height: 38vh; min-height: 220px; flex: none; }
 .wl-chef > div { position: absolute !important; inset: 0; }
 .wl-apples { margin-top: 0; font-size: 2.2rem; }
+.rv-card { position: relative; }
+.rv-size { position: absolute; left: 10px; top: 10px; background: rgba(255, 255, 255, 0.92); border-radius: 12px; padding: 4px 10px 4px 4px; font-weight: 900; font-size: 0.9rem; display: flex; align-items: center; gap: 4px; }
+.rv-scale-note { position: absolute; left: 12px; bottom: 8px; font-size: 0.7rem; font-weight: 800; color: var(--ink-soft); }
+.size-chip { position: absolute; top: 3px; right: 3px; min-width: 18px; height: 18px; border-radius: 6px; font-size: 0.68rem; font-weight: 900; line-height: 18px; text-align: center; color: #fff; background: var(--wood); }
+.size-chip.inline { position: static; display: inline-block; vertical-align: middle; margin-right: 4px; }
+.size-chip.s-S { background: #7d9d3f; }
+.size-chip.s-M { background: #e0963a; }
+.size-chip.s-L { background: var(--red); }
+.st-head { text-align: center; margin: calc(env(safe-area-inset-top, 0px) + 9vh) 0 18px; font-size: 1.7rem; font-weight: 900; }
+.st-list { list-style: none; margin: 0; padding: 0 18px; display: grid; gap: 14px; }
+.st-item { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 10px 14px 10px 10px; box-shadow: var(--shadow); animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
+.reduced .st-item { animation: none; }
+.st-pic { width: 84px; height: 84px; border-radius: 18px; background: #fbf2e2; display: grid; place-items: center; }
+.st-pic img { width: 76px; height: 76px; }
+.st-trophy { font-size: 3.2rem; line-height: 1; }
+.st-item b { display: block; font-size: 1.15rem; font-weight: 900; line-height: 1.15; }
+.st-item span { display: block; font-size: 1rem; font-weight: 700; color: var(--ink-soft); margin-top: 3px; line-height: 1.3; }
+/* chef maker: bigger chef, bigger controls */
+.maker .mk-preview { height: 42vh; min-height: 260px; }
+.maker .mk-body { gap: 10px; padding-top: 0; }
+.maker .mk-row { grid-template-columns: 76px 1fr; font-size: 1.08rem; }
+.maker .mk-row > span small { display: block; font-size: 0.78rem; font-weight: 800; color: var(--ink-soft); }
+.maker .seg-btns .btn { min-height: 52px; font-size: 1.05rem; border-radius: 16px; }
+.maker .seg-btns .btn.on { background: var(--gold); box-shadow: 0 4px 0 var(--wood-d), 0 0 0 3px rgba(244, 201, 84, 0.45); }
+.maker .swatches { gap: 12px; }
+.maker .swatch-btn { width: 52px; height: 52px; border-width: 4px; }
+.maker .swatch-btn.on { box-shadow: 0 0 0 3px var(--wood-d), 0 0 0 7px rgba(104, 69, 46, 0.18); transform: scale(1.1); }
+.maker .mk-name input { font-size: 1.15rem; padding: 12px 14px; }
+.maker .onb-foot { padding-top: 8px; }
+.maker .seg-btns .btn { padding: 0 6px; }
+.story .onb-row .btn:first-child { flex: 0 0 auto; padding: 0 18px; }
+.story .onb-row .btn.primary { flex: 1; white-space: nowrap; }
+.st-item .st-pic .st-trophy { font-size: 3.2rem; margin: 0; color: inherit; }

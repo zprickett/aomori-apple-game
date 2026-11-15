@@ -43,7 +43,7 @@ PALETTE = {
     'M_Granola': '#C98F4E', 'M_Caramel': '#C77A2C', 'M_Sugar': '#FFFFFF', 'M_Compote': '#F2C25E',
     'M_CompoteSyrup': '#E8A23A', 'M_Mint': '#5FA65A', 'M_Ceramic': '#F6EFE2', 'M_CoreHole': '#7A4A2A', 'M_Whip': '#FFFDF6',
     # player chef (recoloured at runtime)
-    'M_ChefIris': '#6B3E26', 'M_ChefButton': '#D94232', 'M_ChefSkirt': '#D94232',
+    'M_ChefIris': '#6B3E26', 'M_ChefButton': '#D94232', 'M_ChefSkirt': '#D94232', 'M_ChefHat': '#D94232',
 }
 
 ROUGH = {'M_Caramel': 0.25, 'M_Compote': 0.25, 'M_CompoteSyrup': 0.2, 'M_Yogurt': 0.6, 'M_Candy': 0.15, 'M_Filling': 0.35, 'M_Jam': 0.3, 'M_Glass': 0.1,

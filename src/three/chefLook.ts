@@ -13,4 +13,5 @@ export function applyChefLook(chef: THREE.Object3D, look: ChefLook) {
   swapMaterial(chef, 'M_ChefIris', plainMaterial(`chef-iris-${look.eyes}`, EYE_COLORS[look.eyes].hex, true, 'M_ChefIris'));
   swapMaterial(chef, 'M_ChefButton', plainMaterial(`chef-button-${look.outfit}`, outfit, true, 'M_ChefButton'));
   swapMaterial(chef, 'M_ChefSkirt', plainMaterial(`chef-skirt-${look.outfit}`, outfit, false, 'M_ChefSkirt'));
+  swapMaterial(chef, 'M_ChefHat', plainMaterial(`chef-hat-${look.outfit}`, outfit, false, 'M_ChefHat'));
 }

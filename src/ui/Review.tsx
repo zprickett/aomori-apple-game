@@ -44,6 +44,7 @@ function ApplesTab() {
           {list.map((x) => (
             <button key={x.id} className={`rv-card ${x.id === sel ? 'sel' : ''}`} onClick={() => setSel(x.id)}>
               <img src={appleIcon(x.id)} alt="" />
+              <span className={`size-chip s-${x.sizeLabel}`}>{x.sizeLabel}</span>
               <span className="nm">{x.nameEn.replace(' (Jonathan)', '')}</span>
               <span className="sub">#{appleUnlockAt(x.id)} · {x.sizeLabel} {x.weightG}g</span>
             </button>
@@ -52,7 +53,12 @@ function ApplesTab() {
       </section>
       <section className="rv-detail">
         <div className="rv-hero">
-          <Showcase key={a.id} item={{ kind: 'apple', id: a.id }} reduced={false} className="rv-canvas" />
+          <Showcase key={a.id} item={{ kind: 'apple', id: a.id }} reduced={false} trueSize className="rv-canvas" />
+          <div className="rv-size" data-testid="review-size">
+            <span className={`size-chip inline s-${a.sizeLabel}`}>{a.sizeLabel}</span>
+            {a.sizeLabel === 'S' ? 'Small' : a.sizeLabel === 'M' ? 'Medium' : 'Large'} · about {a.weightG} g{a.sizeEstimated ? ' (estimate)' : ''}
+          </div>
+          <div className="rv-scale-note">Shown at true size (M = standard)</div>
           <img src={appleIcon(a.id)} alt="" className="rv-icon" />
         </div>
         <h2>{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></h2>

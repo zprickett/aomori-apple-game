@@ -7,7 +7,7 @@ import { getLib } from './assetLib.ts';
 import { applyChefLook } from './chefLook.ts';
 import { Puppet } from './puppet.ts';
 
-function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: boolean; framing: 'full' | 'bust' }) {
+function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: boolean; framing: 'full' | 'bust' | 'large' }) {
   const obj = useMemo(() => getLib().clone('Chef'), []);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const { camera } = useThree();
@@ -18,6 +18,7 @@ function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: bool
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     if (framing === 'bust') { cam.position.set(0, 1.45, 2.3); cam.lookAt(0, 1.22, 0); }
+    else if (framing === 'large') { cam.position.set(0, 1.2, 2.55); cam.lookAt(0, 1.05, 0); }
     else { cam.position.set(0, 1.0, 3.6); cam.lookAt(0, 0.85, 0); }
     cam.updateProjectionMatrix();
   }, [camera, framing]);
@@ -30,7 +31,7 @@ function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: bool
   return <primitive object={obj} />;
 }
 
-export function ChefPreview({ look, reduced = false, framing = 'full', className }: { look: ChefLook; reduced?: boolean; framing?: 'full' | 'bust'; className?: string }) {
+export function ChefPreview({ look, reduced = false, framing = 'full', className }: { look: ChefLook; reduced?: boolean; framing?: 'full' | 'bust' | 'large'; className?: string }) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ fov: 32, position: [0, 1, 3.6] }}

@@ -15,7 +15,7 @@ export const NAME_MAX = 14;
 
 export type ChefSex = 'female' | 'male';
 export type HairStyle = 1 | 2 | 3;
-export type EyeColor = 'brown' | 'dark' | 'blue' | 'green' | 'hazel';
+export type EyeColor = 'brown' | 'green' | 'blue';
 export type OutfitColor = 'red' | 'pink' | 'lightblue' | 'purple';
 
 export interface ChefLook {
@@ -39,8 +39,6 @@ export interface ProfileIndex {
 
 export const EYE_COLORS: Readonly<Record<EyeColor, { label: string; hex: string }>> = Object.freeze({
   brown: { label: 'Brown', hex: '#6B3E26' },
-  dark: { label: 'Dark brown', hex: '#3A2418' },
-  hazel: { label: 'Hazel', hex: '#8A6A2E' },
   green: { label: 'Green', hex: '#3F7A45' },
   blue: { label: 'Blue', hex: '#3A6FB0' },
 });

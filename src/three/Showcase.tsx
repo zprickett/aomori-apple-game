@@ -1,14 +1,14 @@
 import { useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { bestApplesFor, type RecipeId } from '../core/content.ts';
+import { apple, bestApplesFor, type RecipeId } from '../core/content.ts';
 import { dishProp, type PropSpec } from '../game/stations.ts';
 import { animateFx, makeFx, prepareProp } from './props.ts';
 
 export type ShowcaseItem = { kind: 'apple'; id: string } | { kind: 'recipe'; id: string };
 
 /** Spinning hero model of a new apple or dish, sized to fit its own little canvas. */
-function Hero({ item, reduced, punch }: { item: ShowcaseItem; reduced: boolean; punch: boolean }) {
+function Hero({ item, reduced, punch, trueSize }: { item: ShowcaseItem; reduced: boolean; punch: boolean; trueSize: boolean }) {
   const { obj, base } = useMemo(() => {
     let spec: PropSpec;
     let appleId: string;
@@ -24,14 +24,16 @@ function Hero({ item, reduced, punch }: { item: ShowcaseItem; reduced: boolean; 
     const box = new THREE.Box3().setFromObject(o);
     const size = box.getSize(new THREE.Vector3());
     const centre = box.getCenter(new THREE.Vector3());
-    const s = (1 / Math.max(size.x, size.y, size.z)) * (item.kind === 'apple' ? 0.72 : 0.85);
+    // trueSize (apples): keep the variety's relative 3D size, where 1.0 = a standard M apple.
+    const sizeK = trueSize && item.kind === 'apple' ? apple(item.id).scale : 1;
+    const s = (1 / Math.max(size.x, size.y, size.z)) * (item.kind === 'apple' ? (trueSize ? 0.6 : 0.72) : 0.85) * sizeK;
     const g = new THREE.Group();
     o.position.sub(centre);
     g.add(o);
     const fx = makeFx('sparkle');
     if (fx) { fx.scale.setScalar(0.65); fx.position.y = -0.02; g.add(fx); g.userData.fx = fx; }
     return { obj: g, base: s };
-  }, [item]);
+  }, [item, trueSize]);
   const born = useRef(performance.now());
   useFrame(({ clock }) => {
     const age = (performance.now() - born.current) / 1000;
@@ -46,7 +48,9 @@ function Hero({ item, reduced, punch }: { item: ShowcaseItem; reduced: boolean; 
   return <primitive object={obj} />;
 }
 
-export function Showcase({ item, reduced, punch = false, className }: { item: ShowcaseItem; reduced: boolean; punch?: boolean; className?: string }) {
+export function Showcase({ item, reduced, punch = false, trueSize = false, className }: {
+  item: ShowcaseItem; reduced: boolean; punch?: boolean; trueSize?: boolean; className?: string;
+}) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ fov: 30, position: [0, 0.35, 2.6] }}
@@ -54,7 +58,7 @@ export function Showcase({ item, reduced, punch = false, className }: { item: Sh
         <hemisphereLight args={['#FFF7E8', '#C9B79A', 1.6]} />
         <directionalLight position={[-2, 3, 3]} intensity={1.6} color="#FFF4E0" />
         <directionalLight position={[2.5, 1, 2]} intensity={0.5} color="#FFE9D6" />
-        <Hero key={`${item.kind}:${item.id}`} item={item} reduced={reduced} punch={punch} />
+        <Hero key={`${item.kind}:${item.id}`} item={item} reduced={reduced} punch={punch} trueSize={trueSize} />
       </Canvas>
     </div>
   );

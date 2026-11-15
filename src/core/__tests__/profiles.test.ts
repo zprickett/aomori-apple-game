@@ -57,6 +57,7 @@ describe('profiles', () => {
   it('sanitises bad data', () => {
     expect(sanitizeLook({ sex: 'robot', hair: 9, eyes: 'pink', outfit: 'gold' })).toEqual(DEFAULT_LOOK);
     expect(sanitizeLook(look)).toEqual(look);
+    expect(sanitizeLook({ ...look, eyes: 'hazel' }).eyes).toBe('brown'); // retired colours fall back to brown
     const idx = sanitizeIndex({ activeId: 'zz', profiles: [{ id: 'a', name: 'A' }, { id: 'a', name: 'dup' }, { id: 'b', name: '' }, 5] });
     expect(idx.profiles.map((p) => p.id)).toEqual(['a']);
     expect(idx.activeId).toBeNull();

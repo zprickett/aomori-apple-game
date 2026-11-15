@@ -327,8 +327,8 @@ def build_chef():
     # beret (tilted to the left, with stem nub)
     bt = T((0.045, 0.02, 1.52), (-6, 18, 0))
     h.lathe([(0.15, 0.0), (0.19, 0.025), (0.207, 0.05), (0.185, 0.076), (0.1, 0.096), (0.0, 0.1)], 14,
-            m='M_AppleRed', M=bt)
-    h.cyl(0.158, 0.152, 0.035, 14, (0, 0, 0.0), 'M_AppleRed', M=bt)
+            m='M_ChefHat', M=bt)
+    h.cyl(0.158, 0.152, 0.035, 14, (0, 0, 0.0), 'M_ChefHat', M=bt)
     h.cyl(0.014, 0.01, 0.04, 5, (0.0, 0.0, 0.11), 'M_WoodDark', (0, -10, 0), M=bt)
     head = h.build('Chef_Head', pivot=(0, 0, 1.18))
     hairs = [_chef_hair(st, C, R) for st in CHEF_HAIR_STYLES]
