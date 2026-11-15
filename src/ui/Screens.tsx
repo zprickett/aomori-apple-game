@@ -74,7 +74,6 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
             data-testid={`apple-${c.apple.id}`}
           >
             <img src={appleIcon(c.apple.id)} alt="" className={c.unlocked ? '' : 'sil'} />
-            {c.unlocked && <span className={`size-chip s-${c.apple.sizeLabel}`} aria-label={`Size ${c.apple.sizeLabel}`}>{c.apple.sizeLabel}</span>}
             {c.unlocked ? (
               <>
                 <span className="nm">{c.apple.nameEn.replace(' (Jonathan)', '')}</span>
@@ -93,7 +92,6 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
               <img src={appleIcon(sel.id)} alt="" />
               <div>
                 <div className="ad-name">{sel.nameEn} <span className="ja" lang="ja">{sel.nameJa}</span></div>
-                <div className="ad-size"><span className={`size-chip inline s-${sel.sizeLabel}`}>{sel.sizeLabel}</span> about {sel.weightG} g</div>
                 <div className="ad-trait">{sel.traitHint}</div>
               </div>
             </div>

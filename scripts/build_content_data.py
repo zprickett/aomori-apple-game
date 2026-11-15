@@ -179,6 +179,7 @@ SIZE_FALLBACK = {
     'a095': (375, 'estimate'),   # Meishu
 }
 S_MAX, M_MAX = 250, 350   # S < 250 g <= M < 350 g <= L
+SIZE_SCALE_3D = {'S': 0.85, 'M': 1.0, 'L': 1.12}
 
 
 def parse_weight(text):
@@ -200,9 +201,10 @@ def size_info(aid, sizes):
     if w is None:
         w, basis = SIZE_FALLBACK[aid]
     label = 'S' if w < S_MAX else 'M' if w < M_MAX else 'L'
-    # 3D scale ~ cube root of weight relative to a 300 g apple, clamped for readability.
-    scale = round(max(0.6, min(1.3, (w / 300) ** (1 / 3))), 3)
-    cls = 'mini' if w < 100 else 'small' if label == 'S' else 'standard' if label == 'M' else 'large'
+    # 3D scale: three fixed steps (S smaller, M as before, L a bit larger); tiny apples (<= 100 g,
+    # e.g. Alps Otome for the Mini Candy Apple) stay extra-small. Size is visual only.
+    scale = 0.62 if w <= 100 else SIZE_SCALE_3D[label]
+    cls = 'mini' if w <= 100 else 'small' if label == 'S' else 'standard' if label == 'M' else 'large'
     return {'weight_g': round(w), 'size': label, 'scale': scale, 'size_class': cls, 'size_basis': basis,
             'size_text': rec.get('size_text')}
 

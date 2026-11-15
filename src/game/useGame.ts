@@ -51,19 +51,19 @@ function bootDevPlay(play: { recipeId: string; appleId: string | null }): Boot {
   return { store, state, persistent: true };
 }
 
-function boot(): Boot {
+function boot(saveKey?: string): Boot {
   const play = devPlayParams();
   if (play) return bootDevPlay(play);
-  const store = createSaveStore();
+  const store = createSaveStore(undefined, saveKey);
   devSkip(store);
   const { data, notice, persistent } = store.load();
   return { store, state: initialStateFromSave(data, notice), persistent };
 }
 
 /** Reducer + versioned local persistence + page-visibility pause. */
-export function useGame() {
+export function useGame(saveKey?: string) {
   const bootRef = useRef<Boot | null>(null);
-  if (!bootRef.current) bootRef.current = boot();
+  if (!bootRef.current) bootRef.current = boot(saveKey);
   const { store } = bootRef.current;
   const [persistent, setPersistent] = useState(bootRef.current.persistent);
 

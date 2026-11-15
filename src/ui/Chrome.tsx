@@ -52,7 +52,10 @@ export function Notice({ text, onClose }: { text: string | null; onClose: () => 
   );
 }
 
-export function Sheet({ kind, state, dispatch, onClose, persistent }: { kind: SheetKind; state: GameState; dispatch: D; onClose: () => void; persistent: boolean }) {
+export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef }: {
+  kind: SheetKind; state: GameState; dispatch: D; onClose: () => void; persistent: boolean;
+  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
+}) {
   const title = kind === 'collection' ? 'Apple collection' : kind === 'practice' ? 'Practice kitchen' : kind === 'history' ? 'Past orders' : 'Settings';
   return (
     <div className="sheet-backdrop" onClick={onClose}>
@@ -65,7 +68,8 @@ export function Sheet({ kind, state, dispatch, onClose, persistent }: { kind: Sh
           {kind === 'collection' && <Collection state={state} />}
           {kind === 'practice' && <Practice state={state} dispatch={dispatch} onClose={onClose} />}
           {kind === 'history' && <History state={state} />}
-          {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent} />}
+          {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent}
+            chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
         </div>
       </div>
     </div>
@@ -97,7 +101,7 @@ function Collection({ state }: { state: GameState }) {
         const a = APPLES.find((x) => x.id === open)!;
         return (
           <div className="coll-detail">
-            <div className="ad-head"><img src={appleIcon(a.id)} alt="" /><div><div className="ad-name">{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></div><div className="ad-trait">{a.overviewForKids}</div><div className="ad-size"><span className={`size-chip inline s-${a.sizeLabel}`}>{a.sizeLabel}</span> about {a.weightG} g</div></div></div>
+            <div className="ad-head"><img src={appleIcon(a.id)} alt="" /><div><div className="ad-name">{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></div><div className="ad-trait">{a.overviewForKids}</div></div></div>
             <div className="stats">
               {Object.entries(a.stats).map(([k, v]) => (
                 <div key={k} className="stat"><span>{STAT_LABEL[k] ?? k}</span><div className="bar"><i style={{ width: `${(v / 5) * 100}%` }} /></div></div>
@@ -230,12 +234,22 @@ function Practice({ state, dispatch, onClose }: { state: GameState; dispatch: D;
   );
 }
 
-function Settings({ state, dispatch, onClose, persistent }: { state: GameState; dispatch: D; onClose: () => void; persistent: boolean }) {
+function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef }: {
+  state: GameState; dispatch: D; onClose: () => void; persistent: boolean;
+  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
+}) {
   const s = state.settings;
   const [confirm, setConfirm] = useState(false);
   const set = (p: Partial<typeof s>) => { dispatch({ type: 'SET_SETTINGS', settings: p }); unlockAudio(); };
   return (
     <div className="settings">
+      {(onEditChef || onSwitchChef) && (
+        <div className="chef-row">
+          <span className="chef-who">🧑‍🍳 {chefName}</span>
+          {onEditChef && <button className="btn small" data-testid="edit-chef" onClick={() => { onClose(); onEditChef(); }}>Edit my chef</button>}
+          {onSwitchChef && <button className="btn small" data-testid="switch-chef" onClick={() => { onClose(); onSwitchChef(); }}>Switch chef</button>}
+        </div>
+      )}
       <label className="toggle"><input type="checkbox" checked={s.sound} onChange={(e) => set({ sound: e.target.checked })} data-testid="set-sound" /> Sound effects</label>
       <label className="toggle"><input type="checkbox" checked={s.assistance} onChange={(e) => set({ assistance: e.target.checked })} data-testid="set-assist" />
         <span>Helper mode<small>Wider timing windows and a helper bonus (marked on results).</small></span></label>

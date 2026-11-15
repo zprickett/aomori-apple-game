@@ -258,6 +258,13 @@ def render_all(prev, icons_dir, only=None, icons=True):
         for n in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D'):
             R.auto_cam(cam, [n], yaw=-25, pitch=8, fill=0.95, lens=50)
             _render([n], P(n.lower()), (500, 600))
+    if want('chef_styles'):
+        styles = ('F1', 'F2', 'F3', 'M1', 'M2', 'M3')
+        for st in styles:
+            hide = tuple(f'Chef_Hair_{o}' for o in styles if o != st)
+            with Pose(hide=hide):
+                R.look(cam, (-0.55, -1.35, 1.45), (0.0, 0.0, 1.3), 50)
+                _render(['Chef'], P(f'chef_hair_{st}'), (360, 360), hide=hide)
     if want('apples'):
         lay = {'Apple': (-0.3, 0, 0), 'Apple_Peeled': (-0.1, 0, 0), 'Apple_Wedges': (0.15, -0.02, 0),
                'Rabbit_Wedges': (0.45, 0.0, 0), 'Apple_Dice': (-0.3, -0.28, 0), 'Apple_Slices': (0.0, -0.3, 0),

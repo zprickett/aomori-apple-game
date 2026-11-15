@@ -9,3 +9,4 @@ export * from './persistence.ts';
 export * from './gameReducer.ts';
 export * from './arcade.ts';
 export * from './points.ts';
+export * from './profiles.ts';

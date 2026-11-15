@@ -5,12 +5,16 @@ import { apple as appleInfo, type RecipeId } from '../core/content.ts';
 import { getLib, plainMaterial, tintApple } from './assetLib.ts';
 import { animateFx, appleScaleFor, makeFx, prepareProp } from './props.ts';
 import { Puppet } from './puppet.ts';
+import { applyChefLook } from './chefLook.ts';
+import { DEFAULT_LOOK, type ChefLook } from '../core/profiles.ts';
 import { COUNTER_Y, DISH_DISPLAY_SCALE, dishProp, type PropSpec, type StepStage } from '../game/stations.ts';
 import { mixing, onCue, pointer, publishAnchors, stepClock, type AnchorMap } from '../game/bus.ts';
 
 export type ViewMode = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery';
 
 export interface SceneProps {
+  /** The player's chef look (defaults to the original Chef Hana). */
+  chefLook?: ChefLook;
   view: ViewMode;
   customerId: string;
   orderKey: string;
@@ -126,9 +130,10 @@ function Stall({ level, reduced, view }: { level: number; reduced: boolean; view
 // ---------------------------------------------------------------------------
 // Chef (shop owner)
 // ---------------------------------------------------------------------------
-function Chef({ base, view, reduced }: { base: 'idle' | 'lean' | 'work'; view: ViewMode; reduced: boolean }) {
+function Chef({ base, view, reduced, look }: { base: 'idle' | 'lean' | 'work'; view: ViewMode; reduced: boolean; look: ChefLook }) {
   const lib = getLib();
   const obj = useMemo(() => lib.clone('Chef'), [lib]);
+  useEffect(() => { applyChefLook(obj, look); }, [obj, look]);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const S = 1.18;
   useEffect(() => onCue((c) => {
@@ -420,7 +425,7 @@ export function GameScene(p: SceneProps) {
         <meshLambertMaterial color="#F3EBDC" />
       </mesh>
       <Stall level={p.stallLevel} reduced={p.reducedMotion} view={p.view} />
-      <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} />
+      <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} />
       <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
       {p.view === 'cook' && <Tool tool={p.tool} live={p.toolLive} anchor={p.anchor} />}

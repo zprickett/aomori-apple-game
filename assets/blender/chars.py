@@ -23,7 +23,7 @@ def sticker_sphere(mb, C, R, az, el, size, m, inset=0.0, local=(0, 0), seg=10, r
 
 
 # ------------------------------------------------------------------ face parts
-def eyes(C, R, az=0.34, el=-0.06, ew=0.042, eh=0.058, brown=True, lash=False, glasses=None):
+def eyes(C, R, az=0.34, el=-0.06, ew=0.042, eh=0.058, brown=True, lash=False, glasses=None, iris='M_Hair'):
     """Returns MB with both eyes; caller builds with pivot at eye centre."""
     e = MB()
     centres = []
@@ -33,7 +33,7 @@ def eyes(C, R, az=0.34, el=-0.06, ew=0.042, eh=0.058, brown=True, lash=False, gl
         M = align_z(n, p - n * 0.012)
         e.sphere((ew, eh, 0.02), (0, 0, 0), 'M_Black', 12, 5, M=M)
         if brown:
-            e.sphere((ew * 0.78, eh * 0.55, 0.02), (0, -eh * 0.33, 0.003), 'M_Hair', 10, 4, M=M)
+            e.sphere((ew * 0.78, eh * 0.55, 0.02), (0, -eh * 0.33, 0.003), iris, 10, 4, M=M)
         e.sphere((ew * 0.36, ew * 0.38, 0.012), (-ew * 0.32, eh * 0.38, 0.012), 'M_EyeWhite', 8, 3, M=M)
         e.sphere((ew * 0.17, ew * 0.17, 0.008), (ew * 0.35, -eh * 0.45, 0.015), 'M_EyeWhite', 6, 3, M=M)
         if lash:
@@ -220,6 +220,67 @@ def assemble(name, body, head, eyes_ob, mouth_ob=None, arms=(), legs=(), extra=(
 
 
 # ------------------------------------------------------------------ CHEF
+def _chef_ribbon(h, at, aim=(-0.6, -0.2, 0.3), m='M_ChefSkirt', s=1.0):
+    rb = align_z(aim, at)
+    h.sphere(0.026 * s, (0, 0, 0), m, 6, 4, M=rb)
+    for sd in (-1, 1):
+        h.cyl(0.0, 0.055 * s, 0.075 * s, 4, (sd * 0.042 * s, 0, 0), m, (0, sd * 90, 0), scale=(1, 0.5, 1), M=rb)
+    h.box((0.024 * s, 0.08 * s, 0.01), (-0.012 * s, -0.05 * s, 0.0), m, (0, 0, 15), M=rb)
+    h.box((0.024 * s, 0.07 * s, 0.01), (0.015 * s, -0.05 * s, 0.0), m, (0, 0, -20), M=rb)
+
+
+def _chef_hair(style, C, R):
+    """One hair style as its own mesh (Chef_Hair_<style>). F1 is the original Chef Hana look."""
+    h = MB()
+    if style.startswith('F'):
+        back = {'F1': -0.8, 'F2': -1.25, 'F3': -0.8}[style]
+        hair_shell(h, C, R, 1.08, fringe=0.42, side=1.22, bottom=-0.62, back_bottom=back)
+        bangs(h, C, R, 7, 0.52, 1.05, size=(0.075, 0.1, 0.035), k=1.05, droop=0.1)
+        for s in (-1, 1):  # side locks framing the face
+            p, n = surf(C, (R[0] * 1.05, R[1] * 1.05, R[2] * 1.05), s * 1.2, -0.38)
+            h.sphere((0.048, 0.045, 0.1), tuple(p), 'M_Hair', 8, 6, rot=(0, s * -12, 0))
+            p, n = surf(C, (R[0] * 1.03, R[1] * 1.03, R[2] * 1.03), s * 1.25, -0.72)
+            h.sphere((0.035, 0.035, 0.05), tuple(p), 'M_Hair', 6, 4, rot=(0, s * 20, 0))
+        if style == 'F1':  # side ponytail with ribbon
+            px, py = -0.24, 0.08
+            h.sphere((0.075, 0.07, 0.08), (px - 0.02, py, 1.24), 'M_Hair', 8, 6)
+            h.sphere((0.062, 0.058, 0.09), (px - 0.045, py + 0.01, 1.12), 'M_Hair', 8, 6, rot=(0, 15, 0))
+            h.cyl(0.04, 0.0, 0.11, 6, (px - 0.07, py + 0.01, 1.0), 'M_Hair', (0, 165, 0))
+            _chef_ribbon(h, (px + 0.01, py - 0.02, 1.32))
+        elif style == 'F2':  # long hair down the back
+            h.sphere((0.2, 0.085, 0.2), (0, 0.13, 1.17), 'M_Hair', 10, 6)
+            h.sphere((0.17, 0.07, 0.1), (0, 0.14, 1.0), 'M_Hair', 10, 5)
+            for s in (-1, 1):
+                h.sphere((0.05, 0.05, 0.14), (s * 0.2, 0.03, 1.13), 'M_Hair', 8, 6, rot=(0, s * -8, 0))
+        else:  # F3: twin buns with ribbons
+            for s in (-1, 1):
+                h.sphere((0.075, 0.07, 0.07), (s * 0.235, 0.06, 1.47), 'M_Hair', 10, 6)
+                _chef_ribbon(h, (s * 0.2, 0.0, 1.41), aim=(s * 0.6, -0.5, -0.2), s=0.8)
+    else:
+        hair_shell(h, C, R, 1.065, fringe=0.5, side=1.32, bottom=-0.32, back_bottom=-0.58, thick=0.03)
+        for s in (-1, 1):  # sideburns
+            p, n = surf(C, (R[0] * 1.03, R[1] * 1.03, R[2] * 1.03), s * 1.3, -0.2)
+            h.sphere((0.025, 0.03, 0.06), tuple(p), 'M_Hair', 6, 4)
+        if style == 'M1':  # short neat fringe
+            bangs(h, C, R, 6, 0.56, 0.95, size=(0.06, 0.07, 0.03), k=1.05, droop=0.05)
+        elif style == 'M2':  # spiky
+            for i in range(7):
+                t = (i / 6) * 2 - 1
+                p, n = surf(C, (R[0] * 1.06, R[1] * 1.06, R[2] * 1.06), t * 1.0, 0.55 - 0.08 * abs(t))
+                M = align_z((n + Vector((0, 0, 0.9))).normalized(), p)
+                h.cyl(0.035, 0.0, 0.09, 5, (0, 0, 0.0), 'M_Hair', M=M)
+        else:  # M3: side-swept fringe
+            for i in range(5):
+                az = -0.85 + i * 0.32
+                p, n = surf(C, (R[0] * 1.06, R[1] * 1.06, R[2] * 1.06), az, 0.5 - 0.04 * i)
+                M = align_z(n, p, 55)
+                h.sphere((0.1, 0.045, 0.03), (0, 0, 0), 'M_Hair', 8, 4, M=M)
+    return h.build(f'Chef_Hair_{style}', pivot=(0, 0, 1.18))
+
+
+CHEF_HAIR_STYLES = ('F1', 'F2', 'F3', 'M1', 'M2', 'M3')
+
+
 def build_chef():
     P = 'Chef'
     b = MB()
@@ -235,66 +296,52 @@ def build_chef():
     # collar
     b.cyl(0.078, 0.07, 0.05, 10, (0, 0, 1.19), 'M_White')
     b.torus(0.075, 0.009, 10, 4, (0, 0, 1.168), 'M_AppleRed')
-    # double-breasted buttons (two columns)
+    # jacket overlap seam
+    b.box((0.012, 0.01, 0.22), (0.1, -0.128, 1.02), 'M_Cream', (0, 0, -20))
+    body = b.build('Chef_Body')
+    # double-breasted buttons (two columns) - recoloured by the player's outfit choice
+    bt = MB()
     for z in (1.10, 1.04, 0.98):
         for sx in (-1, 1):
             x = sx * 0.06
             y = -math.sqrt(max(0, (0.18 * 0.78) ** 2 * (1 - (x / 0.18) ** 2))) - 0.003
-            b.sphere((0.018, 0.009, 0.018), (x, y, z), 'M_AppleRed', 8, 4)
-    # jacket overlap seam
-    b.box((0.012, 0.01, 0.22), (0.1, -0.128, 1.02), 'M_Cream', (0, 0, -20))
-    # apron: waist-level skirt + waist band + back bow
-    arc_panel(b, 0.196, 0.158, -80, 80, 0.30, 0.92, 'M_AppleRed', 0.014, flare=1.14, seg=10)
-    b.torus(0.183, 0.02, 12, 4, (0, 0, 0.925), 'M_AppleRed', scale=(1.04, 0.84, 1))
-    b.box((0.07, 0.035, 0.055), (0, 0.155, 0.925), 'M_AppleRed', bevel=0.012)
-    b.box((0.04, 0.012, 0.13), (0.035, 0.162, 0.84), 'M_AppleRed', (0, 15, 0))
-    b.box((0.04, 0.012, 0.13), (-0.035, 0.162, 0.84), 'M_AppleRed', (0, -15, 0))
-    # apron pocket + emblem
+            bt.sphere((0.018, 0.009, 0.018), (x, y, z), 'M_ChefButton', 8, 4)
+    buttons = bt.build('Chef_Buttons')
+    # apron skirt + waist band + back bow - recoloured by the player's outfit choice
+    ap = MB()
+    arc_panel(ap, 0.196, 0.158, -80, 80, 0.30, 0.92, 'M_ChefSkirt', 0.014, flare=1.14, seg=10)
+    ap.torus(0.183, 0.02, 12, 4, (0, 0, 0.925), 'M_ChefSkirt', scale=(1.04, 0.84, 1))
+    ap.box((0.07, 0.035, 0.055), (0, 0.155, 0.925), 'M_ChefSkirt', bevel=0.012)
+    ap.box((0.04, 0.012, 0.13), (0.035, 0.162, 0.84), 'M_ChefSkirt', (0, 15, 0))
+    ap.box((0.04, 0.012, 0.13), (-0.035, 0.162, 0.84), 'M_ChefSkirt', (0, -15, 0))
     yskirt = -0.158 * 1.05 - 0.016
-    emblem(b, align_z((0, -1, 0), (0, yskirt, 0.66)), 0.17, 0.008, 'M_Cream')
-    body = b.build('Chef_Body')
+    emblem(ap, align_z((0, -1, 0), (0, yskirt, 0.66)), 0.17, 0.008, 'M_Cream')
+    apron = ap.build('Chef_Apron')
 
-    # head
+    # head (face, neck, beret); hair styles are separate children
     C = (0, 0, 1.37)
     R = (0.235, 0.215, 0.205)
     h = MB()
     face_base(h, C, R, brow_el=0.30, brow_az=0.34, blush_el=-0.3, blush_az=0.6, ears=False)
     h.cyl(0.058, 0.058, 0.08, 8, (0, 0, 1.19), 'M_Skin')
-    hair_shell(h, C, R, 1.08, fringe=0.42, side=1.22, bottom=-0.62, back_bottom=-0.8)
-    bangs(h, C, R, 7, 0.52, 1.05, size=(0.075, 0.1, 0.035), k=1.05, droop=0.1)
-    # side locks framing face
-    for s in (-1, 1):
-        p, n = surf(C, (R[0] * 1.05, R[1] * 1.05, R[2] * 1.05), s * 1.2, -0.38)
-        h.sphere((0.048, 0.045, 0.1), tuple(p), 'M_Hair', 8, 6, rot=(0, s * -12, 0))
-        p, n = surf(C, (R[0] * 1.03, R[1] * 1.03, R[2] * 1.03), s * 1.25, -0.72)
-        h.sphere((0.035, 0.035, 0.05), tuple(p), 'M_Hair', 6, 4, rot=(0, s * 20, 0))
-    # side ponytail (character's right = -X) with red ribbon
-    px, py = -0.24, 0.08
-    h.sphere((0.075, 0.07, 0.08), (px - 0.02, py, 1.24), 'M_Hair', 8, 6)
-    h.sphere((0.062, 0.058, 0.09), (px - 0.045, py + 0.01, 1.12), 'M_Hair', 8, 6, rot=(0, 15, 0))
-    h.cyl(0.04, 0.0, 0.11, 6, (px - 0.07, py + 0.01, 1.0), 'M_Hair', (0, 165, 0))
-    rb = align_z((-0.6, -0.2, 0.3), (px + 0.01, py - 0.02, 1.32))
-    h.sphere(0.026, (0, 0, 0), 'M_AppleRed', 6, 4, M=rb)
-    for s in (-1, 1):
-        h.cyl(0.0, 0.055, 0.075, 4, (s * 0.042, 0, 0), 'M_AppleRed', (0, s * 90, 0), scale=(1, 0.5, 1), M=rb)
-    h.box((0.024, 0.08, 0.01), (-0.012, -0.05, 0.0), 'M_AppleRed', (0, 0, 15), M=rb)
-    h.box((0.024, 0.07, 0.01), (0.015, -0.05, 0.0), 'M_AppleRed', (0, 0, -20), M=rb)
-    # beret (tilted to her left, with stem nub)
+    # beret (tilted to the left, with stem nub)
     bt = T((0.045, 0.02, 1.52), (-6, 18, 0))
     h.lathe([(0.15, 0.0), (0.19, 0.025), (0.207, 0.05), (0.185, 0.076), (0.1, 0.096), (0.0, 0.1)], 14,
             m='M_AppleRed', M=bt)
     h.cyl(0.158, 0.152, 0.035, 14, (0, 0, 0.0), 'M_AppleRed', M=bt)
     h.cyl(0.014, 0.01, 0.04, 5, (0.0, 0.0, 0.11), 'M_WoodDark', (0, -10, 0), M=bt)
     head = h.build('Chef_Head', pivot=(0, 0, 1.18))
+    hairs = [_chef_hair(st, C, R) for st in CHEF_HAIR_STYLES]
 
-    e, ec = eyes(C, R, az=0.36, el=-0.08, ew=0.05, eh=0.066, lash=False)
+    e, ec = eyes(C, R, az=0.36, el=-0.08, ew=0.05, eh=0.066, lash=False, iris='M_ChefIris')
     eo = e.build('Chef_Eyes', pivot=tuple(ec))
     mm, mp = mouth(C, R, el=-0.42, w=0.06, h=0.04)
     mo = mm.build('Chef_Mouth', pivot=tuple(mp))
 
     arms = [arm(P, s, (s * 0.18, 0, 1.11), 0.36, 'M_White', r_top=0.058, r_bot=0.05,
                 cuff_m='M_White', hand_r=0.052, splay=10) for s in (1, -1)]
-    return assemble('Chef', body, head, eo, mo, arms)
+    return assemble('Chef', body, head, eo, mo, arms,
+                    extra=[(buttons, body), (apron, body)] + [(hr, head) for hr in hairs])
 
 
 # ------------------------------------------------------------------ CUSTOMERS

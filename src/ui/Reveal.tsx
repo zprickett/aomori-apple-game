@@ -98,7 +98,6 @@ function AppleOverview({ id, state }: { id: string; state: GameState }) {
     <>
       <h2 className="ov-name">{shortName(a.nameEn)} <span className="ja" lang="ja">{a.nameJa}</span></h2>
       <p className="ov-desc">{a.overviewForKids}</p>
-      <div className="ov-size"><span className={`size-chip inline s-${a.sizeLabel}`}>{a.sizeLabel}</span> {a.sizeLabel === 'S' ? 'Small' : a.sizeLabel === 'M' ? 'Medium' : 'Large'} apple · about {a.weightG} g</div>
       <div className="ov-stats">
         {Object.entries(a.stats).map(([k, v]) => (
           <div key={k} className="ov-stat">

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ChefContext } from '../game/chef.ts';
 import {
   CircleRecognizer, SliceRecognizer, TapRecognizer, PACE, ARCADE_WINDOWS, beatLead, nextBeatTarget,
   beatExpiresAt, beatOpensAt, beatTargets, combineBeats, gradeBeat, selectors, apple as appleInfo,
@@ -445,13 +446,14 @@ function FxView({ f, skin }: { f: Fx; skin: string }) {
 
 function ChefBubble({ text }: { text: string }) {
   const { anchors, w } = useAnchors();
+  const chef = useContext(ChefContext);
   const head = anchors.chefHead;
   if (!text) return null;
   const top = head ? Math.max(58, head.y - 70) : 70;
   const left = head ? Math.min(Math.max(head.x + 46, w * 0.36), w - 200) : w * 0.4;
   return (
     <div className="chef-bubble" style={{ top, left }} role="status" aria-live="polite" data-testid="chef-bubble">
-      <span className="who">Chef Hana</span>
+      <span className="who">Chef {chef.name}</span>
       {text}
     </div>
   );

@@ -108,11 +108,13 @@ describe('apples', () => {
     expect(apple('a058').fleshRed).toBe(true);
     expect(apple('a094').fleshRed).toBe(false); // red skin ≠ red flesh
     expect(apple('a048').flesh).toBe('#FFF1C9');
-    // 3D scale follows the typical weight (cube root vs a 300 g apple, clamped 0.6–1.3)
-    expect(apple('a091').scale).toBe(0.6); // Alps Otome ~38 g
-    expect(apple('a094').scale).toBeCloseTo(0.874, 3); // Kogyoku ~200 g
-    expect(apple('a032').scale).toBe(1); // Bramley ~300 g
-    expect(apple('a059').scale).toBe(1.3); // Stark Jumbo ~850 g
+    // 3D scale: S 0.85, M 1, L 1.12; tiny apples (<= 100 g) stay extra-small
+    expect(apple('a091').scale).toBe(0.62); // Alps Otome ~38 g
+    expect(apple('a084').scale).toBe(0.62); // Shinano Piccolo ~100 g (estimate)
+    expect(apple('a094').scale).toBe(0.85); // Kogyoku ~200 g → S
+    expect(apple('a032').scale).toBe(1); // Bramley ~300 g → M
+    expect(apple('a059').scale).toBe(1.12); // Stark Jumbo ~850 g → L
+    for (const a of APPLES) if (a.weightG > 100) expect(a.scale).toBe({ S: 0.85, M: 1, L: 1.12 }[a.sizeLabel]);
     expect(apple('a086').browning).toBe('resistant');
     expect(apple('a091').sizeClass).toBe('mini');
     expect(APPLES.every((a) => a.traitHint.length > 0 && !a.traitHint.includes('\n'))).toBe(true);

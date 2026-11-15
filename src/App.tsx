@@ -1,6 +1,8 @@
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { selectors, type RecipeId } from './core/index.ts';
+import { createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type RecipeId } from './core/index.ts';
+import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
+import { ChefMaker, Story, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
 import { devPlayParams, useGame } from './game/useGame.ts';
 import { recipeStages, type PropSpec } from './game/stations.ts';
 import { emitCue } from './game/bus.ts';
@@ -31,7 +33,49 @@ export default function App() {
   if (!gl) return <Fallback title="3D isn’t available here" body="Aomori Apple Kitchen needs WebGL. Try another browser, or turn on hardware acceleration." />;
   if (assets === 'error') return <Fallback title="The stall couldn’t be set up" body="Something went wrong loading the 3D models. Please reload the page." />;
   if (assets === 'loading') return <Fallback title="Opening the apple stall…" body="" loading />;
-  return REVIEW ? <Review /> : <Game />;
+  if (REVIEW) return <Review />;
+  if (devPlayParams()) return <Game />;
+  return <Root />;
+}
+
+function safeStorage(): Storage | null {
+  try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; }
+}
+
+type Screen = 'welcome' | 'story' | 'create' | 'who' | 'play' | 'edit';
+
+/** Onboarding + profiles around the game. Each chef has their own save. */
+function Root() {
+  const store = useMemo(() => createProfileStore(safeStorage()), []);
+  const [idx, setIdx] = useState(() => store.load());
+  const [screen, setScreen] = useState<Screen>(() => (idx.profiles.length ? 'who' : 'welcome'));
+  const [chef, setChef] = useState<Profile | null>(null);
+  const refresh = () => setIdx(store.load());
+  const play = (p: Profile) => { store.setActive(p.id); refresh(); setChef(p); setScreen('play'); };
+
+  if (screen === 'play' && chef) {
+    return (
+      <ChefContext.Provider value={chef}>
+        <Game key={chef.id} saveKey={saveKeyFor(chef.id)} onSwitchChef={() => { refresh(); setScreen('who'); }} onEditChef={() => setScreen('edit')} />
+      </ChefContext.Provider>
+    );
+  }
+  let body;
+  if (screen === 'welcome') body = <Welcome onStart={() => setScreen('story')} />;
+  else if (screen === 'story') body = <Story onBack={() => setScreen('welcome')} onDone={() => setScreen('create')} />;
+  else if (screen === 'create') {
+    body = <ChefMaker mode="create" onBack={() => setScreen(idx.profiles.length ? 'who' : 'story')}
+      onDone={(name: string, look: ChefLook) => play(store.create(name, look))} />;
+  } else if (screen === 'edit' && chef) {
+    body = <ChefMaker mode="edit" initial={chef} onBack={() => setScreen('play')}
+      onDone={(name: string, look: ChefLook) => { const p = store.update(chef.id, { name, look }); refresh(); setChef(p); setScreen('play'); }} />;
+  } else {
+    body = <WhoIsCooking profiles={idx.profiles} activeId={idx.activeId}
+      onPlay={(id) => { const p = idx.profiles.find((x) => x.id === id); if (p) play(p); }}
+      onNew={() => setScreen('create')}
+      onDelete={(id) => { store.remove(id); const next = store.load(); setIdx(next); if (!next.profiles.length) setScreen('welcome'); }} />;
+  }
+  return <div className="frame onb-frame">{body}</div>;
 }
 
 /** DEV only: http://localhost:5173/?review opens the apple / recipe review page. */
@@ -49,8 +93,9 @@ function Fallback({ title, body, loading }: { title: string; body: string; loadi
   );
 }
 
-function Game() {
-  const { state, dispatch, persistent, reducedMotion } = useGame();
+function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitchChef?: () => void; onEditChef?: () => void }) {
+  const { state, dispatch, persistent, reducedMotion } = useGame(saveKey);
+  const chef = useContext(ChefContext) ?? DEFAULT_CHEF;
   // DEV review "Play": leaving practice returns to the review page on the same recipe.
   const devPlay = useMemo(devPlayParams, []);
   useEffect(() => {
@@ -98,6 +143,7 @@ function Game() {
         >
           <Suspense fallback={null}>
             <GameScene
+              chefLook={chef.look}
               view={view}
               customerId={state.order.customerId}
               orderKey={state.order.orderId}
@@ -130,7 +176,8 @@ function Game() {
 
       <Notice text={state.notice} onClose={() => dispatch({ type: 'DISMISS_NOTICE' })} />
       {!persistent && <div className="save-warn" role="status">Progress cannot be saved on this device</div>}
-      {sheet && <Sheet kind={sheet} state={state} dispatch={dispatch} onClose={() => setSheet(null)} persistent={persistent} />}
+      {sheet && <Sheet kind={sheet} state={state} dispatch={dispatch} onClose={() => setSheet(null)} persistent={persistent}
+        chefName={chef.name} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
     </div>
   );
 }
