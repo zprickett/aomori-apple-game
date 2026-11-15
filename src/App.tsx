@@ -7,8 +7,9 @@ import { emitCue } from './game/bus.ts';
 import { loadAssets } from './three/assetLib.ts';
 import { GameScene, type ViewMode } from './three/Scene.tsx';
 import { CookOverlay } from './ui/CookOverlay.tsx';
-import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard, DeliveryCard } from './ui/Screens.tsx';
-import { TopBar, Sheet, Notice } from './ui/Chrome.tsx';
+import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
+import { UnlockReveal } from './ui/Reveal.tsx';
+import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
 
 function webglAvailable(): boolean {
@@ -46,7 +47,7 @@ function Fallback({ title, body, loading }: { title: string; body: string; loadi
 
 function Game() {
   const { state, dispatch, persistent, reducedMotion } = useGame();
-  const [sheet, setSheet] = useState<null | 'collection' | 'practice' | 'settings'>(null);
+  const [sheet, setSheet] = useState<null | SheetKind>(null);
   const [bridgeFrame, setBridgeFrame] = useState(0);
 
   const recipe = selectors.activeRecipe(state);
@@ -115,8 +116,8 @@ function Game() {
         <CookOverlay state={state} dispatch={dispatch} stage={stage} stages={stages} bridgeFrame={bridgeFrame} setBridgeFrame={setBridgeFrame} reduced={reducedMotion} />
       )}
       {state.phase === 'serve' && <ServeOverlay state={state} dispatch={dispatch} reduced={reducedMotion} />}
-      {state.phase === 'result' && <ResultCard state={state} dispatch={dispatch} />}
-      {state.phase === 'delivery' && <DeliveryCard state={state} dispatch={dispatch} />}
+      {state.phase === 'result' && <ResultCard state={state} dispatch={dispatch} reduced={reducedMotion} />}
+      {state.phase === 'delivery' && <UnlockReveal key={state.order.orderId} state={state} dispatch={dispatch} reduced={reducedMotion} />}
 
       <Notice text={state.notice} onClose={() => dispatch({ type: 'DISMISS_NOTICE' })} />
       {!persistent && <div className="save-warn" role="status">Progress cannot be saved on this device</div>}

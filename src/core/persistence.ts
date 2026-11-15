@@ -7,6 +7,7 @@ import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './co
 import { DEFAULT_SEED, unlockedApples, unlockedRecipes } from './progression.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
+import { HISTORY_LIMIT, RANK_ORDER, scoreDish, type DishRank, type OrderRecord } from './points.ts';
 
 export const SAVE_KEY = 'aomori-kitchen-save';
 export const SAVE_VERSION = 2;
@@ -57,6 +58,12 @@ export interface SaveData {
   unlockedRecipes: string[];
   bestScores: Record<string, number>;
   discoveredPairings: Record<string, { bestStars: number; fit: number }>;
+  /** Lifetime points (chef level). */
+  totalPoints: number;
+  /** Best points per recipe id. */
+  bestPoints: Record<string, number>;
+  /** Past orders, oldest first (capped at HISTORY_LIMIT). */
+  history: OrderRecord[];
   settings: SaveSettings;
   /** Unlock celebrations already shown, e.g. 'apple:a094', 'recipe:apple_jam'. */
   seenUnlockRewards: string[];
@@ -84,6 +91,9 @@ export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings 
     unlockedRecipes: unlockedRecipes(0),
     bestScores: {},
     discoveredPairings: {},
+    totalPoints: 0,
+    bestPoints: {},
+    history: [],
     settings: { ...settings },
     seenUnlockRewards: [],
     current: null,
@@ -130,7 +140,14 @@ function sanitizeEvaluation(v: unknown): DishEvaluation | null {
   if (!isObj(v)) return null;
   if (!isAppleId(v.appleId) || !isRecipeId(v.recipeId)) return null;
   if (typeof v.finishedStars !== 'number' || typeof v.explanation !== 'string') return null;
-  return v as unknown as DishEvaluation;
+  const ev = v as unknown as DishEvaluation;
+  // Older saves have no points: recompute deterministically from the accepted grades.
+  if (!isObj(v.score) || typeof (v.score as Record<string, unknown>).total !== 'number') {
+    const grades = Array.isArray(ev.grades) ? ev.grades.map((g) => g.grade).filter((g) => GRADES.includes(g)) : [];
+    if (grades.length !== recipe(ev.recipeId).steps.length) return null;
+    return { ...ev, score: scoreDish(ev.appleId, ev.recipeId, grades) };
+  }
+  return ev;
 }
 
 /**
@@ -228,6 +245,10 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
       if (bestStars <= 3 && fit <= 3) discoveredPairings[k] = { bestStars, fit };
     }
   const { current, notice } = sanitizeCurrent(v.current, completedOrders, completedOrderIds, apples);
+  const bestPoints: Record<string, number> = {};
+  if (isObj(v.bestPoints))
+    for (const [k, s] of Object.entries(v.bestPoints)) if (isRecipeId(k)) { const n = nonNegInt(s, -1); if (n >= 0) bestPoints[k] = n; }
+  const history = (Array.isArray(v.history) ? v.history : []).map(sanitizeRecord).filter((r): r is OrderRecord => r !== null).slice(-HISTORY_LIMIT);
   const data: SaveData = {
     version: 2,
     actionSystemVersion: '2.0',
@@ -238,6 +259,9 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     unlockedRecipes: orderLike(recipes, [...RECIPE_ORDER]),
     bestScores,
     discoveredPairings,
+    totalPoints: nonNegInt(v.totalPoints, 0),
+    bestPoints,
+    history,
     settings: sanitizeSettings(v.settings),
     seenUnlockRewards: uniq(strArr(v.seenUnlockRewards)),
     current,
@@ -245,6 +269,22 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
   const notices = strArr(v.notices);
   if (notices.length) data.notices = notices;
   return { data, notice };
+}
+
+function sanitizeRecord(v: unknown): OrderRecord | null {
+  if (!isObj(v) || typeof v.orderId !== 'string' || !isRecipeId(v.recipeId) || !isAppleId(v.appleId)) return null;
+  const grades = strArr(v.grades).filter((g): g is Grade => GRADES.includes(g as Grade));
+  return {
+    orderId: v.orderId,
+    orderNumber: nonNegInt(v.orderNumber, 0),
+    recipeId: v.recipeId,
+    appleId: v.appleId,
+    points: nonNegInt(v.points, 0),
+    rank: RANK_ORDER.includes(v.rank as DishRank) ? (v.rank as DishRank) : 'sprout',
+    grades,
+    fit: nonNegInt(v.fit, 0),
+    newBest: v.newBest === true,
+  };
 }
 
 function orderLike(ids: readonly string[], order: readonly string[]): string[] {

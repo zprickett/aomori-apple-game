@@ -44,6 +44,7 @@ import {
 } from './scoring.ts';
 import { gradeStep, toleranceMultiplier, trackZones, type TrackZones } from './stepTimer.ts';
 import { GRADE_POINTS, type Grade } from './timing.ts';
+import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
 
 export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
@@ -80,6 +81,9 @@ export interface Progress {
   bestScores: Record<string, number>;
   discoveredPairings: Record<string, { bestStars: number; fit: number }>;
   seenUnlockRewards: string[];
+  totalPoints: number;
+  bestPoints: Record<string, number>;
+  history: OrderRecord[];
 }
 
 export interface GameState {
@@ -193,8 +197,24 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
   const completedOrders = progress.completedOrders + 1;
   const key = `${evaluation.appleId}:${evaluation.recipeId}`;
   const prevPair = progress.discoveredPairings[key];
+  const pts = evaluation.score.total;
+  const prevBest = progress.bestPoints[evaluation.recipeId];
+  const record: OrderRecord = {
+    orderId: order.orderId,
+    orderNumber: order.orderNumber,
+    recipeId: evaluation.recipeId,
+    appleId: evaluation.appleId,
+    points: pts,
+    rank: evaluation.score.rank,
+    grades: evaluation.grades.map((g) => g.grade),
+    fit: evaluation.fitStars,
+    newBest: prevBest === undefined || pts > prevBest,
+  };
   return {
     ...progress,
+    totalPoints: progress.totalPoints + pts,
+    bestPoints: { ...progress.bestPoints, [evaluation.recipeId]: Math.max(prevBest ?? 0, pts) },
+    history: [...progress.history, record].slice(-HISTORY_LIMIT),
     completedOrders,
     completedOrderIds: [...progress.completedOrderIds, order.orderId],
     unlockedApples: canonApples(progress.unlockedApples, scheduleApples(completedOrders)),
@@ -233,6 +253,9 @@ function progressFromSave(save: SaveData): Progress {
     bestScores: { ...save.bestScores },
     discoveredPairings: { ...save.discoveredPairings },
     seenUnlockRewards: [...save.seenUnlockRewards],
+    totalPoints: save.totalPoints,
+    bestPoints: { ...save.bestPoints },
+    history: save.history.map((h) => ({ ...h, grades: [...h.grades] })),
   };
 }
 
@@ -365,6 +388,9 @@ export function toSaveData(state: GameState): SaveData {
     unlockedRecipes: [...p.unlockedRecipes],
     bestScores: { ...p.bestScores },
     discoveredPairings: { ...p.discoveredPairings },
+    totalPoints: p.totalPoints,
+    bestPoints: { ...p.bestPoints },
+    history: p.history.map((h) => ({ ...h, grades: [...h.grades] })),
     settings: { ...state.settings },
     seenUnlockRewards: [...p.seenUnlockRewards],
     current,

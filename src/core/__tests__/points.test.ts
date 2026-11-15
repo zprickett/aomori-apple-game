@@ -1,0 +1,82 @@
+import { describe, expect, it } from 'vitest';
+import { RECIPE_ORDER, recipe } from '../content.ts';
+import { chefLevel, maxDishPoints, rankFor, recipeDifficulty, scoreDish } from '../points.ts';
+import { initialState, gameReducer, commitCompletedOrder } from '../gameReducer.ts';
+import { evaluateDish, type StepResult } from '../scoring.ts';
+import { orderForIndex } from '../progression.ts';
+import { parseSave, defaultSave } from '../persistence.ts';
+import type { Grade } from '../timing.ts';
+
+const all = (id: string, g: Grade) => recipe(id).steps.map(() => g);
+
+describe('points scoring', () => {
+  it('scales difficulty with action count', () => {
+    expect(RECIPE_ORDER.map(recipeDifficulty)).toEqual([1, 1.5, 2, 3, 2.5]);
+  });
+
+  it('harder recipes are worth more at their best', () => {
+    expect(maxDishPoints('fresh_juice')).toBe(200);
+    expect(maxDishPoints('hirosaki_pie')).toBe(3600);
+    expect(maxDishPoints('hirosaki_pie')).toBeGreaterThan(maxDishPoints('ringo_ame'));
+  });
+
+  it('applies combo and apple multiplier', () => {
+    // Alps Otome (a091) is a Best fit for the mini candy apple.
+    const s = scoreDish('a091', 'ringo_ame', ['Perfect', 'Perfect', 'Good', 'Good']);
+    expect(s.cooking).toBe(Math.round(340 * 2.5));
+    expect(s.combo).toBe(Math.round(25 * 1 * 2.5));
+    expect(s.appleMultiplier).toBe(2);
+    expect(s.total).toBe(Math.round((s.cooking + s.combo) * 2));
+    expect(s.bestStreak).toBe(2);
+  });
+
+  it('all Perfect with a best apple is a Golden Apple; all Miss is a Sprout with 0', () => {
+    expect(scoreDish('a091', 'ringo_ame', all('ringo_ame', 'Perfect')).rank).toBe('golden');
+    const miss = scoreDish('a091', 'ringo_ame', all('ringo_ame', 'Miss'));
+    expect(miss.total).toBe(0);
+    expect(miss.rank).toBe('sprout');
+    expect(rankFor(70, 100)).toBe('ripe');
+    expect(rankFor(45, 100)).toBe('blossom');
+  });
+
+  it('chef level grows with lifetime points', () => {
+    expect(chefLevel(0)).toMatchObject({ level: 1, title: 'Apple Sprout', floor: 0 });
+    expect(chefLevel(400).level).toBe(2);
+    expect(chefLevel(399).frac).toBeCloseTo(399 / 400);
+    expect(chefLevel(42000).level).toBe(12);
+  });
+});
+
+describe('history and totals', () => {
+  const results = (id: string, g: Grade): StepResult[] =>
+    recipe(id).steps.map((s) => ({ stepId: s.id, grade: g, error_ms: 0, attemptId: 'x', assisted: false, points: 1 }));
+
+  it('commit records history, totals and new bests (idempotent)', () => {
+    let p = initialState().progress;
+    const o1 = orderForIndex(1);
+    const e1 = evaluateDish({ appleId: 'a048', recipeId: o1.recipeId, results: results(o1.recipeId, 'Good'), assisted: false });
+    p = commitCompletedOrder(p, o1, e1);
+    expect(p.history).toHaveLength(1);
+    expect(p.history[0]).toMatchObject({ orderId: o1.orderId, points: e1.score.total, newBest: true });
+    expect(p.totalPoints).toBe(e1.score.total);
+    expect(p.bestPoints[o1.recipeId]).toBe(e1.score.total);
+    expect(commitCompletedOrder(p, o1, e1)).toBe(p);
+    const o2 = orderForIndex(2);
+    const e2 = evaluateDish({ appleId: 'a048', recipeId: o2.recipeId, results: results(o2.recipeId, 'Miss'), assisted: false });
+    p = commitCompletedOrder(p, o2, e2);
+    expect(p.totalPoints).toBe(e1.score.total + e2.score.total);
+  });
+
+  it('saves round-trip points and history; old saves load with empty history', () => {
+    const s0 = initialState();
+    const json = JSON.stringify({ ...defaultSave(), totalPoints: 1234, bestPoints: { fresh_juice: 200, bogus: 5 }, history: [{ orderId: 'o-0001', orderNumber: 1, recipeId: 'fresh_juice', appleId: 'a048', points: 200, rank: 'golden', grades: ['Perfect'], fit: 3, newBest: true }, { junk: true }] });
+    const { data } = parseSave(json);
+    expect(data.totalPoints).toBe(1234);
+    expect(data.bestPoints).toEqual({ fresh_juice: 200 });
+    expect(data.history).toHaveLength(1);
+    const legacy = JSON.parse(JSON.stringify(defaultSave()));
+    delete legacy.totalPoints; delete legacy.bestPoints; delete legacy.history;
+    expect(parseSave(JSON.stringify(legacy)).data).toMatchObject({ totalPoints: 0, bestPoints: {}, history: [] });
+    expect(gameReducer(s0, { type: 'DISMISS_NOTICE' }).progress.history).toEqual([]);
+  });
+});

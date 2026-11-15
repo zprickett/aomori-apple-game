@@ -22,7 +22,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('ERR_TUNNEL') && !m.text().includes('fonts.g')) errors.push(m.text()); });
 await page.goto(URL);
 if (args.fresh) { await page.evaluate(() => localStorage.clear()); await page.reload(); }
-await page.waitForSelector('[data-testid=accept], [data-testid=apple-drawer], [data-testid=gesture-layer], [data-testid=result-card], [data-testid=delivery-card]', { timeout: 30000 });
+await page.waitForSelector('[data-testid=accept], [data-testid=apple-drawer], [data-testid=gesture-layer], [data-testid=result-card], [data-testid=delivery-card], [data-testid=reveal-intro]', { timeout: 30000 });
 let shotN = 0;
 const shot = async (name) => { if (SHOTS) await page.screenshot({ path: `${SHOTS}/${String(++shotN).padStart(2, '0')}_${name}.png` }); };
 
@@ -86,17 +86,20 @@ for (let o = 0; o < ORDERS; o++) {
   await page.waitForTimeout(900);
   await shot('result');
   const res = await page.evaluate(() => ({
-    explain: document.querySelector('[data-testid=explanation]')?.textContent,
+    points: document.querySelector('[data-testid=points] b')?.textContent,
+    rank: document.querySelector('[data-testid=rank]')?.textContent,
     grades: [...document.querySelectorAll('.res-grades .chip')].map((c) => c.textContent),
   }));
   log.push({ order, appleId, gestures, ...res });
   console.log(JSON.stringify(log[log.length - 1]));
   await page.click('[data-testid=result-next]');
   await page.waitForTimeout(500);
-  if (await page.$('[data-testid=delivery-card]')) {
-    await page.waitForTimeout(900);
-    await shot('delivery');
-    await page.click('[data-testid=delivery-done]');
+  // Unlock reveal: manga intro (tap to skip) → overview card(s) → Back to the shop.
+  for (let k = 0; k < 12; k++) {
+    if (await page.$('[data-testid=reveal-intro]')) { await page.waitForTimeout(700); await shot('reveal-intro'); await page.click('[data-testid=reveal-intro]'); await page.waitForTimeout(300); continue; }
+    if (await page.$('[data-testid=reveal-next]')) { await shot('reveal'); await page.click('[data-testid=reveal-next]'); await page.waitForTimeout(300); continue; }
+    if (await page.$('[data-testid=delivery-done]')) { await page.waitForTimeout(600); await shot('reveal'); await page.click('[data-testid=delivery-done]'); }
+    break;
   }
 }
 const save = await page.evaluate(() => localStorage.getItem('aomori-kitchen-save'));

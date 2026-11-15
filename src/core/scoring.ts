@@ -17,6 +17,7 @@ import { RECIPE_ORDER,
   type FitStars,
 } from './content.ts';
 import { summarizeTechnique, type Grade } from './timing.ts';
+import { scoreDish, type DishScore } from './points.ts';
 
 export interface StepResult {
   stepId: string;
@@ -49,6 +50,8 @@ export interface DishEvaluation {
   tip: string;
   /** ringo_ame with a non-mini apple (fit kept as recorded). */
   sizeMismatch?: boolean;
+  /** Points shown to the player. */
+  score: DishScore;
 }
 
 export interface EvaluateDishInput {
@@ -150,6 +153,7 @@ export function evaluateDish(input: EvaluateDishInput): DishEvaluation {
     explanation,
     childFeedback,
     tip,
+    score: scoreDish(appleId, recipeId, accepted.map((r) => r.grade)),
   };
   if (sizeMismatch) result.sizeMismatch = true;
   return result;

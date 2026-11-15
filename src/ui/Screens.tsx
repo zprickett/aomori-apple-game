@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { apple, recipe, selectors, type GameAction, type GameState } from '../core/index.ts';
+import { useEffect, useRef, useState } from 'react';
+import { RANK_FEEDBACK, RANK_INFO, apple, chefLevel, recipe, selectors, type DishRank, type GameAction, type GameState } from '../core/index.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -59,7 +59,7 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
         <button className="btn small ghost" onClick={() => dispatch({ type: 'BACK' })} data-testid="back">‹ Back</button>
         <div className="drawer-title">
           <img src={dishIcon(r.id)} alt="" />
-          <div><div className="kicker">{state.mode === 'practice' ? 'Practice' : 'Pick an apple for'}</div><div className="t">{r.name}</div></div>
+          <div className="t">{r.name}</div>
         </div>
       </div>
       <div className="apple-grid">
@@ -95,18 +95,13 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
                 <div className="ad-trait">{sel.traitHint}</div>
               </div>
             </div>
-            <div className="ad-fit">
-              <span>Fit for {r.name}:</span> <Stars n={fit ?? 0} size={20} /> <b>{fit === 0 ? 'Bad fit for this recipe' : FIT_WORD[fit ?? 0]}</b>
-            </div>
-            {fit === 0 && <div className="ad-note">Try this apple in another dish!</div>}
+            {fit === 0 && <div className="ad-note">Not a good fit here. Try this apple in another dish!</div>}
             {sizeMismatch && <div className="ad-note">This apple is big for a mini candy apple — it stays whole, but a small apple fits best.</div>}
             <button className="btn primary huge" data-testid="confirm-apple" onClick={() => { unlockAudio(); sfx.pop(); dispatch({ type: 'CONFIRM_APPLE' }); }}>
               Use {sel.nameEn.replace(' (Jonathan)', '')}
             </button>
           </>
-        ) : (
-          <div className="ad-empty">Tap an apple to see how well it fits.</div>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -130,82 +125,89 @@ export function ServeOverlay({ state, dispatch, reduced }: { state: GameState; d
 
 // ---------------------------------------------------------------------------
 const GRADE_CLASS: Record<string, string> = { Perfect: 'g-perfect', Good: 'g-good', OK: 'g-ok', Miss: 'g-miss' };
+const RANK_SFX: Record<DishRank, number> = { golden: 3, ripe: 2, blossom: 1, sprout: 0 };
 
-export function ResultCard({ state, dispatch }: { state: GameState; dispatch: D }) {
-  const res = state.result;
-  const pr = state.practiceResult;
-  const r = selectors.activeRecipe(state);
-  const a = state.appleId ? apple(state.appleId) : null;
+export function useCountUp(target: number, ms: number, reduced: boolean, delay = 0): number {
+  const [v, setV] = useState(reduced ? target : 0);
   useEffect(() => {
-    if (!res) return;
-    const s = res.finishedStars;
-    emitCue({ type: 'customer', anim: s >= 3 ? 'joy' : s >= 1 ? 'happy' : 'think' });
-    if (s >= 3) emitCue({ type: 'chef', anim: 'cheer' });
-    for (let i = 0; i < s; i++) window.setTimeout(() => sfx.star(i), 350 + i * 260);
-    if (s >= 3) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
-  }, [res]);
+    if (reduced) { setV(target); return; }
+    let raf = 0;
+    const t0 = performance.now() + delay;
+    const tick = (t: number) => {
+      const f = Math.min(1, Math.max(0, (t - t0) / ms));
+      setV(Math.round(target * (1 - Math.pow(1 - f, 3))));
+      if (f < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms, reduced, delay]);
+  return v;
+}
+
+export function LevelBar({ before, after, reduced }: { before: number; after: number; reduced: boolean }) {
+  const shown = useCountUp(after - before, 900, reduced, 700) + before;
+  const lv = chefLevel(shown);
+  const up = chefLevel(after).level > chefLevel(before).level && shown >= chefLevel(after).floor;
   return (
-    <div className="sheet-card result" role="dialog" aria-label="Dish result" data-testid="result-card">
-      <div className="res-head">
-        <img src={dishIcon(r.id)} alt="" />
-        <div>
-          <div className="kicker">{a ? `${a.nameEn} · ${r.name}` : r.name}</div>
-          {res ? (
-            <>
-              <div className="res-stars"><Stars n={res.finishedStars} size={34} /></div>
-              <div className="res-label">{res.childFeedback}</div>
-            </>
-          ) : (
-            <div className="res-label">Practice done — no stars, just skills!</div>
-          )}
-        </div>
+    <div className={`level-bar ${up ? 'up' : ''}`} data-testid="level-bar">
+      <div className="lv-row">
+        <span className="lv-badge">Lv {lv.level}</span>
+        <span className="lv-title">{lv.title}</span>
+        {up && <span className="lv-up">LEVEL UP!</span>}
+        <span className="lv-pts">{shown.toLocaleString()} pts</span>
       </div>
-      {res && <div className="res-explain" data-testid="explanation">{res.explanation}</div>}
-      <div className="res-grades">
-        {(res?.grades ?? pr?.grades ?? []).map((g, i) => (
-          <span key={g.stepId} className={`chip ${GRADE_CLASS[g.grade]}`}>{i + 1}. {g.grade}</span>
-        ))}
-      </div>
-      {res?.tip && <div className="res-tip">💡 {res.tip}</div>}
-      <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
-        {pr ? 'Back to the shop' : state.delivery ? 'A delivery is here!' : 'Next customer'}
-      </button>
+      <div className="lv-track"><i style={{ width: `${Math.round(lv.frac * 100)}%` }} /></div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-export function DeliveryCard({ state, dispatch }: { state: GameState; dispatch: D }) {
-  const d = state.delivery!;
-  useEffect(() => { sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, []);
+export function ResultCard({ state, dispatch, reduced }: { state: GameState; dispatch: D; reduced: boolean }) {
+  const res = state.result;
+  const pr = state.practiceResult;
+  const r = selectors.activeRecipe(state);
+  const a = state.appleId ? apple(state.appleId) : null;
+  const score = res?.score ?? null;
+  const record = res ? state.progress.history.find((h) => h.orderId === state.order.orderId) : undefined;
+  const after = state.progress.totalPoints;
+  const before = after - (record?.points ?? 0);
+  const shown = useCountUp(score?.total ?? 0, 800, reduced, 250);
+  useEffect(() => {
+    if (!score) return;
+    const n = RANK_SFX[score.rank];
+    emitCue({ type: 'customer', anim: n >= 3 ? 'joy' : n >= 1 ? 'happy' : 'think' });
+    if (n >= 3) emitCue({ type: 'chef', anim: 'cheer' });
+    for (let i = 0; i < n; i++) window.setTimeout(() => sfx.star(i), 350 + i * 260);
+    if (n >= 3 || record?.newBest) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
+  }, [score, record?.newBest]);
   return (
-    <div className="sheet-card delivery" role="dialog" aria-label="New delivery" data-testid="delivery-card">
-      {d.collectionComplete && (
-        <div className="complete-banner">🎉 Every prototype apple collected! Free play is open — keep cooking!</div>
-      )}
-      {d.apples.map((id) => {
-        const a = apple(id);
-        return (
-          <div className="disc" key={id}>
-            <div className="kicker">A new crate arrived!</div>
-            <img src={appleIcon(id)} alt="" className="disc-img" />
-            <div className="disc-name">{a.nameEn} <span className="ja" lang="ja">{a.nameJa}</span></div>
-            <div className="disc-trait">{a.traitHint}</div>
-          </div>
-        );
-      })}
-      {d.recipes.map((id) => {
-        const rr = recipe(id);
-        return (
-          <div className="disc recipe" key={id}>
-            <img src={dishIcon(id)} alt="" className="disc-img small" />
-            <div><div className="kicker">New recipe</div><div className="disc-name">{rr.name}</div>
-              <div className="disc-trait">{rr.steps.length} {rr.steps.length === 1 ? 'action' : 'actions'}: {[...new Set(rr.steps.map((s) => s.gesture))].join(', ')}</div></div>
-          </div>
-        );
-      })}
-      <button className="btn primary huge" data-testid="delivery-done" onClick={() => { sfx.tap(); dispatch({ type: 'DELIVERY_DONE' }); }}>
-        Back to the shop
+    <div className="sheet-card result" role="dialog" aria-label="Dish result" data-testid="result-card">
+      <div className="res-head">
+        <img src={dishIcon(r.id)} alt="" />
+        <div className="res-main">
+          <div className="kicker">{a ? `${a.nameEn.replace(' (Jonathan)', '')} · ${r.name}` : r.name}</div>
+          {score && res ? (
+            <>
+              <div className="res-points" data-testid="points"><b>{shown.toLocaleString()}</b> pts
+                {record?.newBest && <span className="new-best">NEW BEST!</span>}
+              </div>
+              <div className={`rank-badge r-${score.rank}`} data-testid="rank">{RANK_INFO[score.rank].icon} {RANK_INFO[score.rank].label}</div>
+              <div className="res-label">{score.fit === 0 ? res.childFeedback : RANK_FEEDBACK[score.rank]}</div>
+            </>
+          ) : (
+            <div className="res-label">Practice done. Just for fun!</div>
+          )}
+        </div>
+      </div>
+      <div className="res-grades">
+        {(res?.grades ?? pr?.grades ?? []).map((g, i) => (
+          <span key={g.stepId} className={`chip ${GRADE_CLASS[g.grade]}`}>{i + 1}. {g.grade}</span>
+        ))}
+        {score && <span className={`chip apple-x f-${score.fit}`}>🍎 ×{score.appleMultiplier}</span>}
+        {score && score.combo > 0 && <span className="chip combo-chip">🔥 +{score.combo}</span>}
+      </div>
+      {score && <LevelBar before={before} after={after} reduced={reduced} />}
+      <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
+        {pr ? 'Back to the shop' : state.delivery ? 'A delivery is here!' : 'Next customer'}
       </button>
     </div>
   );
