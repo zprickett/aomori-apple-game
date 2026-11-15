@@ -1,14 +1,61 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
-  createSaveStore, gameReducer, initialStateFromSave, shouldPersist, toSaveData,
+  createMemoryStore, createSaveStore, defaultSave, gameReducer, initialStateFromSave, orderIdFor, shouldPersist, toSaveData, unlocksEarnedAt,
   type GameAction, type GameState, type SaveStore,
 } from '../core/index.ts';
 import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
 
 interface Boot { store: SaveStore; state: GameState; persistent: boolean }
 
+/**
+ * DEV only: `?skip=N` starts a fresh save with N orders done (all unlocks up to N already seen),
+ * then removes the parameter so reloads keep playing normally. Never active in production builds.
+ */
+function saveAfter(n: number) {
+  const s = defaultSave();
+  s.completedOrders = n;
+  s.completedOrderIds = Array.from({ length: n }, (_, i) => orderIdFor(i + 1));
+  for (let k = 1; k <= n; k++) {
+    const u = unlocksEarnedAt(k);
+    s.seenUnlockRewards.push(...u.apples.map((a) => `apple:${a}`), ...u.recipes.map((r) => `recipe:${r}`));
+  }
+  return s;
+}
+
+function devSkip(store: SaveStore) {
+  if (!import.meta.env.DEV || typeof location === 'undefined') return;
+  const params = new URLSearchParams(location.search);
+  const n = Number(params.get('skip'));
+  if (!params.has('skip') || !Number.isInteger(n) || n < 0 || n > 200) return;
+  store.save(saveAfter(n));
+  params.delete('skip');
+  history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
+}
+
+/** DEV review "Play": `?play=<recipeId>&apple=<appleId>` → in-memory session with everything unlocked. */
+export function devPlayParams(): { recipeId: string; appleId: string | null } | null {
+  if (!import.meta.env.DEV || typeof location === 'undefined') return null;
+  const p = new URLSearchParams(location.search);
+  const recipeId = p.get('play');
+  return recipeId ? { recipeId, appleId: p.get('apple') } : null;
+}
+
+function bootDevPlay(play: { recipeId: string; appleId: string | null }): Boot {
+  const store = createMemoryStore();
+  let state = initialStateFromSave(saveAfter(120));
+  state = gameReducer(state, { type: 'START_PRACTICE', recipeId: play.recipeId });
+  if (play.appleId) {
+    state = gameReducer(state, { type: 'PREVIEW_APPLE', appleId: play.appleId });
+    state = gameReducer(state, { type: 'CONFIRM_APPLE' });
+  }
+  return { store, state, persistent: true };
+}
+
 function boot(): Boot {
+  const play = devPlayParams();
+  if (play) return bootDevPlay(play);
   const store = createSaveStore();
+  devSkip(store);
   const { data, notice, persistent } = store.load();
   return { store, state: initialStateFromSave(data, notice), persistent };
 }
@@ -44,7 +91,7 @@ export function useGame() {
   }, []);
 
   const reducedMotion = useReducedMotion(state.settings.reducedMotion);
-  return useMemo(() => ({ state, dispatch, persistent: persistent && store.persistent, reducedMotion }), [state, persistent, store, reducedMotion]);
+  return useMemo(() => ({ state, dispatch, persistent: persistent && (store.persistent || devPlayParams() !== null), reducedMotion }), [state, persistent, store, reducedMotion]);
 }
 
 function useReducedMotion(setting: 'system' | 'on' | 'off'): boolean {

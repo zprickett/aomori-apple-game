@@ -26,3 +26,4 @@ dist-ssr
 dist-single
 .wrangler
 assets/blender/__pycache__
+assets/icons-png

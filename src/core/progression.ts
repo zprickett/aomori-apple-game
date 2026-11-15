@@ -2,17 +2,16 @@
  * Unlock schedule, stall levels and the deterministic, seeded order queue.
  * All functions are pure; "completed" = number of completed orders.
  */
-import { APPLE_ORDER, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
+import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
 
-/** Apple unlocks: completed-order threshold → ids. */
-export const APPLE_UNLOCKS: ReadonlyArray<{ at: number; ids: readonly AppleId[] }> = [
-  { at: 0, ids: ['a048', 'a081', 'a023', 'a066', 'a006'] },
-  { at: 3, ids: ['a094'] },
-  { at: 6, ids: ['a091'] },
-  { at: 9, ids: ['a032'] },
-  { at: 12, ids: ['a058'] },
-  { at: 15, ids: ['a086'] },
-];
+/**
+ * Apple unlocks: completed-order threshold → ids. Five starters, then one new apple after every
+ * completed order (the prototype's Kogyoku 3 / Alps Otome 6 / Bramley 9 / Kurenai no Yume 12 /
+ * Chiyuki 15 keep their slots). The 100th apple arrives after order 95.
+ */
+export const APPLE_UNLOCKS: ReadonlyArray<{ at: number; ids: readonly AppleId[] }> = Object.freeze(
+  EXPANSION_DATA.apple_unlocks.map((u) => ({ at: u.at, ids: [...u.ids] })),
+);
 
 /** Recipe unlocks: completed-order threshold → id. */
 export const RECIPE_UNLOCKS: ReadonlyArray<{ at: number; id: RecipeId }> = [
@@ -21,9 +20,14 @@ export const RECIPE_UNLOCKS: ReadonlyArray<{ at: number; id: RecipeId }> = [
   { at: 4, id: 'apple_jam' },
   { at: 6, id: 'ringo_ame' },
   { at: 7, id: 'hirosaki_pie' },
+  { at: 13, id: 'jam_toast' },
+  { at: 19, id: 'yogurt_parfait' },
+  { at: 25, id: 'baked_apple' },
+  { at: 31, id: 'apple_compote' },
 ];
 
-export const COLLECTION_COMPLETE_AT = 15;
+/** All 100 apples collected. */
+export const COLLECTION_COMPLETE_AT = Math.max(...EXPANSION_DATA.apple_unlocks.map((u) => u.at));
 export const STALL_LEVEL_THRESHOLDS = [5, 10, 15] as const;
 
 const count = (n: number) => (Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
@@ -118,6 +122,10 @@ export const SCRIPTED_ORDERS: Readonly<Record<number, { recipeId: RecipeId; intr
   10: { recipeId: 'apple_jam', demoApple: 'a032' },
   13: { recipeId: 'apple_jam', demoApple: 'a058' },
   16: { recipeId: 'rabbit_apples', demoApple: 'a086' },
+  14: { recipeId: 'jam_toast', intro: true },
+  20: { recipeId: 'yogurt_parfait', intro: true },
+  26: { recipeId: 'baked_apple', intro: true },
+  32: { recipeId: 'apple_compote', intro: true },
 };
 
 export function orderIdFor(orderNumber: number): string {
@@ -141,6 +149,10 @@ const INTRO_LINES: Record<RecipeId, string> = {
   apple_jam: 'I heard you make Apple Jam now! May I have a jar?',
   ringo_ame: 'Festival time! One Mini Candy Apple, please!',
   hirosaki_pie: 'Could I try your new Hirosaki Apple Pie?',
+  jam_toast: 'Good morning! Could I have Apple Jam Toast?',
+  yogurt_parfait: 'Something cool and crunchy! An Apple Yogurt Parfait, please.',
+  baked_apple: 'Brr, it’s chilly! May I have a warm Baked Apple?',
+  apple_compote: 'Could you make me some Shiny Apple Compote?',
 };
 
 const LINES: Record<RecipeId, readonly string[]> = {
@@ -161,6 +173,10 @@ const LINES: Record<RecipeId, readonly string[]> = {
     'Hirosaki Apple Pie smells so good! One, please.',
     'Could I have Hirosaki Apple Pie?',
   ],
+  jam_toast: ['Apple Jam Toast, please!', 'Toast with apple jam for breakfast, please.', 'May I have Apple Jam Toast?'],
+  yogurt_parfait: ['One Apple Yogurt Parfait, please!', 'A crunchy Apple Yogurt Parfait, please.', 'Could I have a parfait with apples?'],
+  baked_apple: ['One Baked Apple, please!', 'A warm Baked Apple, please.', 'Could I have a soft Baked Apple?'],
+  apple_compote: ['Shiny Apple Compote, please!', 'Could I have some Apple Compote?', 'Apple Compote for dessert, please.'],
 };
 
 const DEMO_LINES: Partial<Record<AppleId, string>> = {

@@ -12,6 +12,7 @@ import {
 } from '../persistence.ts';
 import { gameReducer, initialStateFromSave, toSaveData, type GameAction, type GameState } from '../gameReducer.ts';
 import { recipe } from '../content.ts';
+import { unlockedApples } from '../progression.ts';
 
 class FakeStorage implements StorageLike {
   map = new Map<string, string>();
@@ -65,7 +66,7 @@ describe('save store', () => {
       settings: { sound: false, assistance: true, altControls: true, reducedMotion: 'on' },
       seenUnlockRewards: ['recipe:rabbit_apples', 'apple:a094', 'recipe:apple_jam'],
     };
-    data.unlockedApples = [...data.unlockedApples, 'a094'];
+    data.unlockedApples = unlockedApples(4);
     data.unlockedRecipes = ['fresh_juice', 'rabbit_apples', 'apple_jam'];
     expect(store.save(data)).toBe(true);
     expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(2);
@@ -93,7 +94,9 @@ describe('save store', () => {
     const { data, notice } = createSaveStore(storage).load();
     expect(notice).toBeNull();
     expect(data.settings).toEqual(defaultSave().settings);
-    expect(data.unlockedApples).toEqual(['a048', 'a081', 'a023', 'a066', 'a006', 'a094', 'a091']);
+    expect(data.unlockedApples).toEqual(unlockedApples(7));
+    expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094', 'a091']));
+    expect(data.unlockedApples).toHaveLength(12);
     expect(data.unlockedRecipes).toHaveLength(5);
     expect(data.bestScores).toEqual({});
     expect(data.current).toBeNull();

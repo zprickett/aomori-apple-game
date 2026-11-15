@@ -479,3 +479,49 @@ body {
 .ov-name .ja { display: inline-block; margin-left: 0; }
 .golden-badge { display: inline-block; font-weight: 900; font-size: 0.95rem; border-radius: 999px; padding: 3px 12px; margin-top: 2px; background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border: 2px solid #c98a16; color: #6b4300; animation: pop 0.5s 1.1s cubic-bezier(.2,1.6,.4,1) both; }
 .rank-mini.golden { background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border-color: #c98a16; color: #6b4300; }
+.apple-grid { max-height: min(38vh, 300px); overflow-y: auto; padding: 2px; }
+.coll-count { font-weight: 800; color: var(--ink-soft); font-size: 0.85rem; margin-bottom: 6px; }
+
+/* ---------- dev review page ---------- */
+body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text; }
+#root:has(.review) { height: auto; }
+.review { min-height: 100vh; background: var(--bg); padding: 0 16px 40px; max-width: 1200px; margin: 0 auto; }
+.rv-head { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding: 10px 0; background: var(--bg); border-bottom: 2px solid #eadcc4; flex-wrap: wrap; }
+.rv-head nav { display: flex; gap: 6px; }
+.rv-play { margin-left: auto; font-weight: 800; color: var(--red); }
+.rv-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 18px; margin-top: 14px; align-items: start; }
+@media (max-width: 760px) { .rv-split { grid-template-columns: 1fr; } }
+.rv-search { width: 100%; font: inherit; padding: 10px 12px; border-radius: 12px; border: 2px solid #e6d6bb; margin-bottom: 10px; }
+.rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.rv-card { font: inherit; color: var(--ink); display: flex; flex-direction: column; align-items: center; background: #fff; border: 2px solid #e6d6bb; border-radius: 14px; padding: 4px 4px 6px; cursor: pointer; }
+.rv-card img { width: 64px; height: 64px; }
+.rv-card .nm { font-size: 0.75rem; font-weight: 800; text-align: center; line-height: 1.1; }
+.rv-card .sub { font-size: 0.65rem; color: var(--ink-soft); }
+.rv-card.sel, .rv-recipe.sel { border-color: var(--red); background: #fff1ea; }
+.rv-detail { position: sticky; top: 64px; }
+.rv-hero { position: relative; height: 260px; background: radial-gradient(circle, #fff 0%, var(--bg) 70%); border-radius: 18px; }
+.rv-hero.small { height: 200px; margin-top: 12px; }
+.rv-canvas { position: absolute; inset: 0; }
+.rv-icon { position: absolute; right: 8px; bottom: 8px; width: 72px; height: 72px; background: #fff; border-radius: 12px; border: 2px solid #e6d6bb; }
+.rv-detail h2 { margin: 10px 0 4px; }
+.rv-facts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; margin: 8px 0 10px; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.15); margin-right: 2px; }
+.rv-fits { display: grid; gap: 4px; }
+.rv-fit { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; font-weight: 800; font-size: 0.85rem; }
+.rv-fit img { width: 30px; height: 30px; }
+.rv-recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+.rv-recipe { font: inherit; color: var(--ink); display: flex; gap: 8px; align-items: center; background: #fff; border: 2px solid #e6d6bb; border-radius: 14px; padding: 6px; text-align: left; font-weight: 900; cursor: pointer; }
+.rv-recipe img { width: 40px; height: 40px; }
+.rv-recipe small { display: block; font-weight: 700; color: var(--ink-soft); font-size: 0.75rem; }
+.rv-apple { display: flex; gap: 8px; align-items: center; font-weight: 800; margin: 12px 0; }
+.rv-apple select { font: inherit; padding: 6px 8px; border-radius: 10px; }
+.rv-steps, .rv-frames { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 4px; }
+.rv-steps li { display: flex; gap: 8px; align-items: center; font-weight: 900; font-size: 0.9rem; }
+.rv-steps small { display: block; font-weight: 600; color: var(--ink-soft); font-size: 0.78rem; }
+.rv-steps .gesture-icon { width: 32px; height: 32px; border-radius: 9px; }
+.rv-frames button { font: inherit; width: 100%; text-align: left; background: #fff; border: 2px solid #e6d6bb; border-radius: 10px; padding: 6px 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.rv-frames button.sel { border-color: var(--red); background: #fff1ea; }
+.rv-phone { position: relative; width: 100%; max-width: 380px; aspect-ratio: 375 / 700; margin: 0 auto; border-radius: 22px; overflow: hidden; border: 3px solid var(--wood-d); background: var(--bg); }
+.rv-caption { position: absolute; left: 8px; right: 8px; bottom: 8px; background: rgba(255, 250, 240, 0.95); border-radius: 12px; padding: 6px 10px; font-size: 0.8rem; display: grid; gap: 2px; }
+.rv-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; font-weight: 800; }
+.rv-playbtn { display: flex; align-items: center; justify-content: center; text-decoration: none; max-width: 380px; margin: 12px auto 0; }

@@ -27,13 +27,14 @@ import stall  # noqa: E402
 import chars  # noqa: E402
 import props  # noqa: E402
 import dishes  # noqa: E402
+import expansion  # noqa: E402
 
 ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Chef',
          'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D',
          'Apple', 'Apple_Peeled', 'Apple_Wedges', 'Rabbit_Wedges', 'Apple_Dice', 'Apple_Slices', 'Apple_Chunks',
          'CuttingBoard', 'Knife', 'Juicer', 'Pot', 'Pan', 'Spoon', 'PieTin', 'Oven', 'SyrupPan', 'CoolingTray',
          'Stick', 'Dish_Juice', 'Dish_Pie', 'Dish_Rabbit', 'Dish_Jam', 'Dish_CandyApple', 'Crate_Delivery',
-         'Sparkle', 'Steam']
+         'Sparkle', 'Steam'] + expansion.ROOTS
 
 
 def build_all():
@@ -49,6 +50,7 @@ def build_all():
     props.build_tools()
     props.build_appliances()
     dishes.build_dishes()
+    expansion.build_expansion()
     props.build_misc()
     bpy.context.view_layer.update()
     names = {o.name for o in bpy.data.objects if o.parent is None}

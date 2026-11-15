@@ -40,7 +40,7 @@ export interface StepStage {
   swipeAxis?: 'v' | 'h';
   tool?: 'knife' | 'spoon';
   /** Diegetic cue drawn in 3D while the step is active. */
-  cue?: 'juicer' | 'syrup' | 'oven' | 'none';
+  cue?: 'juicer' | 'syrup' | 'oven' | 'microwave' | 'none';
   /** What the chef says when the step is ready. */
   chefLine: string;
   /** What she says after a good result. */
@@ -56,8 +56,18 @@ const peeled = (x = 0, z = 0.2) => onBoard('peeled', 'Apple_Peeled', x, z, { app
 
 const Y = COUNTER_Y;
 
+/** Microwave on the counter and its button anchor (shared by baked apple and compote). */
+const MW_S = 1.3;
+const microwave = (x = 0.1, z = 0.1, scale = MW_S): PropSpec => ({ key: 'microwave', model: 'Microwave', x, z, scale });
+const MW_BUTTON = { x: 0.1 + 0.145 * MW_S, y: Y + 0.087 * MW_S, z: 0.1 + 0.142 * MW_S, r: 0.05 };
+
 export function recipeStages(recipeId: RecipeId): StepStage[] {
   switch (recipeId) {
+    case 'jam_toast':
+    case 'yogurt_parfait':
+    case 'baked_apple':
+    case 'apple_compote':
+      return expansionStages(recipeId);
     case 'fresh_juice': {
       const glass = (only: string[]): PropSpec => ({ key: 'glass', model: 'Dish_Juice', x: 0.3, z: 0.3, only, tint: 'apple', scale: 1.1 });
       return [{
@@ -237,6 +247,141 @@ export function recipeStages(recipeId: RecipeId): StepStage[] {
   }
 }
 
+function expansionStages(recipeId: RecipeId): StepStage[] {
+  switch (recipeId) {
+    case 'jam_toast': {
+      const toast = (only: string[]): PropSpec => ({ key: 'toast', model: 'Dish_Toast', x: -0.04, z: 0.18, scale: 1.9, tint: 'jam', only });
+      const jar: PropSpec = { key: 'jar', model: 'Dish_Jam', x: 0.34, z: 0.06, scale: 0.95, tint: 'jam' };
+      return [{
+        bridge: [[toast(['Toast_Plate', 'Toast_Bread'])], [toast(['Toast_Plate', 'Toast_Bread']), jar]],
+        bridgeLines: ['A thick slice of shokupan, toasted golden…', 'And here’s jam made from your apple!'],
+        ready: [toast(['Toast_Plate', 'Toast_Bread']), jar],
+        done: [toast(['Toast_Plate', 'Toast_Bread', 'Toast_Jam']), jar],
+        anchor: { x: -0.04, y: Y + 0.075, z: 0.18, r: 0.12 },
+        chefLine: 'Tap the toast on the cue to add the jam!',
+        praise: 'I’ll spread it right to the edges. Yum!',
+      }];
+    }
+    case 'yogurt_parfait': {
+      const GX = 0.36, GZ = 0.06;
+      const glass = (only: string[]): PropSpec => ({ key: 'glass', model: 'Dish_Parfait', x: GX, z: GZ, scale: 1.9, tint: 'apple', only: ['Parfait_Glass', ...only] });
+      const glassAt = (y: number, r = 0.1) => ({ x: GX, y: Y + y, z: GZ, r });
+      return [
+        {
+          bridge: [[board(), wholeApple(0, 0.2, { fx: 'sparkle' }), glass([])]],
+          bridgeLines: ['Washed and cored! First, the yogurt.'],
+          ready: [board(), wholeApple(), glass([])],
+          done: [board(), wholeApple(), glass(['Parfait_Yogurt'])],
+          anchor: glassAt(0.15),
+          chefLine: 'Tap the glass to add the yogurt!',
+          praise: 'Smooth and creamy!',
+        },
+        {
+          bridge: [[board(), wholeApple(), glass(['Parfait_Yogurt'])]],
+          bridgeLines: ['Now let’s cut the apple.'],
+          ready: [board(), wholeApple(), glass(['Parfait_Yogurt'])],
+          done: [board(), onBoard('dice', 'Apple_Dice'), glass(['Parfait_Yogurt'])],
+          anchor: { x: 0, y: Y + 0.032 + 0.11, z: 0.2, r: 0.12 },
+          swipeAxis: 'v', tool: 'knife',
+          chefLine: 'Swipe down to cut the apple into little pieces!',
+          praise: 'Perfect bite-size pieces!',
+        },
+        {
+          bridge: [[board(), onBoard('dice', 'Apple_Dice'), glass(['Parfait_Yogurt'])]],
+          bridgeLines: ['Into the glass they go…'],
+          ready: [board(), onBoard('dice', 'Apple_Dice'), glass(['Parfait_Yogurt'])],
+          done: [board(), glass(['Parfait_Yogurt', 'Parfait_Apple'])],
+          anchor: glassAt(0.21),
+          chefLine: 'Tap the glass to add the apple pieces!',
+          praise: 'Look at those layers!',
+        },
+        {
+          bridge: [[board(), glass(['Parfait_Yogurt', 'Parfait_Apple'])]],
+          bridgeLines: ['Last of all, whipped cream!'],
+          ready: [board(), glass(['Parfait_Yogurt', 'Parfait_Apple'])],
+          done: [board(), glass(['Parfait_Yogurt', 'Parfait_Apple', 'Parfait_Top'])],
+          anchor: glassAt(0.27),
+          chefLine: 'Tap on the cue to swirl on the whipped cream!',
+          praise: 'A perfect parfait!',
+        },
+      ];
+    }
+    case 'baked_apple': {
+      const dish = (only: string[], x = 0, z = 0.18, extra: Partial<PropSpec> = {}): PropSpec => ({
+        key: 'baked', model: 'Dish_BakedApple', x, z, scale: 1.7, tint: 'apple', appleSized: true, only: ['BakedApple_Plate', 'BakedApple_Body', ...only], ...extra,
+      });
+      const corer = (y: number): PropSpec => ({ key: 'corer', model: 'Corer', x: 0, z: 0.18, y, scale: 1.5 });
+      return [
+        {
+          bridge: [[dish(['BakedApple_Stem'], 0, 0.18, { fx: 'sparkle' })]],
+          bridgeLines: ['A quick wash… sparkly clean!'],
+          ready: [dish(['BakedApple_Stem']), corer(0.27)],
+          done: [dish(['BakedApple_Hole'])],
+          anchor: { x: 0, y: Y + 0.2, z: 0.18, r: 0.12 },
+          chefLine: 'Tap to push the corer down. The apple stays whole!',
+          praise: 'A neat hole right through the middle!',
+        },
+        {
+          bridge: [[dish(['BakedApple_Hole'])]],
+          bridgeLines: ['Butter and sugar are ready.'],
+          ready: [dish(['BakedApple_Hole'])],
+          done: [dish(['BakedApple_Hole', 'BakedApple_Fill'])],
+          anchor: { x: 0, y: Y + 0.21, z: 0.18, r: 0.1 },
+          chefLine: 'Tap to fill the middle with butter and sugar!',
+          praise: 'Filled to the top!',
+        },
+        {
+          bridge: [[dish(['BakedApple_Hole', 'BakedApple_Fill'], -0.34, 0.3), microwave()]],
+          bridgeLines: ['Into the microwave it goes!'],
+          ready: [microwave()],
+          done: [microwave(0.36, 0.04, 1.0), dish(['BakedApple_Hole', 'BakedApple_Glaze'], -0.1, 0.24)],
+          anchor: MW_BUTTON,
+          cue: 'microwave',
+          chefLine: 'Watch it glow. Tap the button when it’s soft!',
+          praise: 'Soft, sweet and bubbling!',
+        },
+      ];
+    }
+    case 'apple_compote': {
+      const bowl = (only: string[], x = 0.02, z = 0.16): PropSpec => ({ key: 'bowl', model: 'Dish_Compote', x, z, scale: 1.4, tint: 'apple', only: ['Compote_Bowl', ...only] });
+      const side = [board(-0.38, 0.3), onBoard('wedges', 'Apple_Wedges', -0.38, 0.3, { scale: 1.0 })];
+      return [
+        {
+          bridge: [[board(), wholeApple(0, 0.2, { fx: 'sparkle' })]],
+          bridgeLines: ['Washed and cored. The skin adds lovely colour!'],
+          ready: [board(), wholeApple(), bowl([], 0.4, 0.06)],
+          done: [board(), onBoard('wedges', 'Apple_Wedges'), bowl([], 0.4, 0.06)],
+          anchor: { x: 0, y: Y + 0.032 + 0.11, z: 0.2, r: 0.12 },
+          swipeAxis: 'v', tool: 'knife',
+          chefLine: 'Swipe down to cut even wedges, on the cue!',
+          praise: 'Nice even wedges!',
+        },
+        {
+          bridge: [[...side, bowl([])]],
+          bridgeLines: ['Sugar and a little butter are measured.'],
+          ready: [...side, bowl([])],
+          done: [board(-0.38, 0.3), bowl(['Compote_Raw', 'Compote_Sugar'])],
+          anchor: { x: 0.02, y: Y + 0.05, z: 0.16, r: 0.13 },
+          chefLine: 'Tap the dish to arrange the wedges and sugar!',
+          praise: 'Arranged like a flower!',
+        },
+        {
+          bridge: [[bowl(['Compote_Raw', 'Compote_Sugar', 'Compote_Lid'], -0.34, 0.3), microwave()]],
+          bridgeLines: ['Lid on, into the microwave!'],
+          ready: [microwave()],
+          done: [microwave(0.36, 0.04, 1.0), bowl(['Compote_Glazed'], -0.1, 0.24)],
+          anchor: MW_BUTTON,
+          cue: 'microwave',
+          chefLine: 'Tap the button when the apples turn shiny!',
+          praise: 'Glossy and golden! I’ll let it rest.',
+        },
+      ];
+    }
+    default:
+      throw new Error(`No stations for ${recipeId}`);
+  }
+}
+
 /** Finished dish model shown on serve/result. */
 export function dishProp(recipeId: RecipeId): PropSpec {
   switch (recipeId) {
@@ -245,11 +390,16 @@ export function dishProp(recipeId: RecipeId): PropSpec {
     case 'apple_jam': return { key: 'dish', model: 'Dish_Jam', x: 0, z: 0, tint: 'jam' };
     case 'hirosaki_pie': return { key: 'dish', model: 'Dish_Pie', x: 0, z: 0 };
     case 'ringo_ame': return { key: 'dish', model: 'Dish_CandyApple', x: 0, z: 0, tint: 'apple', appleSized: true, hide: ['Candy_Apple'] };
+    case 'jam_toast': return { key: 'dish', model: 'Dish_Toast', x: 0, z: 0, tint: 'jam' };
+    case 'yogurt_parfait': return { key: 'dish', model: 'Dish_Parfait', x: 0, z: 0, tint: 'apple', hide: ['Parfait_Crunch'] };
+    case 'baked_apple': return { key: 'dish', model: 'Dish_BakedApple', x: 0, z: 0, tint: 'apple', appleSized: true, hide: ['BakedApple_Stem', 'BakedApple_Fill'] };
+    case 'apple_compote': return { key: 'dish', model: 'Dish_Compote', x: 0, z: 0, tint: 'apple', hide: ['Compote_Raw', 'Compote_Sugar', 'Compote_Lid'] };
   }
 }
 
 export const DISH_DISPLAY_SCALE: Record<RecipeId, number> = {
   fresh_juice: 2.4, rabbit_apples: 2.1, apple_jam: 2.8, hirosaki_pie: 2.2, ringo_ame: 2.6,
+  jam_toast: 2.3, yogurt_parfait: 2.0, baked_apple: 2.3, apple_compote: 2.2,
 };
 
 export const GESTURE_WORD: Record<string, string> = { tap: 'Tap', swipe: 'Swipe', circle: 'Circle' };

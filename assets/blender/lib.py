@@ -38,9 +38,13 @@ PALETTE = {
     'M_Cloth_Shirt': '#F2E6CC', 'M_Cloth_Navy': '#34466B', 'M_Cloth_LightBlue': '#8CC6E8',
     'M_Cloth_Charcoal': '#4A4440', 'M_Cloth_Red': '#C9463A', 'M_Cloth_Pink': '#F2A7B5',
     'M_Cloth_Khaki': '#B9A57E', 'M_Cloth_White': '#F4F1EA',
+    # expansion recipes
+    'M_Toast': '#EDC57F', 'M_Crust': '#B5703A', 'M_Butter': '#FFE08A', 'M_Yogurt': '#FBF8F1',
+    'M_Granola': '#C98F4E', 'M_Caramel': '#C77A2C', 'M_Sugar': '#FFFFFF', 'M_Compote': '#F2C25E',
+    'M_CompoteSyrup': '#E8A23A', 'M_Mint': '#5FA65A', 'M_Ceramic': '#F6EFE2', 'M_CoreHole': '#7A4A2A', 'M_Whip': '#FFFDF6',
 }
 
-ROUGH = {'M_Candy': 0.15, 'M_Filling': 0.35, 'M_Jam': 0.3, 'M_Glass': 0.1,
+ROUGH = {'M_Caramel': 0.25, 'M_Compote': 0.25, 'M_CompoteSyrup': 0.2, 'M_Yogurt': 0.6, 'M_Candy': 0.15, 'M_Filling': 0.35, 'M_Jam': 0.3, 'M_Glass': 0.1,
          'M_Metal': 0.45, 'M_MetalDark': 0.5, 'M_JuiceGold': 0.45, 'M_OvenWindow': 0.2,
          'M_EyeWhite': 0.5, 'M_Black': 0.6}
 

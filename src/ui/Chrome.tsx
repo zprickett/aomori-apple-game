@@ -26,7 +26,7 @@ export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; on
             ) : (
               <span className="pill" aria-label={`${done} orders served`}>🧺 {done}</span>
             )}
-            <span className="pill" aria-label={`${state.progress.unlockedApples.length} of 10 apples`}>🍎 {state.progress.unlockedApples.length}/10</span>
+            <span className="pill" aria-label={`${state.progress.unlockedApples.length} of ${APPLES.length} apples`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</span>
           </>
         )}
       </div>
@@ -80,6 +80,7 @@ function Collection({ state }: { state: GameState }) {
   const disc = state.progress.discoveredPairings;
   return (
     <>
+      <div className="coll-count">{state.progress.unlockedApples.length} of {APPLES.length} apples collected</div>
       <div className="coll-grid">
         {APPLES.map((a) => {
           const unlocked = state.progress.unlockedApples.includes(a.id);
@@ -91,9 +92,6 @@ function Collection({ state }: { state: GameState }) {
             </button>
           );
         })}
-        {Array.from({ length: 5 }, (_, i) => (
-          <div key={`f${i}`} className="coll-card future" aria-label="Future apple slot"><span className="q">?</span><span className="nm">Someday</span></div>
-        ))}
       </div>
       {open && (() => {
         const a = APPLES.find((x) => x.id === open)!;

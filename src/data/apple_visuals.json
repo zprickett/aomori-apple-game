@@ -1,0 +1,707 @@
+{
+ "a048": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a081": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a023": {
+  "skin": {
+   "base": "#C9C85A",
+   "second": "#E3D873",
+   "pattern": "solid"
+  }
+ },
+ "a066": {
+  "skin": {
+   "base": "#E0603C",
+   "second": "#F0C04A",
+   "pattern": "blush"
+  }
+ },
+ "a006": {
+  "skin": {
+   "base": "#F2CC4E",
+   "second": "#F0A060",
+   "pattern": "blush"
+  }
+ },
+ "a045": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a020": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a094": {
+  "skin": {
+   "base": "#B3202A",
+   "second": "#8E1520",
+   "pattern": "solid"
+  }
+ },
+ "a005": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a051": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a091": {
+  "skin": {
+   "base": "#D93A33",
+   "second": "#F2B35A",
+   "pattern": "blush"
+  }
+ },
+ "a040": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a010": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a032": {
+  "skin": {
+   "base": "#8DB54A",
+   "second": "#B7CF68",
+   "pattern": "solid"
+  },
+  "scale": 1.12
+ },
+ "a031": {
+  "skin": {
+   "base": "#9DBF4E",
+   "second": "#BBD26C",
+   "pattern": "solid"
+  }
+ },
+ "a069": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a058": {
+  "skin": {
+   "base": "#A8182A",
+   "second": "#7E0F1E",
+   "pattern": "solid"
+  },
+  "flesh": "#F29AA6"
+ },
+ "a017": {
+  "skin": {
+   "base": "#F2CC4E",
+   "second": "#F0A060",
+   "pattern": "blush"
+  }
+ },
+ "a067": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a086": {
+  "skin": {
+   "base": "#CF3A3A",
+   "second": "#E8B850",
+   "pattern": "streak"
+  }
+ },
+ "a073": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a044": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a021": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  },
+  "flesh": "#F29AA6"
+ },
+ "a042": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  },
+  "flesh": "#F29AA6"
+ },
+ "a090": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  },
+  "flesh": "#F29AA6"
+ },
+ "a034": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a011": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a007": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a100": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a004": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a071": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a015": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a018": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a016": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a070": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a062": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a063": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a065": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a052": {
+  "skin": {
+   "base": "#E8606A",
+   "second": "#F2C060",
+   "pattern": "blush"
+  }
+ },
+ "a002": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a003": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a043": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a075": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a050": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a059": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a001": {
+  "skin": {
+   "base": "#D6AA48",
+   "second": "#B8893A",
+   "pattern": "solid"
+  }
+ },
+ "a008": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a009": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a012": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a013": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a014": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a019": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a022": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a024": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a025": {
+  "skin": {
+   "base": "#D3D25E",
+   "second": "#E6DD7C",
+   "pattern": "solid"
+  }
+ },
+ "a026": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a027": {
+  "skin": {
+   "base": "#F0CF55",
+   "second": "#E2BC45",
+   "pattern": "solid"
+  }
+ },
+ "a028": {
+  "skin": {
+   "base": "#9DBF4E",
+   "second": "#BBD26C",
+   "pattern": "solid"
+  }
+ },
+ "a029": {
+  "skin": {
+   "base": "#9DBF4E",
+   "second": "#BBD26C",
+   "pattern": "solid"
+  }
+ },
+ "a030": {
+  "skin": {
+   "base": "#9DBF4E",
+   "second": "#BBD26C",
+   "pattern": "solid"
+  }
+ },
+ "a033": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a035": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a036": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a037": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a038": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a039": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a041": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a046": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a047": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a049": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a053": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a054": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a055": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a056": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a057": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a060": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a061": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a064": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a068": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a072": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a074": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a076": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a077": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a078": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a079": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a080": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a082": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a083": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a084": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a085": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a087": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a088": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a089": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a092": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ },
+ "a093": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a095": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a096": {
+  "skin": {
+   "base": "#D9473A",
+   "second": "#F2B35A",
+   "pattern": "streak"
+  }
+ },
+ "a097": {
+  "skin": {
+   "base": "#D2342E",
+   "second": "#B02428",
+   "pattern": "solid"
+  }
+ },
+ "a098": {
+  "skin": {
+   "base": "#D9503F",
+   "second": "#E9C25A",
+   "pattern": "blush"
+  }
+ },
+ "a099": {
+  "skin": {
+   "base": "#9C1828",
+   "second": "#6E0E1A",
+   "pattern": "solid"
+  }
+ }
+}

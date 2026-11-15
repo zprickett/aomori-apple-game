@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as ref from '../../data/timing_reference.mjs';
 import { createAppleScoring } from '../../data/scoring_reference.mjs';
 import rawProto from '../../data/prototype_game_data.json';
-import { APPLES, RECIPES, fitStars, recipe } from '../content.ts';
+import { APPLES, PROTOTYPE_APPLES, PROTOTYPE_RECIPES, RECIPES, fitStars, recipe } from '../content.ts';
 import { GRADE_POINTS, gradeTiming, summarizeTechnique, type Grade, type StepTiming } from '../timing.ts';
 import { acceptedResults, evaluateDish, replaceStepResult, type StepResult } from '../scoring.ts';
 import { gradeStep, isExpired, trackZones } from '../stepTimer.ts';
@@ -145,10 +145,10 @@ describe('evaluateDish', () => {
     expect(z.tip).toMatch(/Apple Jam|Hirosaki Apple Pie/);
   });
 
-  it('matches reference evaluateOrder stars for every apple × recipe × technique outcome', () => {
+  it('matches reference evaluateOrder stars for every prototype apple × recipe × technique outcome', () => {
     const patterns: Grade[][] = [['Perfect'], ['OK'], ['Miss'], ['Good']];
-    for (const a of APPLES)
-      for (const r of RECIPES)
+    for (const a of APPLES.filter((x) => (PROTOTYPE_APPLES as readonly string[]).includes(x.id)))
+      for (const r of RECIPES.filter((x) => (PROTOTYPE_RECIPES as readonly string[]).includes(x.id)))
         for (const assisted of [false, true])
           for (const pat of patterns) {
             const grades = r.steps.map(() => pat[0]);

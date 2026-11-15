@@ -11,7 +11,7 @@ import {
   type GameState,
 } from '../gameReducer.ts';
 import { createSaveStore, defaultSave, parseSave, type StorageLike } from '../persistence.ts';
-import { orderForIndex } from '../progression.ts';
+import { orderForIndex, unlocksEarnedAt } from '../progression.ts';
 
 class FakeStorage implements StorageLike {
   map = new Map<string, string>();
@@ -37,7 +37,7 @@ const startCooking = (s: GameState, appleId: string) =>
 const toActive = (s: GameState) => play(s, [{ type: 'BRIDGE_DONE' }, { type: 'READY' }, { type: 'COUNTIN_DONE' }]);
 
 describe('full order loop', () => {
-  it('plays 15 orders (reloading after every action) and reaches the full collection', () => {
+  it('plays 15 orders (reloading after every action) with a delivery after each', () => {
     const storage = new FakeStorage();
     const store = createSaveStore(storage);
     let state = initialStateFromSave(store.load().data);
@@ -83,26 +83,22 @@ describe('full order loop', () => {
       dispatch({ type: 'RESULT_DONE' });
       if (state.phase === 'delivery') {
         deliveries[n] = { apples: state.delivery!.apples, recipes: state.delivery!.recipes };
-        if (n === 15) expect(state.delivery!.collectionComplete).toBe(true);
+        expect(state.delivery!.collectionComplete).toBe(false);
         dispatch({ type: 'DELIVERY_DONE' });
       }
     }
-    expect(deliveries).toEqual({
-      2: { apples: [], recipes: ['rabbit_apples'] },
-      3: { apples: ['a094'], recipes: [] },
-      4: { apples: [], recipes: ['apple_jam'] },
-      6: { apples: ['a091'], recipes: ['ringo_ame'] },
-      7: { apples: [], recipes: ['hirosaki_pie'] },
-      9: { apples: ['a032'], recipes: [] },
-      12: { apples: ['a058'], recipes: [] },
-      15: { apples: ['a086'], recipes: [] },
-    });
+    const expected: Record<number, { apples: string[]; recipes: string[] }> = {};
+    for (let n = 1; n <= 15; n++) expected[n] = unlocksEarnedAt(n);
+    expect(deliveries).toEqual(expected);
+    expect(deliveries[2].recipes).toEqual(['rabbit_apples']);
+    expect(deliveries[3].apples).toEqual(['a094']);
+    expect(deliveries[13].recipes).toEqual(['jam_toast']);
     expect(state.progress.completedOrders).toBe(15);
-    expect(state.progress.unlockedApples).toHaveLength(10);
-    expect(state.progress.unlockedRecipes).toHaveLength(5);
-    expect(selectors.collectionComplete(state)).toBe(true);
+    expect(state.progress.unlockedApples).toHaveLength(20);
+    expect(state.progress.unlockedRecipes).toHaveLength(6);
+    expect(selectors.collectionComplete(state)).toBe(false);
     expect(selectors.stallLevel(state)).toBe(3);
-    expect(Object.keys(state.progress.bestScores).sort()).toEqual(['apple_jam', 'fresh_juice', 'hirosaki_pie', 'rabbit_apples', 'ringo_ame']);
+    expect(Object.keys(state.progress.bestScores).sort()).toEqual(['apple_jam', 'fresh_juice', 'hirosaki_pie', 'jam_toast', 'rabbit_apples', 'ringo_ame']);
     expect(state.progress.discoveredPairings['a091:ringo_ame']).toEqual({ bestStars: 3, fit: 3 });
     // Free play continues.
     expect(state.phase).toBe('shop');
@@ -286,13 +282,15 @@ describe('settings and reset', () => {
     expect(r.order.orderNumber).toBe(1);
   });
 
-  it('selectors expose apple cards with lock text and fit', () => {
+  it('selectors expose unlocked apple cards (best fit first) plus the next locked one', () => {
     const s = play(initialStateFromSave({ ...defaultSave(), completedOrders: 6, completedOrderIds: [] }), [{ type: 'ACCEPT_ORDER' }]);
     expect(s.order.recipeId).toBe('ringo_ame');
     const cards = selectors.appleCards(s);
-    expect(cards).toHaveLength(10);
-    expect(cards.find((c) => c.apple.id === 'a091')).toMatchObject({ unlocked: true, fitStars: 3 });
-    expect(cards.find((c) => c.apple.id === 'a032')).toMatchObject({ unlocked: false, unlockText: 'Arrives after 9 orders' });
+    expect(cards).toHaveLength(12);
+    expect(cards[0]).toMatchObject({ unlocked: true, fitStars: 3 });
+    expect(cards[0].apple.id).toBe('a091');
+    expect(cards.filter((c) => !c.unlocked)).toHaveLength(1);
+    expect(cards[11]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 7 orders' });
     expect(selectors.bridgeText(startCooking(initialState(), 'a048'))).toMatch(/Chef washes/);
   });
 });

@@ -131,12 +131,40 @@ APPLES = [
 ]
 
 
-def apple_icons(cam, out):
+_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'src', 'data')
+_SIZE = {'mini': 0.62, 'small': 0.82, 'standard': 1.0, 'large': 1.12}
+
+
+def _expansion_apples():
+    """Icon specs for every apple not hand-tuned above, from src/data/apple_visuals.json."""
+    import json
+    vis = json.load(open(os.path.join(_DATA, 'apple_visuals.json')))
+    exp = {a['id']: a for a in json.load(open(os.path.join(_DATA, 'apples_expansion.json'), encoding='utf-8'))['apples']}
+    have = {a[0] for a in APPLES}
+    out = []
+    for aid, v in vis.items():
+        if aid in have:
+            continue
+        sk = v['skin']
+        sc = _SIZE.get(exp.get(aid, {}).get('game_size_class', 'standard'), 1.0)
+        extra = 'cut' if v.get('flesh') else None
+        if sk['pattern'] == 'streak':
+            out.append((aid, sk['second'], sk['base'], CAMV, -1.2, -0.1, 0.4, sc, extra))
+        elif sk['pattern'] == 'blush':
+            out.append((aid, sk['base'], sk['second'], (0.5, -0.4, -0.75), 0.2, 0.95, 0.0, sc, extra))
+        else:
+            out.append((aid, sk['base'], sk['second'], (0, 0, 1), 0.2, 1.0, 0.0, sc, extra))
+    return out
+
+
+def apple_icons(cam, out, ids=None):
     body = obj('Apple_Body')
     root = obj('Apple')
     orig = body.data.materials[0]
     orig_mesh = body.data
-    for aid, base, second, dirv, lo, hi, streak, sc, extra in APPLES:
+    for aid, base, second, dirv, lo, hi, streak, sc, extra in APPLES + _expansion_apples():
+        if ids is not None and aid not in ids:
+            continue
         m = var_material('ICON_' + aid, base, second, dirv or (0, 0, 1), lo, hi, streak)
         body.data.materials[0] = m
         root.scale = (sc, sc, sc)
@@ -247,7 +275,11 @@ def render_all(prev, icons_dir, only=None, icons=True):
             ('PieTin', 'pietin_baked', ('PieTin_Top',)), ('Oven', 'oven', ()), ('SyrupPan', 'syruppan', ()),
             ('Crate_Delivery', 'crate_delivery', ()),
             ('Dish_Juice', 'dish_juice', ()), ('Dish_Pie', 'dish_pie', ()), ('Dish_Rabbit', 'dish_rabbit', ()),
-            ('Dish_Jam', 'dish_jam', ()), ('Dish_CandyApple', 'dish_candyapple', ())]
+            ('Dish_Jam', 'dish_jam', ()), ('Dish_CandyApple', 'dish_candyapple', ()),
+            ('Dish_Toast', 'dish_toast', ()), ('Dish_Parfait', 'dish_parfait', ('Parfait_Crunch',)),
+            ('Dish_BakedApple', 'dish_bakedapple', ('BakedApple_Stem', 'BakedApple_Hole', 'BakedApple_Fill')),
+            ('Dish_Compote', 'dish_compote', ('Compote_Raw', 'Compote_Sugar', 'Compote_Lid')),
+            ('Microwave', 'microwave', ()), ('Corer', 'corer', ())]
     for root, nm, hide in jobs:
         if not want(nm) and not want('props'):
             continue
@@ -265,10 +297,16 @@ def render_all(prev, icons_dir, only=None, icons=True):
     if want('icons') or want('apple_icons'):
         apple_icons(cam, icons_dir)
     if want('icons') or want('dish_icons'):
+        dish_hide = {'Dish_Parfait': ('Parfait_Crunch',), 'Dish_BakedApple': ('BakedApple_Stem', 'BakedApple_Hole', 'BakedApple_Fill'),
+                     'Dish_Compote': ('Compote_Raw', 'Compote_Sugar', 'Compote_Lid')}
         for root, rid in (('Dish_Juice', 'fresh_juice'), ('Dish_Rabbit', 'rabbit_apples'), ('Dish_Jam', 'apple_jam'),
-                          ('Dish_Pie', 'hirosaki_pie'), ('Dish_CandyApple', 'ringo_ame')):
-            R.auto_cam(cam, [root], yaw=-28, pitch=26, fill=0.92, lens=50)
-            _render([root], os.path.join(icons_dir, f'dish_{rid}.png'), (256, 256), True, 48)
+                          ('Dish_Pie', 'hirosaki_pie'), ('Dish_CandyApple', 'ringo_ame'),
+                          ('Dish_Toast', 'jam_toast'), ('Dish_Parfait', 'yogurt_parfait'),
+                          ('Dish_BakedApple', 'baked_apple'), ('Dish_Compote', 'apple_compote')):
+            hide = dish_hide.get(root, ())
+            with Pose(hide=hide):
+                R.auto_cam(cam, [root], yaw=-28, pitch=26, fill=0.92, lens=50)
+                _render([root], os.path.join(icons_dir, f'dish_{rid}.png'), (256, 256), True, 48, hide=hide)
     if want('icons') or want('portraits'):
         ports = {'Chef': (1.37, 0.0), 'Customer_A': (0.87, 0.0), 'Customer_B': (0.86, 0.0),
                  'Customer_C': (1.08, -0.06), 'Customer_D': (0.84, 0.0)}

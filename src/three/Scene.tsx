@@ -241,6 +241,16 @@ function PropsLayer({ props, appleId, reduced, cue, recipeId }: { props: PropSpe
         const dial = lp.obj.getObjectByName('Oven_Dial');
         if (dial && clockMs >= 0) dial.rotation.z = -Math.min(1.3, clockMs / stepClock.targetMs) * Math.PI;
       }
+      if (cue === 'microwave' && s.model === 'Microwave') {
+        const glow = lp.obj.getObjectByName('Microwave_Glow') as THREE.Mesh | undefined;
+        if (glow) {
+          const f = clockMs < 0 ? 0.25 : Math.min(1.4, clockMs / stepClock.targetMs);
+          glow.scale.setScalar(0.6 + 0.45 * Math.min(1, f));
+          glow.visible = true;
+        }
+        const btn = lp.obj.getObjectByName('Microwave_Button');
+        if (btn && clockMs >= 0 && !reduced) btn.scale.setScalar(1 + 0.12 * Math.max(0, Math.sin(clockMs / 120)) * Math.min(1, clockMs / stepClock.targetMs));
+      }
       if (cue === 'syrup' && s.model === 'SyrupPan') {
         const syrup = lp.obj.getObjectByName('SyrupPan_Syrup') as THREE.Mesh | undefined;
         if (syrup) {

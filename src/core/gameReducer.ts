@@ -17,6 +17,7 @@
  */
 import { APPLE_ORDER, RECIPE_ORDER, apple, fitStars, isAppleId, recipe, type AppleInfo, type RecipeInfo, type StepDef } from './content.ts';
 import {
+  COLLECTION_COMPLETE_AT,
   customOrder,
   isCollectionComplete,
   orderForIndex,
@@ -185,7 +186,7 @@ export function pendingDelivery(progress: Progress, completed: number = progress
   const apples = earned.apples.filter((a) => !progress.seenUnlockRewards.includes(`apple:${a}`));
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
   if (!apples.length && !recipes.length) return null;
-  return { apples, recipes, collectionComplete: completed === 15 && isCollectionComplete(completed) };
+  return { apples, recipes, collectionComplete: completed === COLLECTION_COMPLETE_AT };
 }
 
 /**
@@ -668,16 +669,23 @@ export const selectors = {
   unlockedRecipes(state: GameState): string[] {
     return state.progress.unlockedRecipes;
   },
-  /** All 10 apple cards in prototype order with lock state and fit for the active recipe. */
+  /**
+   * Apple picker cards: every unlocked apple (best fit for the active recipe first, then unlock
+   * order) followed by the next locked apple as a teaser.
+   */
   appleCards(state: GameState): AppleCard[] {
     const inDish = state.phase !== 'shop' || state.mode === 'practice';
     const rid = activeRecipeId(state);
-    return APPLE_ORDER.map((id) => ({
+    const card = (id: string, unlocked: boolean): AppleCard => ({
       apple: apple(id),
-      unlocked: state.progress.unlockedApples.includes(id),
+      unlocked,
       unlockText: unlockConditionText(id),
       fitStars: inDish ? fitStars(id, rid) : null,
-    }));
+    });
+    const open = APPLE_ORDER.filter((id) => state.progress.unlockedApples.includes(id)).map((id) => card(id, true));
+    if (inDish) open.sort((a, b) => (b.fitStars ?? 0) - (a.fitStars ?? 0));
+    const next = APPLE_ORDER.find((id) => !state.progress.unlockedApples.includes(id));
+    return next ? [...open, card(next, false)] : open;
   },
   previewFit(state: GameState): 0 | 1 | 2 | 3 | null {
     return state.previewAppleId ? fitStars(state.previewAppleId, activeRecipeId(state)) : null;

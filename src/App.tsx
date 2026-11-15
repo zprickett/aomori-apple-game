@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { selectors, type RecipeId } from './core/index.ts';
-import { useGame } from './game/useGame.ts';
+import { devPlayParams, useGame } from './game/useGame.ts';
 import { recipeStages, type PropSpec } from './game/stations.ts';
 import { emitCue } from './game/bus.ts';
 import { loadAssets } from './three/assetLib.ts';
@@ -9,6 +9,7 @@ import { GameScene, type ViewMode } from './three/Scene.tsx';
 import { CookOverlay } from './ui/CookOverlay.tsx';
 import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
 import { UnlockReveal } from './ui/Reveal.tsx';
+import { Review } from './ui/Review.tsx';
 import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
 
@@ -30,8 +31,11 @@ export default function App() {
   if (!gl) return <Fallback title="3D isn’t available here" body="Aomori Apple Kitchen needs WebGL. Try another browser, or turn on hardware acceleration." />;
   if (assets === 'error') return <Fallback title="The stall couldn’t be set up" body="Something went wrong loading the 3D models. Please reload the page." />;
   if (assets === 'loading') return <Fallback title="Opening the apple stall…" body="" loading />;
-  return <Game />;
+  return REVIEW ? <Review /> : <Game />;
 }
+
+/** DEV only: http://localhost:5173/?review opens the apple / recipe review page. */
+const REVIEW = import.meta.env.DEV && typeof location !== 'undefined' && new URLSearchParams(location.search).has('review');
 
 function Fallback({ title, body, loading }: { title: string; body: string; loading?: boolean }) {
   return (
@@ -47,6 +51,11 @@ function Fallback({ title, body, loading }: { title: string; body: string; loadi
 
 function Game() {
   const { state, dispatch, persistent, reducedMotion } = useGame();
+  // DEV review "Play": leaving practice returns to the review page on the same recipe.
+  const devPlay = useMemo(devPlayParams, []);
+  useEffect(() => {
+    if (devPlay && state.mode === 'order') location.href = `/?review=recipes&recipe=${devPlay.recipeId}`;
+  }, [devPlay, state.mode]);
   const [sheet, setSheet] = useState<null | SheetKind>(null);
   const [bridgeFrame, setBridgeFrame] = useState(0);
 

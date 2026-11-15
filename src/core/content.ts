@@ -1,12 +1,20 @@
 /**
  * Typed adapter over the authored content:
  *   - src/data/prototype_game_data.json  (10 apples, 5 recipes, 50 fit ratings, scoring text)
- *   - src/data/recipe_actions_20.json    (v2 action plans; only the 5 prototype_playable ones are used)
+ *   - src/data/recipe_actions_20.json    (v2 action plans for 20 recipes; RECIPE_ORDER lists the playable ones)
+ *   - src/data/apples_expansion.json     (90 more apples, provisional details; 100-apple unlock order)
+ *   - src/data/apple_visuals.json        (skin/flesh/size visuals for all 100 apples)
+ *   - src/data/fit_matrix.json           (fit stars for 100 apples × 20 recipes)
+ *   - src/data/recipe_action_overrides.json (design changes to action plans; the research pack stays unchanged)
  *
  * Importing this module validates the data (throws on a broken catalog) — no other side effects.
  */
 import rawPrototype from '../data/prototype_game_data.json';
 import rawCatalog from '../data/recipe_actions_20.json';
+import rawExpansion from '../data/apples_expansion.json';
+import rawVisuals from '../data/apple_visuals.json';
+import rawMatrix from '../data/fit_matrix.json';
+import rawOverrides from '../data/recipe_action_overrides.json';
 import { validateActionCatalog } from '../data/timing_reference.mjs';
 import { gradeTiming, type StepTiming } from './timing.ts';
 
@@ -182,10 +190,50 @@ export interface Pairing {
 // Authored constants
 // ---------------------------------------------------------------------------
 
-export const APPLE_ORDER = ['a048', 'a081', 'a023', 'a066', 'a006', 'a094', 'a091', 'a032', 'a058', 'a086'] as const;
-export const RECIPE_ORDER = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame'] as const;
-export type AppleId = (typeof APPLE_ORDER)[number];
+export interface RawExpansion {
+  unlock_order: string[];
+  apple_unlocks: { at: number; ids: string[] }[];
+  apples: RawApple[];
+}
+export interface RawMatrix {
+  recipes: string[];
+  apples: Record<string, number[]>;
+}
+export const EXPANSION_DATA = rawExpansion as unknown as RawExpansion;
+const ACTION_OVERRIDES = (rawOverrides as unknown as { recipes: Record<string, Partial<RawActionRecipe>> }).recipes;
+export const FIT_MATRIX = rawMatrix as unknown as RawMatrix;
+
+/** The 10 researched prototype apples (their data in prototype_game_data.json is authoritative). */
+export const PROTOTYPE_APPLES = ['a048', 'a081', 'a023', 'a066', 'a006', 'a094', 'a091', 'a032', 'a058', 'a086'] as const;
+/** All 100 apples in unlock order. */
+export const APPLE_ORDER: readonly string[] = Object.freeze([...EXPANSION_DATA.unlock_order]);
+/** Playable recipes, in unlock order. Add a recipe here once its stations and models exist. */
+export const RECIPE_ORDER = [
+  'fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame',
+  'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote',
+] as const;
+export const PROTOTYPE_RECIPES = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame'] as const;
+export type AppleId = string;
 export type RecipeId = (typeof RECIPE_ORDER)[number];
+
+/** Names and short context for recipes beyond the prototype five (data has action plans only). */
+const EXTRA_RECIPE_META: Readonly<Record<string, { name: string; nameJa: string; profile: string; context: string }>> = {
+  jam_toast: { name: 'Apple Jam Toast', nameJa: 'りんごジャムトースト', profile: 'spread', context: 'Thick Japanese shokupan toast with apple jam.' },
+  yogurt_parfait: { name: 'Apple Yogurt Parfait', nameJa: 'りんごヨーグルトパフェ', profile: 'raw', context: 'Layers of yogurt, diced apple and crunchy topping.' },
+  baked_apple: { name: 'Baked Apple', nameJa: '焼きりんご', profile: 'baked_whole', context: 'A whole cored apple filled with butter and sugar, heated until soft.' },
+  apple_compote: { name: 'Shiny Apple Compote', nameJa: 'りんごのコンポート', profile: 'cooked', context: 'Apple wedges gently cooked with sugar until glossy.' },
+  apple_dorayaki: { name: 'Apple Nama Dorayaki', nameJa: 'りんご生どら焼き', profile: 'wagashi', context: 'Fluffy pancakes sandwiching cream and apple.' },
+  apple_daifuku: { name: 'Azuki Apple Daifuku', nameJa: 'りんご大福', profile: 'wagashi', context: 'Soft mochi wrapped around apple and sweet azuki beans.' },
+  apple_jelly: { name: 'Fresh Apple Jelly', nameJa: 'りんごゼリー', profile: 'chilled', context: 'Apple juice jelly with little apple cubes.' },
+  whole_apple_pie: { name: 'Whole Apple Pie', nameJa: 'まるごとりんごパイ', profile: 'baked_whole', context: 'A whole apple wrapped in pastry and baked.' },
+  apple_cheesecake: { name: 'Apple Cheesecake', nameJa: 'りんごのチーズケーキ', profile: 'baked', context: 'A cheesecake made in a rice cooker, topped with apples.' },
+  apple_kinton: { name: 'Golden Apple Kinton', nameJa: 'りんごきんとん', profile: 'cooked', context: 'Sweet potato and apple mashed into golden balls.' },
+  apple_keema: { name: 'Apple Keema Curry', nameJa: 'りんごキーマカレー', profile: 'savoury', context: 'Mild curry with apple for a gentle sweetness.' },
+  apple_shumai: { name: 'Fluffy Apple Shumai', nameJa: 'りんごシュウマイ', profile: 'savoury', context: 'Steamed dumplings with a little apple in the filling.' },
+  apple_pork: { name: 'Apple Pork Rolls', nameJa: 'りんごの豚肉巻き', profile: 'savoury', context: 'Pork rolled around apple and potato.' },
+  red_flesh_tart: { name: 'Pink Apple Tart', nameJa: '赤果肉りんごのタルト', profile: 'chilled', context: 'A tart that shows off pink-fleshed apples.' },
+  festival_pie: { name: 'Festival Pie', nameJa: '百りんごフェスティバルパイ', profile: 'festival', context: 'A celebration pie made with three different apples.' },
+};
 
 /** Player-facing names from the build prompt. */
 export const RECIPE_DISPLAY_NAMES: Readonly<Record<RecipeId, string>> = {
@@ -194,6 +242,10 @@ export const RECIPE_DISPLAY_NAMES: Readonly<Record<RecipeId, string>> = {
   apple_jam: 'Apple Jam',
   hirosaki_pie: 'Hirosaki Apple Pie',
   ringo_ame: 'Mini Candy Apple',
+  jam_toast: EXTRA_RECIPE_META.jam_toast.name,
+  yogurt_parfait: EXTRA_RECIPE_META.yogurt_parfait.name,
+  baked_apple: EXTRA_RECIPE_META.baked_apple.name,
+  apple_compote: EXTRA_RECIPE_META.apple_compote.name,
 };
 
 /** Required timed-action counts per playable recipe. */
@@ -203,28 +255,21 @@ export const REQUIRED_ACTION_COUNTS: Readonly<Record<RecipeId, number>> = {
   apple_jam: 3,
   hirosaki_pie: 5,
   ringo_ame: 4,
+  jam_toast: 1,
+  yogurt_parfait: 4,
+  baked_apple: 3,
+  apple_compote: 3,
 };
 
 /** Recipes that cook the apple (used for "try a cooked dish" suggestions). */
-export const COOKED_RECIPES: readonly RecipeId[] = ['apple_jam', 'hirosaki_pie'];
-const RAW_RECIPES: readonly string[] = ['fresh_juice', 'rabbit_apples'];
+export const COOKED_RECIPES: readonly RecipeId[] = ['apple_jam', 'hirosaki_pie', 'baked_apple', 'apple_compote'];
+const RAW_RECIPES: readonly string[] = ['fresh_juice', 'rabbit_apples', 'yogurt_parfait'];
 
 export const DEFAULT_FLESH = '#FFF1C9';
 
-const VISUALS: Record<AppleId, { skin: SkinVisual; flesh?: string; scale?: number }> = {
-  a048: { skin: { base: '#D9473A', second: '#F2B35A', pattern: 'streak' } },
-  a081: { skin: { base: '#D9503F', second: '#E9C25A', pattern: 'blush' } },
-  a023: { skin: { base: '#C9C85A', second: '#E3D873', pattern: 'solid' } },
-  a066: { skin: { base: '#E0603C', second: '#F0C04A', pattern: 'blush' } },
-  a006: { skin: { base: '#F2CC4E', second: '#F0A060', pattern: 'blush' } },
-  a094: { skin: { base: '#B3202A', second: '#8E1520', pattern: 'solid' } },
-  a091: { skin: { base: '#D93A33', second: '#F2B35A', pattern: 'blush' } },
-  a032: { skin: { base: '#8DB54A', second: '#B7CF68', pattern: 'solid' }, scale: 1.12 },
-  a058: { skin: { base: '#A8182A', second: '#7E0F1E', pattern: 'solid' }, flesh: '#F29AA6' },
-  a086: { skin: { base: '#CF3A3A', second: '#E8B850', pattern: 'streak' } },
-};
+const VISUALS = rawVisuals as unknown as Record<string, { skin: SkinVisual; flesh?: string; scale?: number }>;
 
-const SIZE_SCALE: Record<string, number> = { mini: 0.65, small: 0.85, standard: 1 };
+const SIZE_SCALE: Record<string, number> = { mini: 0.65, small: 0.85, standard: 1, large: 1.15 };
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -259,7 +304,7 @@ export function validateContent(
     appleIds.add(a.id);
   }
   if (proto.apples.length !== 10) fail(`expected exactly 10 apples, got ${proto.apples.length}`);
-  for (const id of APPLE_ORDER) if (!appleIds.has(id)) fail(`missing apple ${id}`);
+  for (const id of PROTOTYPE_APPLES) if (!appleIds.has(id)) fail(`missing apple ${id}`);
 
   const recipeIds = new Set<string>();
   for (const r of proto.recipes) {
@@ -267,7 +312,7 @@ export function validateContent(
     recipeIds.add(r.id);
   }
   if (proto.recipes.length !== 5) fail(`expected exactly 5 recipes, got ${proto.recipes.length}`);
-  for (const id of RECIPE_ORDER) if (!recipeIds.has(id)) fail(`missing recipe ${id}`);
+  for (const id of PROTOTYPE_RECIPES) if (!recipeIds.has(id)) fail(`missing recipe ${id}`);
 
   const pairKeys = new Set<string>();
   for (const p of proto.pairings) {
@@ -294,7 +339,7 @@ export function validateContent(
       if (r.recipe_id === 'ringo_ame' && s.gesture === 'circle') fail('circle (syrup stirring) in ringo_ame');
     }
   }
-  for (const id of RECIPE_ORDER) {
+  for (const id of PROTOTYPE_RECIPES) {
     const r = catalog.recipes.find((x) => x.recipe_id === id);
     if (!r || !r.prototype_playable) fail(`playable action plan missing for ${id}`);
     if (r.steps.length !== REQUIRED_ACTION_COUNTS[id] || r.action_count !== REQUIRED_ACTION_COUNTS[id])
@@ -312,15 +357,64 @@ export function validateContent(
   return { apples: 10, recipes: 5, pairings: ref.appleRecipePairings, timedSteps: ref.timedSteps };
 }
 
+/**
+ * Validate the expansion layer: 100 unique apples with visuals, a complete 100×20 fit matrix that
+ * agrees with the 50 researched prototype pairings, and an action plan + name for every playable recipe.
+ */
+export function validateExpansion(
+  proto: RawPrototype = PROTOTYPE_DATA,
+  exp: RawExpansion = EXPANSION_DATA,
+  matrix: RawMatrix = FIT_MATRIX,
+  catalog: RawCatalog = ACTION_CATALOG,
+): { apples: number; recipes: number; pairings: number } {
+  const ids = [...proto.apples.map((a) => a.id), ...exp.apples.map((a) => a.id)];
+  if (new Set(ids).size !== ids.length) fail('duplicate apple id across prototype and expansion');
+  if (ids.length !== 100) fail(`expected 100 apples, got ${ids.length}`);
+  const order = exp.unlock_order;
+  if (order.length !== 100 || new Set(order).size !== 100 || order.some((id) => !ids.includes(id))) fail('unlock order must list each apple once');
+  for (const a of exp.apples) {
+    if (!a.name_en || !a.name_ja || !a.overview_for_kids) fail(`apple ${a.id} missing text`);
+    for (const v of Object.values(a.game_stats_1to5)) if (!Number.isInteger(v) || v < 1 || v > 5) fail(`apple ${a.id} stat outside 1–5`);
+  }
+  for (const id of ids) if (!VISUALS[id]) fail(`apple ${id} has no visuals`);
+  for (const r of RECIPE_ORDER) if (!matrix.recipes.includes(r)) fail(`fit matrix missing recipe ${r}`);
+  let pairs = 0;
+  for (const id of ids) {
+    const row = matrix.apples[id];
+    if (!row || row.length !== matrix.recipes.length) fail(`fit matrix row missing for ${id}`);
+    for (const v of row) if (!Number.isInteger(v) || v < 0 || v > 3) fail(`fit for ${id} outside 0–3`);
+    pairs += row.length;
+  }
+  for (const p of proto.pairings) {
+    if (matrix.apples[p.apple_id][matrix.recipes.indexOf(p.recipe_id)] !== p.fit_stars) fail(`matrix disagrees with researched pairing ${p.apple_id}:${p.recipe_id}`);
+  }
+  void catalog;
+  const vocab = new Set<string>(GESTURES);
+  for (const r of RECIPE_ORDER) {
+    const plan = activePlan(r);
+    if (!plan) fail(`no action plan for playable recipe ${r}`);
+    if (plan.steps.length !== REQUIRED_ACTION_COUNTS[r] || plan.action_count !== plan.steps.length) fail(`${r} must have ${REQUIRED_ACTION_COUNTS[r]} actions`);
+    for (const st of plan.steps) {
+      if (!vocab.has(st.gesture)) fail(`step ${st.id} gesture outside vocabulary`);
+      if (plan.preserve_whole_apple && st.gesture === 'swipe') fail(`swipe in whole-apple recipe ${r}`);
+      if (!st.target_object || !st.animation_event || !st.timing_event) fail(`step ${st.id} missing binding`);
+      try { gradeTiming(st.timing, st.timing.target_ms); } catch { fail(`step ${st.id} has invalid timing`); }
+    }
+    if (!(PROTOTYPE_RECIPES as readonly string[]).includes(r) && !EXTRA_RECIPE_META[r]) fail(`no name for recipe ${r}`);
+  }
+  return { apples: ids.length, recipes: RECIPE_ORDER.length, pairings: pairs };
+}
+
 // Validate at import time (the only import side effect).
 export const CONTENT_SUMMARY = validateContent();
+export const EXPANSION_SUMMARY = validateExpansion();
 
 // ---------------------------------------------------------------------------
 // Build typed content
 // ---------------------------------------------------------------------------
 
 function buildApple(raw: RawApple): AppleInfo {
-  const vis = VISUALS[raw.id as AppleId];
+  const vis = VISUALS[raw.id];
   const sizeClass = raw.game_size_class;
   return {
     id: raw.id,
@@ -340,9 +434,18 @@ function buildApple(raw: RawApple): AppleInfo {
   };
 }
 
+/** Action plan used by the game: the research pack's plan with any design override applied. */
+export function activePlan(id: string): RawActionRecipe | undefined {
+  const base = ACTION_CATALOG.recipes.find((r) => r.recipe_id === id);
+  const o = ACTION_OVERRIDES[id];
+  return base && o ? { ...base, ...o, recipe_id: base.recipe_id, variant_id: `${base.variant_id}_override` } : base;
+}
+
 function buildRecipe(id: RecipeId): RecipeInfo {
-  const raw = PROTOTYPE_DATA.recipes.find((r) => r.id === id)!;
-  const plan = ACTION_CATALOG.recipes.find((r) => r.recipe_id === id)!;
+  const plan = activePlan(id)!;
+  const proto = PROTOTYPE_DATA.recipes.find((r) => r.id === id);
+  const extra = EXTRA_RECIPE_META[id];
+  const raw = proto ?? { name_ja: extra.nameJa, name_en: plan.name, profile: extra.profile, cultural_context: extra.context };
   return {
     id,
     name: RECIPE_DISPLAY_NAMES[id],
@@ -373,15 +476,28 @@ function buildRecipe(id: RecipeId): RecipeInfo {
   };
 }
 
-/** The 10 playable apples in prototype order. */
-export const APPLES: readonly AppleInfo[] = Object.freeze(
-  APPLE_ORDER.map((id) => buildApple(PROTOTYPE_DATA.apples.find((a) => a.id === id)!)),
-);
+const RAW_APPLES = new Map<string, RawApple>([...PROTOTYPE_DATA.apples, ...EXPANSION_DATA.apples].map((a) => [a.id, a]));
+/** All 100 apples in unlock order. */
+export const APPLES: readonly AppleInfo[] = Object.freeze(APPLE_ORDER.map((id) => buildApple(RAW_APPLES.get(id)!)));
 /** The 5 playable recipes in order fresh_juice, rabbit_apples, apple_jam, hirosaki_pie, ringo_ame. */
 export const RECIPES: readonly RecipeInfo[] = Object.freeze(RECIPE_ORDER.map(buildRecipe));
 
-const PAIRINGS = new Map<string, Pairing>(
-  PROTOTYPE_DATA.pairings.map((p) => [
+const MATRIX_PAIRINGS: Array<[string, Pairing]> = [];
+for (const [appleId, row] of Object.entries(FIT_MATRIX.apples)) {
+  row.forEach((fit, i) => {
+    const recipeId = FIT_MATRIX.recipes[i];
+    MATRIX_PAIRINGS.push([`${appleId}:${recipeId}`, {
+      appleId, recipeId, fitStars: fit as FitStars,
+      fitLabel: String(PROTOTYPE_DATA.scoring.rating_scale[String(fit)] ?? ''),
+      reason: 'Fit from the 100-apple × 20-recipe matrix.',
+      confidence: 'matrix', evidenceBasis: 'apple_recipe_matrix', ratingStatus: 'matrix',
+      uncertainInputs: [], adaptation: null,
+    }]);
+  });
+}
+/** Matrix fits for every apple × recipe, overridden by the 50 researched prototype pairings. */
+const PAIRINGS = new Map<string, Pairing>([...MATRIX_PAIRINGS,
+  ...PROTOTYPE_DATA.pairings.map((p) => [
     `${p.apple_id}:${p.recipe_id}`,
     {
       appleId: p.apple_id,
@@ -395,8 +511,8 @@ const PAIRINGS = new Map<string, Pairing>(
       uncertainInputs: [...p.uncertain_inputs],
       adaptation: p.adaptation,
     },
-  ]),
-);
+  ] as [string, Pairing]),
+]);
 
 /** Rating words for 0–3 (from data): 0 'Bad fit', 1 'OK', 2 'Good', 3 'Best'. */
 export const RATING_LABELS: Readonly<Record<number, string>> = Object.freeze(

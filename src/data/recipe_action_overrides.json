@@ -1,0 +1,89 @@
+{
+ "schema_version": "1.0",
+ "note": "Design overrides to recipe_actions_20.json action plans (the research pack stays unchanged).",
+ "recipes": {
+  "yogurt_parfait": {
+   "action_count": 4,
+   "apple_form": "diced",
+   "automatic_preparation_and_bridges": [
+    "Chef washes and cores the selected apple.",
+    "Yogurt, apple pieces and whipped cream are layered in turn."
+   ],
+   "research_note": "Design change (Nov 2026): four actions so the player cuts the apple and builds each layer. Crunchy topping dropped in favour of whipped cream.",
+   "steps": [
+    {
+     "id": "yogurt_parfait_01",
+     "gesture": "tap",
+     "label": "Add yogurt",
+     "prompt": "Tap the glass to add yogurt.",
+     "target_object": "parfait_glass",
+     "animation_event": "yogurt_layer_added",
+     "timing": {
+      "duration_ms": 6000,
+      "target_ms": 3500,
+      "perfect_ms": 350,
+      "good_ms": 800,
+      "ok_ms": 1300
+     },
+     "geometry_profile": "tap_default",
+     "timing_event": "pointer_down_on_target",
+     "failure_animation": "gentle_wobble_no_food_loss"
+    },
+    {
+     "id": "yogurt_parfait_02",
+     "gesture": "swipe",
+     "label": "Cut the apple into pieces",
+     "prompt": "Swipe the cut guide to cut the apple into small pieces.",
+     "target_object": "apple",
+     "animation_event": "parfait_apple_diced",
+     "timing": {
+      "duration_ms": 6000,
+      "target_ms": 3500,
+      "perfect_ms": 350,
+      "good_ms": 800,
+      "ok_ms": 1300
+     },
+     "geometry_profile": "swipe_default",
+     "timing_event": "first_valid_guide_crossing",
+     "failure_animation": "gentle_wobble_no_food_loss"
+    },
+    {
+     "id": "yogurt_parfait_03",
+     "gesture": "tap",
+     "label": "Add the apple pieces",
+     "prompt": "Tap the glass to add the apple pieces.",
+     "target_object": "parfait_glass",
+     "animation_event": "parfait_apple_added",
+     "timing": {
+      "duration_ms": 6000,
+      "target_ms": 3500,
+      "perfect_ms": 350,
+      "good_ms": 800,
+      "ok_ms": 1300
+     },
+     "geometry_profile": "tap_default",
+     "timing_event": "pointer_down_on_target",
+     "failure_animation": "gentle_wobble_no_food_loss"
+    },
+    {
+     "id": "yogurt_parfait_04",
+     "gesture": "tap",
+     "label": "Top with whipped cream",
+     "prompt": "Tap on the cue to swirl on the whipped cream.",
+     "target_object": "parfait_glass",
+     "animation_event": "parfait_finished",
+     "timing": {
+      "duration_ms": 6000,
+      "target_ms": 3500,
+      "perfect_ms": 350,
+      "good_ms": 800,
+      "ok_ms": 1300
+     },
+     "geometry_profile": "tap_default",
+     "timing_event": "pointer_down_on_target",
+     "failure_animation": "gentle_wobble_no_food_loss"
+    }
+   ]
+  }
+ }
+}
