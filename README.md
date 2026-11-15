@@ -24,7 +24,7 @@ The game is a static site (`dist/`), served by a Worker with static assets (`wra
 **One-off from your machine**
 ```bash
 npx wrangler login     # once
-npm run deploy         # builds and uploads → https://aomori-apple-kitchen.<your-subdomain>.workers.dev
+npm run deploy         # builds and uploads → https://aomori-apple-game.<your-subdomain>.workers.dev
 ```
 
 **Automatic on every push (recommended)** — put this folder in a GitHub repo, then in the Cloudflare dashboard: *Workers & Pages → Create → Import a repository*, pick the repo and set

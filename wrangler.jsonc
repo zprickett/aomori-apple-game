@@ -2,7 +2,7 @@
   // Cloudflare Workers static-assets deployment for Aomori Apple Kitchen.
   // `npm run build` writes the site to ./dist; `npx wrangler deploy` uploads it.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "aomori-apple-kitchen",
+  "name": "aomori-apple-game",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist",
