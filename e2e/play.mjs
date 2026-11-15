@@ -87,7 +87,7 @@ for (let o = 0; o < ORDERS; o++) {
   await shot('result');
   const res = await page.evaluate(() => ({
     points: document.querySelector('[data-testid=points] b')?.textContent,
-    rank: document.querySelector('[data-testid=rank]')?.textContent,
+    golden: !!document.querySelector('[data-testid=golden]'),
     grades: [...document.querySelectorAll('.res-grades .chip')].map((c) => c.textContent),
   }));
   log.push({ order, appleId, gestures, ...res });

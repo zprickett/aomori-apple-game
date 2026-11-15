@@ -205,7 +205,7 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     recipeId: evaluation.recipeId,
     appleId: evaluation.appleId,
     points: pts,
-    rank: evaluation.score.rank,
+    golden: evaluation.score.golden,
     grades: evaluation.grades.map((g) => g.grade),
     fit: evaluation.fitStars,
     newBest: prevBest === undefined || pts > prevBest,

@@ -17,21 +17,8 @@ export const COMBO_POINTS = 25;
 /** Index = fit stars (0–3). */
 export const APPLE_MULTIPLIER: readonly number[] = Object.freeze([0.5, 1, 1.5, 2]);
 
-export type DishRank = 'golden' | 'ripe' | 'blossom' | 'sprout';
-export const RANK_INFO: Readonly<Record<DishRank, { label: string; icon: string; min: number }>> = Object.freeze({
-  golden: { label: 'Golden Apple', icon: '🏆', min: 0.9 },
-  ripe: { label: 'Ripe', icon: '🍎', min: 0.7 },
-  blossom: { label: 'Blossom', icon: '🌸', min: 0.45 },
-  sprout: { label: 'Sprout', icon: '🌱', min: 0 },
-});
-/** Child-facing line per rank (the apple-fit-0 case keeps its own message). */
-export const RANK_FEEDBACK: Readonly<Record<DishRank, string>> = Object.freeze({
-  golden: 'Amazing! A Golden Apple dish!',
-  ripe: 'Delicious! Great apple and great cooking.',
-  blossom: 'Nice! A better apple or sharper timing scores more.',
-  sprout: 'Good try! Watch the ring and act as it closes.',
-});
-export const RANK_ORDER: readonly DishRank[] = ['golden', 'ripe', 'blossom', 'sprout'];
+/** Every action Perfect: the dish earns the Golden Recipe label. */
+export const GOLDEN_LABEL = 'Golden Recipe';
 
 export interface DishScore {
   cooking: number;
@@ -44,7 +31,8 @@ export interface DishScore {
   total: number;
   /** Best possible total for this recipe (all Perfect, best-fit apple). */
   max: number;
-  rank: DishRank;
+  /** All actions Perfect. */
+  golden: boolean;
 }
 
 /** 1 action → ×1, each extra action +0.5 (juice 1, rabbit 1.5, jam 2, candy 2.5, pie 3). */
@@ -72,11 +60,6 @@ export function maxDishPoints(recipeId: string): number {
   return Math.round((r.cooking + r.combo) * APPLE_MULTIPLIER[3]);
 }
 
-export function rankFor(total: number, max: number): DishRank {
-  const f = max > 0 ? total / max : 0;
-  return RANK_ORDER.find((k) => f >= RANK_INFO[k].min) ?? 'sprout';
-}
-
 /** Score a finished dish from its accepted grades (recipe step order). */
 export function scoreDish(appleId: string, recipeId: string, grades: readonly Grade[]): DishScore {
   const difficulty = recipeDifficulty(recipeId);
@@ -85,7 +68,7 @@ export function scoreDish(appleId: string, recipeId: string, grades: readonly Gr
   const r = raw(grades, difficulty);
   const total = Math.round((r.cooking + r.combo) * appleMultiplier);
   const max = maxDishPoints(recipeId);
-  return { ...r, fit, appleMultiplier, difficulty, total, max, rank: rankFor(total, max) };
+  return { ...r, fit, appleMultiplier, difficulty, total, max, golden: grades.length > 0 && grades.every((g) => g === 'Perfect') };
 }
 
 // ---------------------------------------------------------------------------
@@ -132,7 +115,7 @@ export interface OrderRecord {
   recipeId: string;
   appleId: string;
   points: number;
-  rank: DishRank;
+  golden: boolean;
   grades: Grade[];
   fit: number;
   /** Beat (or set) the best points for this recipe. */

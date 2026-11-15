@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { RANK_FEEDBACK, RANK_INFO, apple, chefLevel, recipe, selectors, type DishRank, type GameAction, type GameState } from '../core/index.ts';
+import { GOLDEN_LABEL, apple, chefLevel, recipe, selectors, type GameAction, type GameState } from '../core/index.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -125,7 +125,6 @@ export function ServeOverlay({ state, dispatch, reduced }: { state: GameState; d
 
 // ---------------------------------------------------------------------------
 const GRADE_CLASS: Record<string, string> = { Perfect: 'g-perfect', Good: 'g-good', OK: 'g-ok', Miss: 'g-miss' };
-const RANK_SFX: Record<DishRank, number> = { golden: 3, ripe: 2, blossom: 1, sprout: 0 };
 
 export function useCountUp(target: number, ms: number, reduced: boolean, delay = 0): number {
   const [v, setV] = useState(reduced ? target : 0);
@@ -173,7 +172,8 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
   const shown = useCountUp(score?.total ?? 0, 800, reduced, 250);
   useEffect(() => {
     if (!score) return;
-    const n = RANK_SFX[score.rank];
+    const f = score.max ? score.total / score.max : 0;
+    const n = score.golden ? 3 : f >= 0.6 ? 2 : f > 0 ? 1 : 0;
     emitCue({ type: 'customer', anim: n >= 3 ? 'joy' : n >= 1 ? 'happy' : 'think' });
     if (n >= 3) emitCue({ type: 'chef', anim: 'cheer' });
     for (let i = 0; i < n; i++) window.setTimeout(() => sfx.star(i), 350 + i * 260);
@@ -190,8 +190,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
               <div className="res-points" data-testid="points"><b>{shown.toLocaleString()}</b> pts
                 {record?.newBest && <span className="new-best">NEW BEST!</span>}
               </div>
-              <div className={`rank-badge r-${score.rank}`} data-testid="rank">{RANK_INFO[score.rank].icon} {RANK_INFO[score.rank].label}</div>
-              <div className="res-label">{score.fit === 0 ? res.childFeedback : RANK_FEEDBACK[score.rank]}</div>
+              {score.golden && <div className="golden-badge" data-testid="golden">🏆 {GOLDEN_LABEL}</div>}
             </>
           ) : (
             <div className="res-label">Practice done. Just for fun!</div>

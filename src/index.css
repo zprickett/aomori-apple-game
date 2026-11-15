@@ -379,11 +379,6 @@ body {
 .res-points b { font-size: 2.3rem; color: var(--ink); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .new-best { align-self: center; background: var(--red); color: #fff; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.06em; border-radius: 999px; padding: 3px 9px; animation: pop 0.5s 1.1s cubic-bezier(.2,1.6,.4,1) both; }
 .new-best.sm { animation: none; font-size: 0.62rem; padding: 1px 7px; margin-top: 2px; }
-.rank-badge { display: inline-block; font-weight: 900; font-size: 0.95rem; border-radius: 999px; padding: 3px 12px; margin-bottom: 6px; border: 2px solid transparent; }
-.r-golden { background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border-color: #c98a16; color: #6b4300; }
-.r-ripe { background: #ffe1d9; border-color: #e7a394; color: #9c2a1c; }
-.r-blossom { background: #fde6f0; border-color: #eab3cb; color: #8f3a62; }
-.r-sprout { background: #e7f1d6; border-color: #b9cf93; color: #4d6a25; }
 .result .res-grades { margin: 14px 0 12px; }
 .chip.apple-x { background: #fff1ea; border: 2px solid #f0c3b3; }
 .chip.apple-x.f-3 { background: var(--red); color: #fff; border-color: var(--red-d); }
@@ -482,3 +477,5 @@ body {
 @keyframes mg-shake { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 4px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-4px, -3px); } 80% { transform: translate(3px, 3px); } }
 @keyframes ov-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
 .ov-name .ja { display: inline-block; margin-left: 0; }
+.golden-badge { display: inline-block; font-weight: 900; font-size: 0.95rem; border-radius: 999px; padding: 3px 12px; margin-top: 2px; background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border: 2px solid #c98a16; color: #6b4300; animation: pop 0.5s 1.1s cubic-bezier(.2,1.6,.4,1) both; }
+.rank-mini.golden { background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border-color: #c98a16; color: #6b4300; }

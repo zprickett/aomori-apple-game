@@ -7,7 +7,7 @@ import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './co
 import { DEFAULT_SEED, unlockedApples, unlockedRecipes } from './progression.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
-import { HISTORY_LIMIT, RANK_ORDER, scoreDish, type DishRank, type OrderRecord } from './points.ts';
+import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
 
 export const SAVE_KEY = 'aomori-kitchen-save';
 export const SAVE_VERSION = 2;
@@ -142,7 +142,7 @@ function sanitizeEvaluation(v: unknown): DishEvaluation | null {
   if (typeof v.finishedStars !== 'number' || typeof v.explanation !== 'string') return null;
   const ev = v as unknown as DishEvaluation;
   // Older saves have no points: recompute deterministically from the accepted grades.
-  if (!isObj(v.score) || typeof (v.score as Record<string, unknown>).total !== 'number') {
+  if (!isObj(v.score) || typeof (v.score as Record<string, unknown>).golden !== 'boolean') {
     const grades = Array.isArray(ev.grades) ? ev.grades.map((g) => g.grade).filter((g) => GRADES.includes(g)) : [];
     if (grades.length !== recipe(ev.recipeId).steps.length) return null;
     return { ...ev, score: scoreDish(ev.appleId, ev.recipeId, grades) };
@@ -280,7 +280,7 @@ function sanitizeRecord(v: unknown): OrderRecord | null {
     recipeId: v.recipeId,
     appleId: v.appleId,
     points: nonNegInt(v.points, 0),
-    rank: RANK_ORDER.includes(v.rank as DishRank) ? (v.rank as DishRank) : 'sprout',
+    golden: v.golden === true || (grades.length > 0 && grades.every((g) => g === 'Perfect')),
     grades,
     fit: nonNegInt(v.fit, 0),
     newBest: v.newBest === true,

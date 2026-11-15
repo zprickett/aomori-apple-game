@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RECIPE_ORDER, recipe } from '../content.ts';
-import { chefLevel, maxDishPoints, rankFor, recipeDifficulty, scoreDish } from '../points.ts';
+import { chefLevel, maxDishPoints, recipeDifficulty, scoreDish } from '../points.ts';
 import { initialState, gameReducer, commitCompletedOrder } from '../gameReducer.ts';
 import { evaluateDish, type StepResult } from '../scoring.ts';
 import { orderForIndex } from '../progression.ts';
@@ -30,13 +30,13 @@ describe('points scoring', () => {
     expect(s.bestStreak).toBe(2);
   });
 
-  it('all Perfect with a best apple is a Golden Apple; all Miss is a Sprout with 0', () => {
-    expect(scoreDish('a091', 'ringo_ame', all('ringo_ame', 'Perfect')).rank).toBe('golden');
+  it('Golden Recipe only when every action is Perfect', () => {
+    expect(scoreDish('a091', 'ringo_ame', all('ringo_ame', 'Perfect')).golden).toBe(true);
+    expect(scoreDish('a048', 'ringo_ame', all('ringo_ame', 'Perfect')).golden).toBe(true);
+    expect(scoreDish('a091', 'ringo_ame', ['Perfect', 'Perfect', 'Perfect', 'Good']).golden).toBe(false);
     const miss = scoreDish('a091', 'ringo_ame', all('ringo_ame', 'Miss'));
     expect(miss.total).toBe(0);
-    expect(miss.rank).toBe('sprout');
-    expect(rankFor(70, 100)).toBe('ripe');
-    expect(rankFor(45, 100)).toBe('blossom');
+    expect(miss.golden).toBe(false);
   });
 
   it('chef level grows with lifetime points', () => {
@@ -74,6 +74,7 @@ describe('history and totals', () => {
     expect(data.totalPoints).toBe(1234);
     expect(data.bestPoints).toEqual({ fresh_juice: 200 });
     expect(data.history).toHaveLength(1);
+    expect(data.history[0].golden).toBe(true);
     const legacy = JSON.parse(JSON.stringify(defaultSave()));
     delete legacy.totalPoints; delete legacy.bestPoints; delete legacy.history;
     expect(parseSave(JSON.stringify(legacy)).data).toMatchObject({ totalPoints: 0, bestPoints: {}, history: [] });

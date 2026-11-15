@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { APPLES, RECIPES, apple, bestApplesFor, fitStars, recipe, type GameAction, type GameState } from '../core/index.ts';
+import { RECIPES, apple, fitStars, recipe, type GameAction, type GameState } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
-import { appleIcon, dishIcon, GestureIcon } from './icons.tsx';
+import { dishIcon, GestureIcon } from './icons.tsx';
 
 type D = (a: GameAction) => void;
 
 const STAT_LABEL: Record<string, string> = { sweetness: 'Sweet', tartness: 'Tart', juiciness: 'Juicy', raw_firmness: 'Crunchy', aroma: 'Smell' };
-const INTRO_MS = 2100;
+const INTRO_MS = 6300;
 const shortName = (n: string) => n.replace(' (Jonathan)', '');
 
 /**
@@ -54,7 +54,7 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
         <div className="ov-tag">{item.kind === 'apple' ? 'New apple' : 'New recipe'}</div>
       </div>
       <div className="ov-body">
-        {item.kind === 'apple' ? <AppleOverview id={item.id} state={state} /> : <RecipeOverview id={item.id} state={state} />}
+        {item.kind === 'apple' ? <AppleOverview id={item.id} state={state} /> : <RecipeOverview id={item.id} />}
       </div>
       <div className="ov-foot">
         {items.length > 1 && <div className="ov-dots">{items.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>}
@@ -124,10 +124,8 @@ function AppleOverview({ id, state }: { id: string; state: GameState }) {
   );
 }
 
-function RecipeOverview({ id, state }: { id: string; state: GameState }) {
+function RecipeOverview({ id }: { id: string }) {
   const r = recipe(id);
-  const best = bestApplesFor(id, state.progress.unlockedApples).filter((a) => fitStars(a.id, id) === 3);
-  const lockedBest = bestApplesFor(id, APPLES.map((a) => a.id)).filter((a) => fitStars(a.id, id) === 3 && !state.progress.unlockedApples.includes(a.id)).length;
   return (
     <>
       <h2 className="ov-name">{r.name} <span className="ja" lang="ja">{r.nameJa}</span></h2>
@@ -137,14 +135,6 @@ function RecipeOverview({ id, state }: { id: string; state: GameState }) {
           <li key={s.id}><GestureIcon g={s.gesture} /><span>{s.label}</span></li>
         ))}
       </ol>
-      <h3 className="ov-h">Best apples</h3>
-      <div className="ov-apples">
-        {best.map((a) => (
-          <div key={a.id} className="ov-apple"><img src={appleIcon(a.id)} alt="" /><span>{shortName(a.nameEn)}</span></div>
-        ))}
-        {lockedBest > 0 && <div className="ov-apple locked"><span className="q">?</span><span>{lockedBest} more to find</span></div>}
-        {best.length === 0 && lockedBest === 0 && <div className="muted">Try different apples and see!</div>}
-      </div>
     </>
   );
 }

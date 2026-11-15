@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  APPLES, RANK_INFO, RECIPES, apple, chefLevel, fitStars, pairing, recipe, selectors, unlockConditionText, recipeUnlockAt,
+  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, pairing, recipe, selectors, unlockConditionText, recipeUnlockAt,
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -200,7 +200,7 @@ function History({ state }: { state: GameState }) {
                 </div>
                 <div className="hist-right">
                   <div className="hist-pts">{o.points.toLocaleString()}</div>
-                  <div className={`rank-mini r-${o.rank}`}>{RANK_INFO[o.rank].icon} {RANK_INFO[o.rank].label}</div>
+                  {o.golden && <div className="rank-mini golden">🏆 {GOLDEN_LABEL}</div>}
                   {o.newBest && <div className="new-best sm">BEST</div>}
                 </div>
               </li>
