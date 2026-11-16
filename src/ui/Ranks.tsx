@@ -31,7 +31,7 @@ export function RankGoals({ state }: { state: GameState }) {
   const next = rankInfo(rank + 1);
   return (
     <div className="rank-goals" data-testid="rank-goals">
-      <div className="rg-head"><RankBadge rank={next.rank} size={24} /> Next: <b>{next.name}</b></div>
+      <div className="rg-head"><RankBadge rank={next.rank} size={24} /> Next rank: <b>{next.name}</b></div>
       <ul>
         {goals.map((g) => (
           <li key={g.id} className={g.done ? 'done' : ''}>
@@ -107,7 +107,7 @@ export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; stat
         <div className="rp-dots" />
         {next ? (
           <div className="rp-goals" data-testid="rank-goals">
-            <div className="rp-next">Next <RankBadge rank={next.rank} size={26} /> <b>{next.name}</b></div>
+            <div className="rp-next">Next rank <RankBadge rank={next.rank} size={26} /> <b>{next.name}</b></div>
             <ul>
               {goals.map((g) => (
                 <li key={g.id} className={g.done ? 'done' : ''}>
