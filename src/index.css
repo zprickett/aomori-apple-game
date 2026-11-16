@@ -36,7 +36,7 @@ body {
   background: var(--bg);
   box-shadow: 0 0 40px rgba(74, 51, 38, 0.18);
 }
-.scene-bg { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat;
+.scene-bg { position: absolute; left: 0; right: 0; top: 0; height: 100%; background-size: cover; background-position: center top; background-repeat: no-repeat;
   transform-origin: 50% 62%; transition: transform 0.7s cubic-bezier(.2,.8,.3,1); }
 /* The painted backdrop zooms a little with the camera so the stall doesn't look pasted on. */
 .scene-bg.view-serve, .scene-bg.view-result, .scene-bg.view-delivery { transform: scale(1.12); }
@@ -546,10 +546,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .wl-ja { font-weight: 900; color: var(--ink-soft); letter-spacing: 0.12em; font-size: 0.95rem; }
 .wl-apples { text-align: center; font-size: 3rem; margin-top: 4vh; letter-spacing: 0.2em; animation: bob 2.4s ease-in-out infinite; }
 .reduced .wl-apples { animation: none; }
-.st-card { margin: 14vh 20px 0; background: var(--paper); border: 3px solid var(--wood-d); border-radius: 26px; padding: 26px 22px; text-align: center; box-shadow: var(--shadow); animation: ov-in 0.35s cubic-bezier(.2,.9,.3,1) both; }
-.st-icon { font-size: 4rem; line-height: 1; }
-.st-card h2 { margin: 12px 0 8px; font-size: 1.6rem; font-weight: 900; }
-.st-card p { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--ink-soft); line-height: 1.4; }
 .mk-head { display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 0; }
 .mk-head h2 { margin: 0; font-size: 1.35rem; font-weight: 900; }
 .mk-preview { position: relative; height: 34vh; min-height: 200px; flex: none; background: radial-gradient(circle at 50% 55%, #fff 0%, var(--bg) 70%); }
@@ -588,15 +584,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .size-chip.s-S { background: #7d9d3f; }
 .size-chip.s-M { background: #e0963a; }
 .size-chip.s-L { background: var(--red); }
-.st-head { text-align: center; margin: calc(env(safe-area-inset-top, 0px) + 9vh) 0 18px; font-size: 1.7rem; font-weight: 900; }
-.st-list { list-style: none; margin: 0; padding: 0 18px; display: grid; gap: 14px; }
-.st-item { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 10px 14px 10px 10px; box-shadow: var(--shadow); animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
-.reduced .st-item { animation: none; }
-.st-pic { width: 84px; height: 84px; border-radius: 18px; background: #fbf2e2; display: grid; place-items: center; }
-.st-pic img { width: 76px; height: 76px; }
-.st-trophy { font-size: 3.2rem; line-height: 1; }
-.st-item b { display: block; font-size: 1.15rem; font-weight: 900; line-height: 1.15; }
-.st-item span { display: block; font-size: 1rem; font-weight: 700; color: var(--ink-soft); margin-top: 3px; line-height: 1.3; }
 /* chef maker: bigger chef, bigger controls */
 .maker .mk-preview { height: 42vh; min-height: 260px; }
 .maker .mk-body { gap: 10px; padding-top: 0; }
@@ -610,9 +597,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .maker .mk-name input { font-size: 1.15rem; padding: 12px 14px; }
 .maker .onb-foot { padding-top: 8px; }
 .maker .seg-btns .btn { padding: 0 6px; }
-.story .onb-row .btn:first-child { flex: 0 0 auto; padding: 0 18px; }
-.story .onb-row .btn.primary { flex: 1; white-space: nowrap; }
-.st-item .st-pic .st-trophy { font-size: 3.2rem; margin: 0; color: inherit; }
 
 /* ---- Story ranks: badge, goals, rank-up, day recap ---- */
 .rank-badge { display: inline-grid; place-items: center; flex: none; }
@@ -716,3 +700,52 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .pl-rank-name { font-size: 1.25rem; font-weight: 900; line-height: 1.1; }
 .pl-rank-ja { font-weight: 800; color: var(--ink-soft); }
 .player .rank-goals { margin-top: 8px; }
+
+/* ---- Ojiichan's letter and notebook ---- */
+.nb-page { position: relative; background-color: #fffdf6; border: 2.5px solid var(--wood-d); border-radius: 6px 18px 18px 6px; padding: 14px 14px 12px 30px;
+  background-image: linear-gradient(90deg, transparent 20px, #e8a39a 20px 22px, transparent 22px), repeating-linear-gradient(#fffdf6 0 25px, #e7ddcb 25px 26px);
+  box-shadow: 4px 5px 0 rgba(104,69,46,0.25); display: grid; gap: 10px; text-align: left; }
+.nb-head { display: flex; align-items: center; gap: 8px; }
+.nb-kicker { font-size: 0.78rem; font-weight: 900; color: var(--red); letter-spacing: 0.04em; text-transform: uppercase; }
+.nb-title { margin: 0; font-size: 1.35rem; font-weight: 900; line-height: 1.1; }
+.nb-riddle p { margin: 0; font-size: 1.05rem; font-weight: 800; font-style: italic; line-height: 1.4; }
+.nb-answers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.nb-answer { display: flex; flex-direction: column; align-items: center; width: 84px; background: #fff; border: 2px dashed #c9b48f; border-radius: 14px; padding: 4px; }
+.nb-answer.open { border-style: solid; border-color: #6fae4f; }
+.nb-answer img { width: 56px; height: 56px; object-fit: contain; }
+.nb-answer img.sil { filter: brightness(0) opacity(0.25); }
+.nb-answer span { font-size: 0.72rem; font-weight: 900; text-align: center; line-height: 1.1; min-height: 1.6em; }
+.nb-doodle { display: flex; align-items: center; gap: 12px; border: 2px dashed #b9a88e; border-radius: 16px; padding: 8px 12px; background: rgba(255,255,255,0.7); transform: rotate(-1deg); }
+.nb-doodle-art { font-size: 2.4rem; line-height: 1; filter: saturate(0.85); white-space: nowrap; }
+.nb-doodle-cap { font-weight: 800; font-style: italic; color: var(--ink-soft); line-height: 1.3; }
+.nb-postcard { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 10px; background: #fdf4e3; border: 2px solid #d9c3a0; border-radius: 6px;
+  padding: 10px 46px 10px 10px; transform: rotate(1.2deg); box-shadow: 2px 3px 0 rgba(104,69,46,0.2); }
+.nb-pc-art { font-size: 2rem; line-height: 1.1; display: grid; place-items: center; background: #cfe6f5; border-radius: 6px; padding: 6px; width: 54px; }
+.nb-pc-place { font-weight: 900; font-size: 0.95rem; }
+.nb-pc-body p { margin: 2px 0 0; font-size: 0.92rem; font-weight: 700; line-height: 1.35; }
+.nb-pc-stamp { position: absolute; top: 8px; right: 8px; font-size: 1.5rem; line-height: 1; border: 2px dashed #c9b48f; border-radius: 4px; padding: 2px; background: #fff; }
+.nb-where { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+.nb-where-pic { width: 64px; height: 64px; border-radius: 12px; border: 2px solid var(--wood-d); background-size: cover; background-position: center 30%; }
+.nb-where p { margin: 0; font-weight: 800; line-height: 1.35; }
+.nb-sign { text-align: right; font-weight: 900; font-style: italic; color: var(--ink-soft); }
+.nb-reveal { background: var(--paper); }
+.nb-reveal-tag { text-align: center; font-weight: 900; font-size: 1.3rem; padding: calc(env(safe-area-inset-top, 0px) + 18px) 16px 6px; color: var(--red); animation: pop 0.4s cubic-bezier(.2,1.6,.4,1) both; }
+.nb-reveal-body { flex: 1; overflow-y: auto; padding: 8px 16px 12px; }
+.nb-book { display: grid; gap: 10px; }
+.nb-nav { display: flex; align-items: center; justify-content: space-between; }
+.nb-nav .btn { min-width: 56px; font-size: 1.3rem; }
+.nb-count { font-weight: 900; color: var(--ink-soft); }
+.nb-locked { text-align: center; font-weight: 800; color: var(--ink-soft); }
+.nb-open { width: 100%; margin-top: 14px; }
+.nb-back { margin-bottom: 8px; }
+.letter-screen { background: var(--bg); }
+.lt-paper { margin: calc(env(safe-area-inset-top, 0px) + 6vh) 18px 0; background: #fffdf6; border: 2.5px solid var(--wood-d); border-radius: 10px; padding: 29px 20px 29px;
+  box-shadow: 5px 6px 0 rgba(104,69,46,0.25); transform: rotate(-1deg); animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; position: relative;
+  background-image: repeating-linear-gradient(#fffdf6 0 29px, #ece2d0 29px 30px); }
+.lt-paper p { margin: 0 0 30px; font-size: 1.05rem; font-weight: 700; line-height: 30px; }
+.lt-paper p:last-child { margin-bottom: 0; }
+.lt-greet { font-weight: 900 !important; font-size: 1.2rem !important; margin-bottom: 0 !important; }
+.lt-sign { margin-top: 0 !important; }
+.lt-sign span { color: var(--ink-soft); font-weight: 800; font-size: 0.9rem; }
+.lt-stamp { position: absolute; top: -14px; right: 16px; font-size: 1.7rem; background: #fff; border: 2px dashed var(--red); border-radius: 6px; padding: 2px 6px; transform: rotate(8deg); }
+.lt-notebook { margin: calc(env(safe-area-inset-top, 0px) + 4vh) 16px 0; animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; }

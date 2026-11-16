@@ -1,8 +1,9 @@
 import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type RecipeId } from './core/index.ts';
+import { createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
-import { ChefMaker, Story, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
+import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
+import { GrandpaLetter } from './ui/Notebook.tsx';
 import { devPlayParams, useGame } from './game/useGame.ts';
 import { recipeStages, type PropSpec } from './game/stations.ts';
 import { emitCue } from './game/bus.ts';
@@ -12,7 +13,7 @@ import { CookOverlay } from './ui/CookOverlay.tsx';
 import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
 import { UnlockReveal } from './ui/Reveal.tsx';
 import { DayRecap } from './ui/Ranks.tsx';
-import { currentBackground } from './game/backgrounds.ts';
+import { backdropFit, backgroundFor } from './game/backgrounds.ts';
 import { Review } from './ui/Review.tsx';
 import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
@@ -44,7 +45,7 @@ function safeStorage(): Storage | null {
   try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; }
 }
 
-type Screen = 'welcome' | 'story' | 'create' | 'who' | 'play' | 'edit';
+type Screen = 'welcome' | 'create' | 'letter' | 'who' | 'play' | 'edit';
 
 /** Onboarding + profiles around the game. Each chef has their own save. */
 function Root() {
@@ -63,11 +64,13 @@ function Root() {
     );
   }
   let body;
-  if (screen === 'welcome') body = <Welcome onStart={() => setScreen('story')} />;
-  else if (screen === 'story') body = <Story onBack={() => setScreen('welcome')} onDone={() => setScreen('create')} />;
+  if (screen === 'welcome') body = <Welcome onStart={() => setScreen('create')} />;
   else if (screen === 'create') {
-    body = <ChefMaker mode="create" onBack={() => setScreen(idx.profiles.length ? 'who' : 'story')}
-      onDone={(name: string, look: ChefLook) => play(store.create(name, look))} />;
+    // A new chef reads Ojiichan's letter before the first order.
+    body = <ChefMaker mode="create" onBack={() => setScreen(idx.profiles.length ? 'who' : 'welcome')}
+      onDone={(name: string, look: ChefLook) => { const p = store.create(name, look); refresh(); setChef(p); setScreen('letter'); }} />;
+  } else if (screen === 'letter' && chef) {
+    body = <GrandpaLetter name={chef.name} onDone={() => play(chef)} />;
   } else if (screen === 'edit' && chef) {
     body = <ChefMaker mode="edit" initial={chef} onBack={() => setScreen('play')}
       onDone={(name: string, look: ChefLook) => { const p = store.update(chef.id, { name, look }); refresh(); setChef(p); setScreen('play'); }} />;
@@ -130,13 +133,17 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     }
   }, [state.phase, state.order.orderId, reducedMotion]);
 
-  const backdrop = useMemo(() => currentBackground(), []);
+  // The stall moves after the rank-up and its notebook page have been shown, not behind the result.
+  const pendingRank = (state.phase === 'result' || state.phase === 'delivery') ? state.delivery?.rank ?? null : null;
+  const backdrop = backgroundFor(pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state));
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
   const deliveryApple = state.phase === 'delivery' ? state.delivery?.apples[0] ?? null : null;
 
   return (
     <div className={`frame ${reducedMotion ? 'reduced' : ''}`} data-phase={state.phase} data-sub={cook?.sub ?? ''}>
-      <div className={`scene-bg view-${view}`} style={{ backgroundImage: `url(${backdrop.url})` }} aria-hidden />
+      <div className={`scene-bg view-${view}`} aria-hidden style={{
+        backgroundImage: `url(${backdrop.url})`, top: `${backdropFit(backdrop).top * 100}%`, height: `${backdropFit(backdrop).height * 100}%`,
+      }} />
       <div className="canvas-wrap">
         <Canvas
           shadows

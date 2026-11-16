@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { RECIPES, apple, fitStars, recipe, type GameAction, type GameState } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
 import { dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
+import { NotebookReveal } from './Notebook.tsx';
+import { ChefContext } from '../game/chef.ts';
 
 type D = (a: GameAction) => void;
 
@@ -25,7 +27,8 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   const [i, setI] = useState(0);
   const [stage, setStage] = useState<'intro' | 'overview'>('intro');
   /** A rank-up is shown first, on one page that stays until tapped (it carries the next goals). */
-  const [showRank, setShowRank] = useState(d.rank !== null);
+  const [showRank, setShowRank] = useState<'rank' | 'page' | null>(d.rank !== null ? 'rank' : null);
+  const chef = useContext(ChefContext);
   const item = items[i];
   const last = i >= items.length - 1;
 
@@ -44,12 +47,11 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
   }, [stage, i, reduced, showRank]);
 
-  if (showRank) {
-    return (
-      <RankUpIntro rank={d.rank!} state={state} reduced={reduced}
-        onDone={() => { sfx.tap(); if (item) setShowRank(false); else dispatch({ type: 'DELIVERY_DONE' }); }} />
-    );
+  const afterRank = () => { if (item) setShowRank(null); else dispatch({ type: 'DELIVERY_DONE' }); };
+  if (showRank === 'rank') {
+    return <RankUpIntro rank={d.rank!} state={state} reduced={reduced} onDone={() => { sfx.tap(); setShowRank('page'); }} />;
   }
+  if (showRank === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={afterRank} />;
   if (!item) return null;
   const next = () => {
     sfx.tap();

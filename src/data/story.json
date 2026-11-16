@@ -1,0 +1,82 @@
+{
+  "_comment": "Golden Chef Journey story text. Edit freely; src/core/story.ts validates it (tests fail if a page or recipe is missing). {name} = the chef's name. Never use he/she for the chef.",
+  "grandpa": { "name": "Ojiichan", "nameJa": "おじいちゃん", "gloss": "Grandpa" },
+  "letter": {
+    "greeting": "Dear {name},",
+    "body": [
+      "I'm off to see the world, so our apple stall is yours now!",
+      "I didn't leave you a cookbook. I left you my notebook of riddles instead.",
+      "Every time you grow as a chef, a new page will open. Solve its riddle and a new dish is yours.",
+      "Be kind to every customer, pick your apples well, and I'll see you soon!"
+    ],
+    "signoff": "Love,",
+    "signature": "Ojiichan (your Grandpa)"
+  },
+  "pages": [
+    {
+      "rank": 1,
+      "title": "Aomori Bay",
+      "riddle": "Squeeze me and I'm a drink. Cut me just right and I grow two long ears. What am I?",
+      "riddleRecipes": ["fresh_juice", "rabbit_apples"],
+      "doodle": { "art": "🧓🍎🐇", "caption": "Me, trying rabbit ears. They look like cats!" },
+      "postcard": null,
+      "backdrop": "aomori_city",
+      "where": "Our stall is by Aomori Bay. Wave to ASPAM, the big triangle building!"
+    },
+    {
+      "rank": 2,
+      "title": "Sweet and sticky",
+      "riddle": "Bubble me slowly in a pot and I spread on toast. Dip me in shiny red sugar and I'm a festival treat.",
+      "riddleRecipes": ["apple_jam", "ringo_ame"],
+      "doodle": { "art": "🫙✨", "caption": "A jar of jam. (I ate it all.)" },
+      "postcard": {
+        "place": "Norway",
+        "stamp": "🇳🇴",
+        "art": "⛵🏔️",
+        "text": "Greetings from Norway! The fjords are SO tall. I told a ship captain called Ingrid all about your apples."
+      },
+      "backdrop": "aomori_city",
+      "where": null
+    },
+    {
+      "rank": 3,
+      "title": "Off to Lake Towada",
+      "riddle": "Hirosaki's favourite: apples tucked in golden pastry. And my breakfast: jam on crunchy bread.",
+      "riddleRecipes": ["hirosaki_pie", "jam_toast"],
+      "doodle": { "art": "🥧😋", "caption": "Pie for breakfast? Why not!" },
+      "postcard": {
+        "place": "Paris, France",
+        "stamp": "🇫🇷",
+        "art": "🥖🥐",
+        "text": "Bonjour from Paris! Chef Amélie bakes an upside-down apple tart. I said my grandchild's pie is better!"
+      },
+      "backdrop": "lake_towada",
+      "where": "Time to move! Set up the stall beside Lake Towada, where the water is deep and blue."
+    },
+    {
+      "rank": 4,
+      "title": "The red gates",
+      "riddle": "Layer me with cold yogurt. Bake me whole until I'm soft. Simmer me slowly until I shine.",
+      "riddleRecipes": ["yogurt_parfait", "baked_apple", "apple_compote"],
+      "doodle": { "art": "🦇🍎💨", "caption": "A flying fox stole my apple!" },
+      "postcard": {
+        "place": "Queensland, Australia",
+        "stamp": "🇦🇺",
+        "art": "🦇🌳",
+        "text": "G'day from Queensland! Carer Mia looks after baby flying foxes. They love juicy fruit, just like you."
+      },
+      "backdrop": "takayama_inari",
+      "where": "Pack up! Next stop: Takayama Inari Shrine and its hill of red torii gates."
+    },
+    {
+      "rank": 5,
+      "title": "The last page",
+      "riddle": null,
+      "riddleRecipes": [],
+      "doodle": { "art": "🧓🥇", "caption": "Me, very very proud." },
+      "postcard": null,
+      "backdrop": "takayama_inari",
+      "where": "You found every dish, {name}. A Golden Chef! I've told the whole world about our stall, so keep an eye on the post..."
+    }
+  ]
+}

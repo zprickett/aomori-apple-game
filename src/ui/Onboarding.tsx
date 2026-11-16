@@ -1,4 +1,4 @@
-/** First-run onboarding (welcome → story → make your chef) and the "Who's cooking?" profile picker. */
+/** First-run onboarding (welcome → make your chef → Ojiichan's letter, in Notebook.tsx) and the "Who's cooking?" profile picker. */
 import { useMemo, useState } from 'react';
 import {
   DEFAULT_LOOK, EYE_COLORS, HAIR_NAMES, MAX_PROFILES, NAME_MAX, OUTFIT_COLORS, chefLevel, cleanName, parseSave, saveKeyFor,
@@ -6,7 +6,6 @@ import {
 } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
-import { appleIcon, dishIcon } from './icons.tsx';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
 
@@ -23,35 +22,6 @@ export function Welcome({ onStart }: { onStart: () => void }) {
       <div className="wl-apples" aria-hidden>🍎🍏🍎</div>
       <div className="onb-foot">
         <button className="btn primary huge" data-testid="get-started" onClick={() => { tap(); onStart(); }}>Get started</button>
-      </div>
-    </div>
-  );
-}
-
-const STORY: { pic: () => React.ReactNode; title: string; line: string }[] = [
-  { pic: () => <img src={appleIcon('a048')} alt="" />, title: 'Welcome to Aomori', line: 'Japan’s home of apples.' },
-  { pic: () => <img src={dishIcon('hirosaki_pie')} alt="" />, title: 'Run your apple stall', line: 'Pick an apple. Cook for customers.' },
-  { pic: () => <span className="st-trophy" aria-hidden>🏆</span>, title: 'Become a Master Apple Chef', line: 'Collect 100 apples and level up!' },
-];
-
-export function Story({ onDone, onBack }: { onDone: () => void; onBack: () => void }) {
-  return (
-    <div className="onb story" data-testid="story">
-      <div className="onb-sky" />
-      <h2 className="st-head">Your apple adventure</h2>
-      <ol className="st-list">
-        {STORY.map((s, i) => (
-          <li key={s.title} className="st-item" style={{ animationDelay: `${i * 0.12}s` }}>
-            <div className="st-pic">{s.pic()}</div>
-            <div><b>{s.title}</b><span>{s.line}</span></div>
-          </li>
-        ))}
-      </ol>
-      <div className="onb-foot">
-        <div className="row onb-row">
-          <button className="btn" onClick={() => { tap(); onBack(); }}>‹ Back</button>
-          <button className="btn primary big" data-testid="story-next" onClick={() => { tap(); onDone(); }}>Make my chef</button>
-        </div>
       </div>
     </div>
   );

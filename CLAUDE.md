@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (134 tests)
+npm test                   # vitest (139 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -32,10 +32,10 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 
 | Path | What |
 |---|---|
-| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
+| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `story.ts`: Ojiichan's letter and notebook (from `src/data/story.json`). `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
 | `src/game/` | `backgrounds.ts`: painted backdrops behind the stall (Aomori City by default). `stations.ts`: per-recipe counter stages (props before, during and after each action). `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
 | `src/three/` | `Scene.tsx`: camera, stall, chef, customers. `Showcase.tsx`: spinning hero model. `ChefPreview.tsx`, `chefLook.ts`: applies hair and colours to the chef model. `props.ts`. |
-| `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up intro, day recap. `Onboarding.tsx`: welcome, story, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
+| `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up page, day recap. `Notebook.tsx`: Ojiichan's letter, notebook pages and reveal. `Player.tsx`: My chef panel. `Onboarding.tsx`: welcome, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
 | `src/data/` | Content data. See the next section. |
 | `assets/blender/` | Blender Python that builds every model. `expansion.py` holds the newer dishes and tools. `chars.py` holds the chef and customers. |
 
@@ -64,7 +64,9 @@ The chef's customisable parts are named nodes and materials, which `chefLook.ts`
 
 ## Game design decisions (from the user)
 
-- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Stage 1 phase 1 (ranks, stars, days) is built.
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days) and phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour).
+- Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
+- The stall tours with rank: Aomori City (Helper, Apprentice), Lake Towada (Cook), Takayama Inari (Head Cook, Golden Chef). Each backdrop's `groundTop` lines its sand up with the stall.
 - Ranks and levels both exist on purpose: 5 story ranks (Helper → Golden Chef, `ranks.ts`) gate recipes; the 11 point-based chef levels stay as the points bar. Each rank-up needs orders served plus a skill goal.
 - A day is 5 orders, then a recap. Saves are v3 (`rankUps`); v2 saves get the earliest rank schedule.
 - Scoring:
