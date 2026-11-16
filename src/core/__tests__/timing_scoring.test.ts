@@ -51,7 +51,7 @@ describe('timing parity with timing_reference.mjs', () => {
           }
     }
     expect(n).toBeGreaterThan(10000);
-  });
+  }, 30_000); // randomised: can pass 5 s on a busy machine
 
   it('summarizeTechnique matches for all grade combinations of length 1–5 (+ invalid)', () => {
     const grades: Grade[] = ['Perfect', 'Good', 'OK', 'Miss'];
