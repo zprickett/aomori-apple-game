@@ -5,12 +5,13 @@
  */
 import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './content.ts';
 import { DEFAULT_SEED, unlockedApples, unlockedRecipes } from './progression.ts';
+import { cleanRankUps } from './ranks.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
 
 export const SAVE_KEY = 'aomori-kitchen-save';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 export const ACTION_SYSTEM_VERSION = '2.0';
 
 export const NOTICE_NO_STORAGE = 'Progress cannot be saved on this device';
@@ -48,12 +49,14 @@ export interface CurrentOrderSave {
 }
 
 export interface SaveData {
-  version: 2;
+  version: 3;
   actionSystemVersion: '2.0';
   seed: number;
   completedOrders: number;
   /** Ids of committed orders (idempotency; together with the completedOrders high-water mark). */
   completedOrderIds: string[];
+  /** Completed-order count when each rank 2..5 was reached (v3; v2 saves get the earliest schedule). */
+  rankUps: number[];
   unlockedApples: string[];
   unlockedRecipes: string[];
   bestScores: Record<string, number>;
@@ -82,11 +85,12 @@ export const DEFAULT_SETTINGS: Readonly<SaveSettings> = Object.freeze({
 
 export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings = DEFAULT_SETTINGS): SaveData {
   return {
-    version: 2,
+    version: 3,
     actionSystemVersion: '2.0',
     seed,
     completedOrders: 0,
     completedOrderIds: [],
+    rankUps: [],
     unlockedApples: unlockedApples(0),
     unlockedRecipes: unlockedRecipes(0),
     bestScores: {},
@@ -221,7 +225,7 @@ function sanitizeCurrent(
 }
 
 /**
- * Coerce any v2-shaped object into valid SaveData: fills defaults, drops unknown apple/recipe ids,
+ * Coerce any v2/v3-shaped object into valid SaveData: fills defaults, drops unknown apple/recipe ids,
  * recomputes unlocks from completedOrders (union with saved).
  */
 export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | null } {
@@ -229,8 +233,9 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
   const completedOrders = nonNegInt(v.completedOrders, 0);
   const seed = typeof v.seed === 'number' && Number.isInteger(v.seed) ? v.seed : DEFAULT_SEED;
   const completedOrderIds = uniq(strArr(v.completedOrderIds));
+  const rankUps = cleanRankUps(v.rankUps, completedOrders);
   const apples = uniq([...strArr(v.unlockedApples).filter(isAppleId), ...unlockedApples(completedOrders)]);
-  const recipes = uniq([...strArr(v.unlockedRecipes).filter(isRecipeId), ...unlockedRecipes(completedOrders)]);
+  const recipes = uniq([...strArr(v.unlockedRecipes).filter(isRecipeId), ...unlockedRecipes(completedOrders, rankUps)]);
   const bestScores: Record<string, number> = {};
   if (isObj(v.bestScores))
     for (const [k, s] of Object.entries(v.bestScores))
@@ -250,11 +255,12 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     for (const [k, s] of Object.entries(v.bestPoints)) if (isRecipeId(k)) { const n = nonNegInt(s, -1); if (n >= 0) bestPoints[k] = n; }
   const history = (Array.isArray(v.history) ? v.history : []).map(sanitizeRecord).filter((r): r is OrderRecord => r !== null).slice(-HISTORY_LIMIT);
   const data: SaveData = {
-    version: 2,
+    version: 3,
     actionSystemVersion: '2.0',
     seed,
     completedOrders,
     completedOrderIds,
+    rankUps,
     unlockedApples: orderLike(apples, unlockedApples(99)),
     unlockedRecipes: orderLike(recipes, [...RECIPE_ORDER]),
     bestScores,
@@ -274,7 +280,9 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
 function sanitizeRecord(v: unknown): OrderRecord | null {
   if (!isObj(v) || typeof v.orderId !== 'string' || !isRecipeId(v.recipeId) || !isAppleId(v.appleId)) return null;
   const grades = strArr(v.grades).filter((g): g is Grade => GRADES.includes(g as Grade));
+  const stars = typeof v.stars === 'number' && Number.isInteger(v.stars) && v.stars >= 0 && v.stars <= 3 ? v.stars : undefined;
   return {
+    ...(stars !== undefined ? { stars } : {}),
     orderId: v.orderId,
     orderNumber: nonNegInt(v.orderNumber, 0),
     recipeId: v.recipeId,
@@ -354,7 +362,7 @@ export function parseSave(text: string | null): { data: SaveData; notice: string
     const m = migrateV1(raw);
     return { ...m, future: false };
   }
-  if (raw.version === 2) return { ...sanitizeSave(raw), future: false };
+  if (raw.version === 2 || raw.version === 3) return { ...sanitizeSave(raw), future: false };
   return { data: defaultSave(), notice: NOTICE_CORRUPT, future: false };
 }
 

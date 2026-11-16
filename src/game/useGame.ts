@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
-  createMemoryStore, createSaveStore, defaultSave, gameReducer, initialStateFromSave, orderIdFor, shouldPersist, toSaveData, unlocksEarnedAt,
+  createMemoryStore, createSaveStore, defaultSave, earliestRankUps, gameReducer, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
   type GameAction, type GameState, type SaveStore,
 } from '../core/index.ts';
 import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
@@ -8,16 +8,19 @@ import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
 interface Boot { store: SaveStore; state: GameState; persistent: boolean }
 
 /**
- * DEV only: `?skip=N` starts a fresh save with N orders done (all unlocks up to N already seen),
+ * DEV only: `?skip=N` starts a fresh save with N orders done (all unlocks up to N already seen,
+ * every rank challenge passed as early as possible),
  * then removes the parameter so reloads keep playing normally. Never active in production builds.
  */
 function saveAfter(n: number) {
   const s = defaultSave();
   s.completedOrders = n;
   s.completedOrderIds = Array.from({ length: n }, (_, i) => orderIdFor(i + 1));
+  s.rankUps = earliestRankUps(n);
   for (let k = 1; k <= n; k++) {
-    const u = unlocksEarnedAt(k);
-    s.seenUnlockRewards.push(...u.apples.map((a) => `apple:${a}`), ...u.recipes.map((r) => `recipe:${r}`));
+    const i = s.rankUps.indexOf(k);
+    const rank = i < 0 ? null : i + 2;
+    s.seenUnlockRewards.push(...rewardKeys({ ...unlocksEarnedAt(k, s.rankUps), rank }));
   }
   return s;
 }

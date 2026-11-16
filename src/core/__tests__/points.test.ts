@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { RECIPE_ORDER, recipe } from '../content.ts';
-import { chefLevel, maxDishPoints, recipeDifficulty, scoreDish } from '../points.ts';
+import { APPLE_ORDER, RECIPE_ORDER, fitStars, recipe } from '../content.ts';
+import { chefLevel, dishStars, maxDishPoints, recipeDifficulty, scoreDish } from '../points.ts';
 import { initialState, gameReducer, commitCompletedOrder } from '../gameReducer.ts';
 import { evaluateDish, type StepResult } from '../scoring.ts';
 import { orderForIndex } from '../progression.ts';
@@ -79,5 +79,27 @@ describe('history and totals', () => {
     delete legacy.totalPoints; delete legacy.bestPoints; delete legacy.history;
     expect(parseSave(JSON.stringify(legacy)).data).toMatchObject({ totalPoints: 0, bestPoints: {}, history: [] });
     expect(gameReducer(s0, { type: 'DISMISS_NOTICE' }).progress.history).toEqual([]);
+  });
+});
+
+describe('dish stars', () => {
+  it('come from the share of the best possible points; Golden is at least 2', () => {
+    expect(dishStars(0, 200, false)).toBe(0);
+    expect(dishStars(1, 200, false)).toBe(1);
+    expect(dishStars(80, 200, false)).toBe(2);
+    expect(dishStars(140, 200, false)).toBe(3);
+    expect(dishStars(50, 200, true)).toBe(2);
+  });
+
+  it('a Miss-only dish earns no stars even with the best apple; timing and apple both count', () => {
+    const best = APPLE_ORDER.find((id) => fitStars(id, 'rabbit_apples') === 3)!;
+    const worst = [...APPLE_ORDER].sort((a, b) => fitStars(a, 'rabbit_apples') - fitStars(b, 'rabbit_apples'))[0];
+    expect(scoreDish(best, 'rabbit_apples', ['Miss', 'Miss']).stars).toBe(0);
+    expect(scoreDish(best, 'rabbit_apples', ['Perfect', 'Good']).stars).toBe(3);
+    expect(scoreDish(best, 'rabbit_apples', ['Good', 'Good']).stars).toBe(2);
+    // A Golden Recipe with the least-suited apple still shows 2 stars, never 3.
+    expect(fitStars(worst, 'rabbit_apples')).toBeLessThanOrEqual(1);
+    expect(scoreDish(worst, 'rabbit_apples', ['Perfect', 'Perfect'])).toMatchObject({ golden: true, stars: 2 });
+    expect(scoreDish(best, 'fresh_juice', ['Good']).stars).toBe(3);
   });
 });

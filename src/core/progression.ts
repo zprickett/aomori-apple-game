@@ -3,6 +3,7 @@
  * All functions are pure; "completed" = number of completed orders.
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
+import { EARLIEST_RANK_UPS, rankInfo, recipeRank, recipeUnlockAtFor } from './ranks.ts';
 
 /**
  * Apple unlocks: completed-order threshold → ids. Five starters, then one new apple after every
@@ -13,18 +14,11 @@ export const APPLE_UNLOCKS: ReadonlyArray<{ at: number; ids: readonly AppleId[] 
   EXPANSION_DATA.apple_unlocks.map((u) => ({ at: u.at, ids: [...u.ids] })),
 );
 
-/** Recipe unlocks: completed-order threshold → id. */
-export const RECIPE_UNLOCKS: ReadonlyArray<{ at: number; id: RecipeId }> = [
-  { at: 0, id: 'fresh_juice' },
-  { at: 2, id: 'rabbit_apples' },
-  { at: 4, id: 'apple_jam' },
-  { at: 6, id: 'ringo_ame' },
-  { at: 7, id: 'hirosaki_pie' },
-  { at: 13, id: 'jam_toast' },
-  { at: 19, id: 'yogurt_parfait' },
-  { at: 25, id: 'baked_apple' },
-  { at: 31, id: 'apple_compote' },
-];
+/**
+ * Recipe unlocks follow the player's rank history (see ranks.ts RANK_RECIPES). Functions below take
+ * `rankUps`; omitted, they assume every rank challenge was passed as early as possible.
+ */
+const DEFAULT_RANK_UPS = EARLIEST_RANK_UPS;
 
 /** All 100 apples collected. */
 export const COLLECTION_COMPLETE_AT = Math.max(...EXPANSION_DATA.apple_unlocks.map((u) => u.at));
@@ -39,22 +33,27 @@ export function unlockedApples(completed: number): AppleId[] {
   return APPLE_ORDER.filter((id) => set.has(id));
 }
 
-/** Unlocked recipe ids (recipe order) after `completed` orders. */
-export function unlockedRecipes(completed: number): RecipeId[] {
+/** Unlocked recipe ids (recipe order) after `completed` orders with this rank history. */
+export function unlockedRecipes(completed: number, rankUps: readonly number[] = DEFAULT_RANK_UPS): RecipeId[] {
   const c = count(completed);
-  const set = new Set(RECIPE_UNLOCKS.filter((u) => u.at <= c).map((u) => u.id));
-  return RECIPE_ORDER.filter((id) => set.has(id));
+  return RECIPE_ORDER.filter((id) => {
+    const at = recipeUnlockAtFor(id, rankUps);
+    return at !== null && at <= c;
+  });
 }
 
 /**
  * Items newly earned exactly when the completed count reaches `completedCount` (≥ 1).
  * Returns empty lists for 0 (starting items are not "earned") and for counts with no unlock.
  */
-export function unlocksEarnedAt(completedCount: number): { apples: AppleId[]; recipes: RecipeId[] } {
+export function unlocksEarnedAt(
+  completedCount: number,
+  rankUps: readonly number[] = DEFAULT_RANK_UPS,
+): { apples: AppleId[]; recipes: RecipeId[] } {
   if (!Number.isInteger(completedCount) || completedCount < 1) return { apples: [], recipes: [] };
   return {
     apples: APPLE_UNLOCKS.filter((u) => u.at === completedCount).flatMap((u) => [...u.ids]),
-    recipes: RECIPE_UNLOCKS.filter((u) => u.at === completedCount).map((u) => u.id),
+    recipes: RECIPE_ORDER.filter((id) => recipeUnlockAtFor(id, rankUps) === completedCount),
   };
 }
 
@@ -64,11 +63,15 @@ export function appleUnlockAt(appleId: string): number {
   if (!u) throw new Error(`Unknown apple ${appleId}`);
   return u.at;
 }
-/** Completed-order threshold at which a recipe unlocks (0 = start). */
-export function recipeUnlockAt(recipeId: string): number {
-  const u = RECIPE_UNLOCKS.find((x) => x.id === recipeId);
-  if (!u) throw new Error(`Unknown recipe ${recipeId}`);
-  return u.at;
+/** Completed-order count at which a recipe unlocks, or null while its rank is not reached. */
+export function recipeUnlockAt(recipeId: string, rankUps: readonly number[] = DEFAULT_RANK_UPS): number | null {
+  return recipeUnlockAtFor(recipeId, rankUps);
+}
+
+/** Child-facing lock text for a locked recipe, e.g. "After 8 orders" or "Rank: Cook". */
+export function recipeLockText(recipeId: string, rankUps: readonly number[]): string {
+  const at = recipeUnlockAtFor(recipeId, rankUps);
+  return at === null ? `Rank: ${rankInfo(recipeRank(recipeId)).name}` : `After ${at} orders`;
 }
 /** Child-facing lock text for a locked card, e.g. "Arrives after 6 orders". */
 export function unlockConditionText(appleId: string): string {
@@ -111,22 +114,17 @@ export interface Order {
 
 export const DEFAULT_SEED = 20261015;
 
-/** Scripted onboarding/demo orders (order number → recipe, suggested apple). */
-export const SCRIPTED_ORDERS: Readonly<Record<number, { recipeId: RecipeId; intro?: boolean; demoApple?: AppleId }>> = {
-  1: { recipeId: 'fresh_juice', intro: true },
-  3: { recipeId: 'rabbit_apples', intro: true },
-  // Kogyoku arrives after order 3 but jam unlocks after order 4 → demo scheduled with jam's intro.
-  5: { recipeId: 'apple_jam', intro: true, demoApple: 'a094' },
-  7: { recipeId: 'ringo_ame', intro: true, demoApple: 'a091' },
-  8: { recipeId: 'hirosaki_pie', intro: true },
-  10: { recipeId: 'apple_jam', demoApple: 'a032' },
-  13: { recipeId: 'apple_jam', demoApple: 'a058' },
-  16: { recipeId: 'rabbit_apples', demoApple: 'a086' },
-  14: { recipeId: 'jam_toast', intro: true },
-  20: { recipeId: 'yogurt_parfait', intro: true },
-  26: { recipeId: 'baked_apple', intro: true },
-  32: { recipeId: 'apple_compote', intro: true },
-};
+/**
+ * Demonstration orders after an apple delivery: each runs on the first free order once both the
+ * apple has arrived and its recipe is unlocked (recipe intros go first).
+ */
+export const DEMO_ORDERS: ReadonlyArray<{ appleId: AppleId; recipeId: RecipeId }> = [
+  { appleId: 'a094', recipeId: 'apple_jam' },
+  { appleId: 'a091', recipeId: 'ringo_ame' },
+  { appleId: 'a032', recipeId: 'apple_jam' },
+  { appleId: 'a058', recipeId: 'apple_jam' },
+  { appleId: 'a086', recipeId: 'rabbit_apples' },
+];
 
 export function orderIdFor(orderNumber: number): string {
   return `o-${String(orderNumber).padStart(4, '0')}`;
@@ -189,31 +187,48 @@ const DEMO_LINES: Partial<Record<AppleId, string>> = {
 
 interface QueueEntry {
   recipeId: RecipeId;
+  intro?: boolean;
+  demoApple?: AppleId;
 }
-const queueCache = new Map<number, QueueEntry[]>();
+const queueCache = new Map<string, QueueEntry[]>();
 
-function scriptedAt(n: number) {
-  return SCRIPTED_ORDERS[n];
+/** Recipe whose intro order is `num` (it unlocked at completed = num − 1), if any. */
+function introAt(num: number, rankUps: readonly number[]): RecipeId | undefined {
+  return RECIPE_ORDER.find((id) => recipeUnlockAtFor(id, rankUps) === num - 1);
 }
 
-/** Build (and memoise) recipe choices for orders 1..n for a seed. */
-function recipeQueue(seed: number, n: number): QueueEntry[] {
-  let q = queueCache.get(seed);
+/** Build (and memoise) recipe choices for orders 1..n for a seed and rank history. */
+function recipeQueue(seed: number, n: number, rankUps: readonly number[]): QueueEntry[] {
+  const key = `${seed}|${rankUps.join(',')}`;
+  let q = queueCache.get(key);
   if (!q) {
     q = [];
-    if (queueCache.size > 16) queueCache.clear();
-    queueCache.set(seed, q);
+    if (queueCache.size > 32) queueCache.clear();
+    queueCache.set(key, q);
   }
   while (q.length < n) {
     const num = q.length + 1;
-    const scripted = scriptedAt(num);
-    if (scripted) {
-      q.push({ recipeId: scripted.recipeId });
+    const prev = q[num - 2]?.recipeId;
+    const done = new Set(q.filter((e) => e.demoApple).map((e) => e.demoApple));
+    const demoFor = (recipeId?: RecipeId) => DEMO_ORDERS.find((d) => {
+      if (done.has(d.appleId) || (recipeId && d.recipeId !== recipeId)) return false;
+      const rAt = recipeUnlockAtFor(d.recipeId, rankUps);
+      return rAt !== null && rAt <= num - 1 && appleUnlockAt(d.appleId) <= num - 1;
+    });
+    const intro = introAt(num, rankUps);
+    if (intro) {
+      // An apple already waiting for this recipe is shown off in its intro order.
+      const demo = demoFor(intro);
+      q.push(demo ? { recipeId: intro, intro: true, demoApple: demo.appleId } : { recipeId: intro, intro: true });
       continue;
     }
-    const available = unlockedRecipes(num - 1);
-    const prev = q[num - 2]?.recipeId;
-    const next = scriptedAt(num + 1)?.recipeId;
+    const demo = demoFor();
+    if (demo && demo.recipeId !== prev) {
+      q.push({ recipeId: demo.recipeId, demoApple: demo.appleId });
+      continue;
+    }
+    const available = unlockedRecipes(num - 1, rankUps);
+    const next = introAt(num + 1, rankUps);
     let candidates = available.filter((r) => r !== prev && r !== next);
     if (!candidates.length) candidates = available.filter((r) => r !== prev);
     if (!candidates.length) candidates = available;
@@ -232,35 +247,38 @@ function recipeQueue(seed: number, n: number): QueueEntry[] {
 
 /**
  * Deterministic order for a 1-based order number. Only requests recipes unlocked by
- * completed = orderNumber − 1. Orders 1/3/5/7/8 introduce juice/rabbit/jam/candy/pie;
- * demos follow apple deliveries (5 Kogyoku jam, 7 Alps Otome candy, 10 Bramley jam,
- * 13 Kurenai no Yume pink jam, 16 Chiyuki rabbit). Other orders rotate unlocked recipes
+ * completed = orderNumber − 1 under `rankUps`. The first order after a recipe unlocks introduces
+ * it; demo orders (DEMO_ORDERS) follow apple deliveries. Other orders rotate unlocked recipes
  * (seeded, least-recently-requested, never the same recipe twice in a row when avoidable).
  */
-export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED): Order {
+export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, rankUps: readonly number[] = DEFAULT_RANK_UPS): Order {
   if (!Number.isInteger(orderNumber) || orderNumber < 1) throw new RangeError('orderNumber must be an integer ≥ 1');
-  const q = recipeQueue(seed, orderNumber);
-  const recipeId = q[orderNumber - 1].recipeId;
-  const scripted = scriptedAt(orderNumber);
+  const entry = recipeQueue(seed, orderNumber, rankUps)[orderNumber - 1];
+  const recipeId = entry.recipeId;
   const customerId = CUSTOMERS[(orderNumber - 1 + Math.floor(rand(seed, 0, 7) * 4)) % 4];
   const order: Order = { orderId: orderIdFor(orderNumber), orderNumber, recipeId, customerId, line: '' };
-  if (scripted?.demoApple) {
+  if (entry.demoApple) {
     order.demo = true;
-    order.suggestedAppleId = scripted.demoApple;
-    order.line = DEMO_LINES[scripted.demoApple] ?? INTRO_LINES[recipeId];
-  } else if (scripted?.intro) {
+    order.suggestedAppleId = entry.demoApple;
+    order.line = DEMO_LINES[entry.demoApple] ?? INTRO_LINES[recipeId];
+  } else if (entry.intro) {
     order.line = INTRO_LINES[recipeId];
   } else {
     const lines = LINES[recipeId];
     order.line = lines[Math.floor(rand(seed, orderNumber, 2) * lines.length)];
   }
-  if (scripted?.intro) order.intro = true;
+  if (entry.intro) order.intro = true;
   return order;
 }
 
 /** An order for a custom recipe (e.g. migrated legacy save whose recipe differs from the queue). */
-export function customOrder(orderNumber: number, recipeId: RecipeId, seed: number = DEFAULT_SEED): Order {
-  const base = orderForIndex(orderNumber, seed);
+export function customOrder(
+  orderNumber: number,
+  recipeId: RecipeId,
+  seed: number = DEFAULT_SEED,
+  rankUps: readonly number[] = DEFAULT_RANK_UPS,
+): Order {
+  const base = orderForIndex(orderNumber, seed, rankUps);
   if (base.recipeId === recipeId) return base;
   return {
     orderId: base.orderId,

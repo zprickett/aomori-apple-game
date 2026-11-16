@@ -609,3 +609,35 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .story .onb-row .btn:first-child { flex: 0 0 auto; padding: 0 18px; }
 .story .onb-row .btn.primary { flex: 1; white-space: nowrap; }
 .st-item .st-pic .st-trophy { font-size: 3.2rem; margin: 0; color: inherit; }
+
+/* ---- Story ranks: badge, goals, rank-up, day recap ---- */
+.rank-badge { display: inline-grid; place-items: center; flex: none; }
+.rank-badge svg { display: block; overflow: visible; }
+.rank-pill { padding: 2px 8px; display: inline-flex; align-items: center; }
+.rank-goals { background: #fbf2e2; border-radius: 16px; padding: 10px 12px; margin: 10px 0 14px; }
+.rank-goals.done { font-weight: 900; text-align: center; }
+.rg-head { display: flex; align-items: center; gap: 6px; font-weight: 800; color: var(--ink-soft); margin-bottom: 6px; }
+.rg-head b { color: var(--ink); }
+.rank-goals ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rank-goals li { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.rank-goals li.done .rg-label { color: var(--ink-soft); }
+.rg-check { width: 22px; height: 22px; flex: none; border-radius: 7px; border: 2px solid #c9b48f; display: grid; place-items: center; font-size: 0.9rem; color: #fff; }
+.rank-goals li.done .rg-check { background: #6fae4f; border-color: #4f8e33; }
+.rg-label { flex: 1; min-width: 0; }
+.rg-count { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 0.9rem; }
+.rank-now { display: flex; align-items: center; gap: 14px; margin: 4px 0 6px; }
+.rn-name { font-size: 1.6rem; font-weight: 900; line-height: 1.1; }
+.rn-ja { font-weight: 800; color: var(--ink-soft); }
+.ru-medal { position: absolute; left: 0; right: 0; top: 34%; display: grid; place-items: center; animation: mg-slam 0.5s 0.4s cubic-bezier(.2,1.7,.4,1) both; }
+.ru-medal .rank-badge { filter: drop-shadow(4px 6px 0 rgba(74,51,38,0.35)); }
+.reveal.overview.rank-card .ov-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px 20px; }
+.reveal.overview.rank-card .rank-now { justify-content: center; margin-bottom: 18px; }
+.res-stars { margin: 2px 0 0; line-height: 0; }
+.day-recap .dr-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.day-recap h2 { margin: 0; font-size: 1.7rem; font-weight: 900; }
+.dr-total { display: flex; align-items: center; gap: 4px; font-weight: 800; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.dr-total b { color: var(--ink); }
+.dr-dishes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0 0; }
+.dr-dish { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fffaf0; border-radius: 14px; padding: 6px 2px; }
+.dr-dish.golden { background: #fdf0c8; box-shadow: inset 0 0 0 2px var(--gold); }
+.dr-dish img { width: 100%; max-width: 54px; aspect-ratio: 1; object-fit: contain; }

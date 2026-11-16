@@ -4,6 +4,7 @@ export * from './timing.ts';
 export * from './recognizers.ts';
 export * from './stepTimer.ts';
 export * from './scoring.ts';
+export * from './ranks.ts';
 export * from './progression.ts';
 export * from './persistence.ts';
 export * from './gameReducer.ts';

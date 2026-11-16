@@ -69,7 +69,7 @@ describe('save store', () => {
     data.unlockedApples = unlockedApples(4);
     data.unlockedRecipes = ['fresh_juice', 'rabbit_apples', 'apple_jam'];
     expect(store.save(data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(2);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(3);
     const again = createSaveStore(storage).load();
     expect(again.data).toEqual(data);
     expect(again.persistent).toBe(true);
@@ -83,7 +83,7 @@ describe('save store', () => {
     expect(r.data).toEqual(defaultSave());
     expect(r.notice).toBe(NOTICE_CORRUPT);
     expect(store.save(r.data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(2);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(3);
     storage.setItem(SAVE_KEY, '"just a string"');
     expect(createSaveStore(storage).load().notice).toBe(NOTICE_CORRUPT);
   });
@@ -97,10 +97,35 @@ describe('save store', () => {
     expect(data.unlockedApples).toEqual(unlockedApples(7));
     expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094', 'a091']));
     expect(data.unlockedApples).toHaveLength(12);
-    expect(data.unlockedRecipes).toHaveLength(5);
+    // A v2 save gets the earliest rank history: Apprentice at 5 (jam), candy apple not until 8.
+    expect(data.rankUps).toEqual([5]);
+    expect(data.unlockedRecipes).toEqual(['fresh_juice', 'rabbit_apples', 'apple_jam']);
     expect(data.bestScores).toEqual({});
     expect(data.current).toBeNull();
     expect(data.actionSystemVersion).toBe('2.0');
+  });
+
+  it('v2 players keep every recipe they had and are placed at the rank their orders match', () => {
+    const storage = new FakeStorage();
+    const old = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie', 'jam_toast', 'yogurt_parfait'];
+    storage.setItem(SAVE_KEY, JSON.stringify({ version: 2, completedOrders: 20, unlockedRecipes: old }));
+    const { data } = createSaveStore(storage).load();
+    expect(data.rankUps).toEqual([5, 15]);
+    expect([...data.unlockedRecipes].sort()).toEqual([...old].sort());
+  });
+
+  it('v3 rank history is kept when valid and trimmed when not', () => {
+    const load = (rankUps: unknown, completedOrders = 40) => {
+      const storage = new FakeStorage();
+      storage.setItem(SAVE_KEY, JSON.stringify({ version: 3, completedOrders, rankUps }));
+      return createSaveStore(storage).load().data.rankUps;
+    };
+    expect(load([6, 22])).toEqual([6, 22]);
+    expect(load([])).toEqual([]);
+    expect(load([4, 20])).toEqual([]); // before the Apprentice minimum
+    expect(load([6, 22, 21])).toEqual([6, 22]); // not increasing
+    expect(load([6, 22], 10)).toEqual([6]); // after the completed count
+    expect(load('nope')).toEqual([5, 15, 30]);
   });
 
   it('drops unknown apple/recipe ids and invalid values', () => {
@@ -131,7 +156,7 @@ describe('save store', () => {
 
   it('future versions are not overwritten; runs in memory with a notice', () => {
     const storage = new FakeStorage();
-    const future = JSON.stringify({ version: 3, completedOrders: 9, newThing: true });
+    const future = JSON.stringify({ version: 4, completedOrders: 9, newThing: true });
     storage.setItem(SAVE_KEY, future);
     const store = createSaveStore(storage);
     const r = store.load();
@@ -191,11 +216,11 @@ describe('legacy v1 migration', () => {
     );
     const { data, notice } = createSaveStore(storage).load();
     expect(notice).toBe(NOTICE_MIGRATED);
-    expect(data.version).toBe(2);
+    expect(data.version).toBe(3);
     expect(data.completedOrders).toBe(8);
     expect(data.unlockedApples).not.toContain('aXXX');
     expect(data.unlockedApples).toContain('a091');
-    expect(data.unlockedRecipes).toHaveLength(5); // recomputed from 8 completed orders
+    expect(data.unlockedRecipes).toHaveLength(4); // recomputed from 8 completed orders (Apprentice rank)
     expect(data.bestScores).toEqual({ hirosaki_pie: 3, fresh_juice: 2 });
     expect(data.settings.sound).toBe(false);
     expect(data.current).toMatchObject({

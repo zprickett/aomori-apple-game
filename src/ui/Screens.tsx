@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { GOLDEN_LABEL, apple, chefLevel, recipe, selectors, type GameAction, type GameState } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, type GameAction, type GameState } from '../core/index.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -170,15 +170,17 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
   const after = state.progress.totalPoints;
   const before = after - (record?.points ?? 0);
   const shown = useCountUp(score?.total ?? 0, 800, reduced, 250);
+  const stars = score?.stars ?? 0;
   useEffect(() => {
     if (!score) return;
-    const f = score.max ? score.total / score.max : 0;
-    const n = score.golden ? 3 : f >= 0.6 ? 2 : f > 0 ? 1 : 0;
-    emitCue({ type: 'customer', anim: n >= 3 ? 'joy' : n >= 1 ? 'happy' : 'think' });
-    if (n >= 3) emitCue({ type: 'chef', anim: 'cheer' });
+    const n = stars;
+    emitCue({ type: 'customer', anim: n >= 3 || score.golden ? 'joy' : n >= 1 ? 'happy' : 'think' });
+    if (n >= 3 || score.golden) emitCue({ type: 'chef', anim: 'cheer' });
     for (let i = 0; i < n; i++) window.setTimeout(() => sfx.star(i), 350 + i * 260);
-    if (n >= 3 || record?.newBest) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
-  }, [score, record?.newBest]);
+    if (n >= 3 || score.golden || record?.newBest) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
+  }, [score, stars, record?.newBest]);
+  const done = state.progress.completedOrders;
+  const dayEnd = !pr && done > 0 && done % DAY_LENGTH === 0;
   return (
     <div className="sheet-card result" role="dialog" aria-label="Dish result" data-testid="result-card">
       <div className="res-head">
@@ -187,6 +189,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
           <div className="kicker">{a ? `${a.nameEn.replace(' (Jonathan)', '')} · ${r.name}` : r.name}</div>
           {score && res ? (
             <>
+              <div className="res-stars" data-testid="dish-stars"><Stars n={stars} size={30} label={`${stars} of 3 stars`} /></div>
               <div className="res-points" data-testid="points"><b>{shown.toLocaleString()}</b> pts
                 {record?.newBest && <span className="new-best">NEW BEST!</span>}
               </div>
@@ -206,7 +209,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
       </div>
       {score && <LevelBar before={before} after={after} reduced={reduced} />}
       <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
-        {pr ? 'Back to the shop' : state.delivery ? 'A delivery is here!' : 'Next customer'}
+        {pr ? 'Back to the shop' : state.delivery?.rank ? 'Rank up!' : state.delivery ? 'A delivery is here!' : dayEnd ? 'End of the day' : 'Next customer'}
       </button>
     </div>
   );

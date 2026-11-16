@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (121 tests)
+npm test                   # vitest (134 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -30,10 +30,10 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 
 | Path | What |
 |---|---|
-| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `progression.ts`: unlock schedule. `points.ts`: scoring, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
+| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
 | `src/game/` | `stations.ts`: per-recipe counter stages (props before, during and after each action). `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
 | `src/three/` | `Scene.tsx`: camera, stall, chef, customers. `Showcase.tsx`: spinning hero model. `ChefPreview.tsx`, `chefLook.ts`: applies hair and colours to the chef model. `props.ts`. |
-| `src/ui/` | `Onboarding.tsx`: welcome, story, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
+| `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up intro, day recap. `Onboarding.tsx`: welcome, story, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
 | `src/data/` | Content data. See the next section. |
 | `assets/blender/` | Blender Python that builds every model. `expansion.py` holds the newer dishes and tools. `chars.py` holds the chef and customers. |
 
@@ -62,8 +62,12 @@ The chef's customisable parts are named nodes and materials, which `chefLook.ts`
 
 ## Game design decisions (from the user)
 
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Stage 1 phase 1 (ranks, stars, days) is built.
+- Ranks and levels both exist on purpose: 5 story ranks (Helper → Golden Chef, `ranks.ts`) gate recipes; the 11 point-based chef levels stay as the points bar. Each rank-up needs orders served plus a skill goal.
+- A day is 5 orders, then a recap. Saves are v3 (`rankUps`); v2 saves get the earliest rank schedule.
 - Scoring:
   - Each action scores Perfect 100, Good 70 or OK 40.
+  - Dish stars (0–3) come from points: 3 at 70%+ of the best possible total, 2 at 40%+, 1 above 0. A Golden Recipe is never below 2.
   - Recipes with more steps are worth more (difficulty multiplier).
   - Consecutive Perfects add a combo bonus.
   - The apple-fit multiplier is ×0.5 to ×2.
@@ -86,7 +90,7 @@ The chef's customisable parts are named nodes and materials, which `chefLook.ts`
 - Not built yet: 11 recipes in `EXTRA_RECIPE_META` (`src/core/content.ts`). They are dorayaki, daifuku, jelly, whole apple pie, cheesecake, kinton, keema, shumai, pork rolls, pink tart, and Festival Pie, a 3-apple finale.
 - Adding a recipe touches:
   - `RECIPE_ORDER` and `REQUIRED_ACTION_COUNTS`
-  - unlocks and intro lines in `progression.ts`
+  - its rank in `RANK_RECIPES` (`ranks.ts`) and intro lines in `progression.ts`
   - a stage function in `stations.ts`
   - models in `expansion.py`
   - its dish icon

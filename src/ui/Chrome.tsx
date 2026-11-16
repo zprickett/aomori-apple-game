@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import {
-  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, pairing, recipe, selectors, unlockConditionText, recipeUnlockAt,
+  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, pairing, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
+import { RankBadge, RankSheet } from './Ranks.tsx';
 import { sfx, unlockAudio } from '../game/audio.ts';
 
 type D = (a: GameAction) => void;
-export type SheetKind = 'collection' | 'practice' | 'settings' | 'history';
+export type SheetKind = 'collection' | 'practice' | 'settings' | 'history' | 'rank';
 
 export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; onOpen: (k: SheetKind) => void; onExitPractice: () => void }) {
   const inShop = state.phase === 'shop' && state.mode === 'order';
@@ -26,13 +27,20 @@ export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; on
             ) : (
               <span className="pill" aria-label={`${done} orders served`}>🧺 {done}</span>
             )}
-            <span className="pill" aria-label={`${state.progress.unlockedApples.length} of ${APPLES.length} apples`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</span>
+            {!inShop && <span className="pill" aria-label={`${state.progress.unlockedApples.length} of ${APPLES.length} apples`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</span>}
+            {inShop && (
+              <button className="pill pill-btn rank-pill" data-testid="open-rank" aria-label={`Rank: ${rankInfo(selectors.rank(state)).name}. See next rank`}
+                onClick={() => { unlockAudio(); onOpen('rank'); }}>
+                <RankBadge rank={selectors.rank(state)} size={22} />
+              </button>
+            )}
           </>
         )}
       </div>
       <nav className="menu">
         {inShop && (<>
-          <button className="btn small" onClick={() => { unlockAudio(); onOpen('collection'); }} data-testid="open-collection">Apples</button>
+          <button className="btn small" onClick={() => { unlockAudio(); onOpen('collection'); }} data-testid="open-collection"
+            aria-label={`Apples: ${state.progress.unlockedApples.length} of ${APPLES.length} collected`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</button>
           <button className="btn small" onClick={() => { unlockAudio(); onOpen('practice'); }} data-testid="open-practice">Practice</button>
           <button className="btn small" onClick={() => { unlockAudio(); onOpen('settings'); }} data-testid="open-settings" aria-label="Settings">⚙︎</button>
         </>)}
@@ -56,7 +64,8 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
   kind: SheetKind; state: GameState; dispatch: D; onClose: () => void; persistent: boolean;
   chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
 }) {
-  const title = kind === 'collection' ? 'Apple collection' : kind === 'practice' ? 'Practice kitchen' : kind === 'history' ? 'Past orders' : 'Settings';
+  const title = kind === 'collection' ? 'Apple collection' : kind === 'practice' ? 'Practice kitchen' : kind === 'history' ? 'Past orders'
+    : kind === 'rank' ? 'Chef rank' : 'Settings';
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()} data-testid={`sheet-${kind}`}>
@@ -68,6 +77,7 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
           {kind === 'collection' && <Collection state={state} />}
           {kind === 'practice' && <Practice state={state} dispatch={dispatch} onClose={onClose} />}
           {kind === 'history' && <History state={state} />}
+          {kind === 'rank' && <RankSheet state={state} />}
           {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent}
             chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
         </div>
@@ -137,7 +147,7 @@ function Collection({ state }: { state: GameState }) {
           return (
             <div key={r.id} className={`fit-row ${unlocked ? '' : 'locked'}`}>
               <img src={dishIcon(r.id)} alt="" /><span>{r.name}<small> · {r.steps.length} {r.steps.length === 1 ? 'action' : 'actions'}</small></span>
-              <span className="best">{unlocked ? (best !== undefined ? `Best ${best.toLocaleString()} pts` : 'Not cooked yet') : `After ${recipeUnlockAt(r.id)} orders`}</span>
+              <span className="best">{unlocked ? (best !== undefined ? `Best ${best.toLocaleString()} pts` : 'Not cooked yet') : recipeLockText(r.id, state.progress.rankUps)}</span>
             </div>
           );
         })}
@@ -225,7 +235,7 @@ function Practice({ state, dispatch, onClose }: { state: GameState; dispatch: D;
             <button key={r.id} className="practice-item" disabled={!unlocked} data-testid={`practice-${r.id}`}
               onClick={() => { sfx.tap(); dispatch({ type: 'START_PRACTICE', recipeId: r.id }); onClose(); }}>
               <img src={dishIcon(r.id)} alt="" />
-              <span>{r.name}<small>{unlocked ? `${r.steps.length} ${r.steps.length === 1 ? 'action' : 'actions'}` : `Unlocks after ${recipeUnlockAt(r.id)} orders`}</small></span>
+              <span>{r.name}<small>{unlocked ? `${r.steps.length} ${r.steps.length === 1 ? 'action' : 'actions'}` : recipeLockText(r.id, state.progress.rankUps)}</small></span>
             </button>
           );
         })}

@@ -33,6 +33,21 @@ export interface DishScore {
   max: number;
   /** All actions Perfect. */
   golden: boolean;
+  /** Stars shown to the player (0–3), from total / max (see dishStars). */
+  stars: 0 | 1 | 2 | 3;
+}
+
+/** Share of the best possible total needed for 3 / 2 stars (any points earn 1). */
+export const STAR_THRESHOLDS = Object.freeze({ three: 0.7, two: 0.4 });
+
+/**
+ * Player-facing stars for a dish from its share of the best possible points, so both timing and
+ * apple choice count. A Golden Recipe (every action Perfect) is never below 2 stars.
+ */
+export function dishStars(total: number, max: number, golden: boolean): 0 | 1 | 2 | 3 {
+  const f = max > 0 ? total / max : 0;
+  const s = f >= STAR_THRESHOLDS.three ? 3 : f >= STAR_THRESHOLDS.two ? 2 : f > 0 ? 1 : 0;
+  return golden ? (Math.max(2, s) as 2 | 3) : s;
 }
 
 /** 1 action → ×1, each extra action +0.5 (juice 1, rabbit 1.5, jam 2, candy 2.5, pie 3). */
@@ -68,7 +83,8 @@ export function scoreDish(appleId: string, recipeId: string, grades: readonly Gr
   const r = raw(grades, difficulty);
   const total = Math.round((r.cooking + r.combo) * appleMultiplier);
   const max = maxDishPoints(recipeId);
-  return { ...r, fit, appleMultiplier, difficulty, total, max, golden: grades.length > 0 && grades.every((g) => g === 'Perfect') };
+  const golden = grades.length > 0 && grades.every((g) => g === 'Perfect');
+  return { ...r, fit, appleMultiplier, difficulty, total, max, golden, stars: dishStars(total, max, golden) };
 }
 
 // ---------------------------------------------------------------------------
@@ -118,6 +134,8 @@ export interface OrderRecord {
   golden: boolean;
   grades: Grade[];
   fit: number;
+  /** Finished stars 0–3 (absent on records saved before stars were shown). */
+  stars?: number;
   /** Beat (or set) the best points for this recipe. */
   newBest: boolean;
 }

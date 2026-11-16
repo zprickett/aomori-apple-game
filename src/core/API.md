@@ -212,19 +212,19 @@ summarizePractice(appleId, recipeId, results) → { appleId, recipeId, grades, m
 
 ## progression.ts
 ```ts
-unlockedApples(completed) / unlockedRecipes(completed)      // canonical order
-unlocksEarnedAt(completedCount) → { apples, recipes }      // newly earned exactly at that count (0 → none)
-appleUnlockAt(id), recipeUnlockAt(id), unlockConditionText(appleId) // "Arrives after 6 orders"
+unlockedApples(completed) / unlockedRecipes(completed, rankUps?)  // canonical order; recipes follow ranks.ts
+unlocksEarnedAt(completedCount, rankUps?) → { apples, recipes }  // newly earned exactly at that count (0 → none)
+appleUnlockAt(id), recipeUnlockAt(id, rankUps?) → number | null, recipeLockText(id, rankUps), unlockConditionText(appleId)
 stallLevel(completed) → 0|1|2|3   (≥5, ≥10, ≥15)
 isCollectionComplete(completed)   (≥15)
-orderForIndex(orderNumber /*1-based*/, seed = DEFAULT_SEED) → Order
+orderForIndex(orderNumber /*1-based*/, seed = DEFAULT_SEED, rankUps = EARLIEST_RANK_UPS) → Order
 interface Order { orderId /* 'o-0007' */; orderNumber; recipeId; customerId: 'A'|'B'|'C'|'D';
                   line; suggestedAppleId?; demo?; intro? }
 customOrder(orderNumber, recipeId, seed)   // used for migrated saves whose recipe differs
 ```
 Schedule — apples: start a048 a081 a023 a066 a006; 3 → a094; 6 → a091; 9 → a032; 12 → a058; 15 → a086. Recipes: fresh_juice start; 2 → rabbit_apples; 4 → apple_jam; 6 → ringo_ame; 7 → hirosaki_pie.
 
-Order script (`SCRIPTED_ORDERS`): 1 juice (intro), 3 rabbit (intro), 5 jam (intro + Kogyoku demo), 7 candy (intro + Alps Otome demo), 8 pie (intro), 10 jam (Bramley demo), 13 pink jam (Kurenai no Yume demo, line mentions pink), 16 rabbit (Chiyuki demo). Other orders: unlocked recipes only, least-recently-requested first with a seeded tie-break, never the same recipe twice in a row (except order 2, when only juice exists) and never the same as the next scripted order. `suggestedAppleId` is only a hint.
+Order script: the first order after a recipe unlocks is its intro (with that recipe's waiting `DEMO_ORDERS` apple, if any). Other `DEMO_ORDERS` (Kogyoku, Alps Otome, Bramley, Kurenai no Yume pink jam, Chiyuki) run on the first free order once both apple and recipe are unlocked. Other orders: unlocked recipes only, least-recently-requested first with a seeded tie-break, never the same recipe twice in a row when avoidable. `rankUps` (ranks.ts) decides when each rank's recipes unlock; omitted, every rank is assumed reached at 5/15/30/50. `suggestedAppleId` is only a hint.
 
 ---
 

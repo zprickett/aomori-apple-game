@@ -4,8 +4,10 @@
  *   shop ──ACCEPT_ORDER──▶ choose ──CONFIRM_APPLE──▶ cook ──(last FEEDBACK_DONE)──▶ serve
  *     ▲                     │BACK                                                    │SERVE_DONE (commits order)
  *     │                     ▼                                                        ▼
- *     └──────── DELIVERY_DONE ◀── delivery ◀── RESULT_DONE (if new unlocks) ◀── result
+ *     └──────── DELIVERY_DONE ◀── delivery ◀── RESULT_DONE (if new unlocks or a rank-up) ◀── result
  *     └────────────────────────────────────── RESULT_DONE (no unlocks) ◀────────────┘
+ *   After every DAY_LENGTH-th order, RESULT_DONE / DELIVERY_DONE go to 'day' (the day recap) and
+ *   DAY_DONE returns to the shop.
  *
  * Cook sub-phases per step:
  *   bridge ─BRIDGE_DONE▶ instruction ─READY▶ countin ─COUNTIN_DONE▶ active ─SUBMIT▶ feedback | miss
@@ -46,10 +48,14 @@ import {
 import { gradeStep, toleranceMultiplier, trackZones, type TrackZones } from './stepTimer.ts';
 import { GRADE_POINTS, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
+import { advanceRank, cleanRankUps, rankOf, type Rank } from './ranks.ts';
 
-export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery';
+export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'day';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
 export type Mode = 'order' | 'practice';
+
+/** Orders in one day; a recap follows the last order of each day. */
+export const DAY_LENGTH = 5;
 
 /** Number of onboarding orders with assisted grading. */
 export const ASSISTED_ORDER_COUNT = 3;
@@ -70,6 +76,8 @@ export interface CookState {
 export interface Delivery {
   apples: string[];
   recipes: string[];
+  /** Rank reached with this order (shown before the unlocks), or null. */
+  rank: Rank | null;
   collectionComplete: boolean;
 }
 
@@ -77,6 +85,8 @@ export interface Progress {
   seed: number;
   completedOrders: number;
   completedOrderIds: string[];
+  /** Completed-order count when each rank 2..5 was reached. */
+  rankUps: number[];
   unlockedApples: string[];
   unlockedRecipes: string[];
   bestScores: Record<string, number>;
@@ -123,6 +133,7 @@ export type GameAction =
   | { type: 'COMPLETE_ORDER' }
   | { type: 'RESULT_DONE' }
   | { type: 'DELIVERY_DONE' }
+  | { type: 'DAY_DONE' }
   | { type: 'VISIBILITY_HIDDEN' }
   | { type: 'RESUME' }
   | { type: 'SET_SETTINGS'; settings: Partial<SaveSettings> }
@@ -159,7 +170,7 @@ function nextOrderState(state: GameState): GameState {
     ...state,
     mode: 'order',
     phase: 'shop',
-    order: orderForIndex(n, state.progress.seed),
+    order: orderForIndex(n, state.progress.seed, state.progress.rankUps),
     practiceRecipeId: null,
     previewAppleId: null,
     appleId: null,
@@ -175,18 +186,30 @@ export function isAssistedDish(state: GameState): boolean {
   return state.order.orderNumber <= ASSISTED_ORDER_COUNT || state.settings.assistance;
 }
 
-/** Reward keys for celebrations ('apple:a094', 'recipe:apple_jam'). */
-export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[] }): string[] {
-  return [...d.apples.map((a) => `apple:${a}`), ...d.recipes.map((r) => `recipe:${r}`)];
+/** Reward keys for celebrations ('apple:a094', 'recipe:apple_jam', 'rank:3'). */
+export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[]; rank?: number | null }): string[] {
+  return [
+    ...(d.rank ? [`rank:${d.rank}`] : []),
+    ...d.apples.map((a) => `apple:${a}`),
+    ...d.recipes.map((r) => `recipe:${r}`),
+  ];
+}
+
+/** Rank reached exactly when the completed count was `completed`, or null. */
+function rankReachedWith(progress: Progress, completed: number): Rank | null {
+  const i = progress.rankUps.indexOf(completed);
+  return i < 0 ? null : ((i + 2) as Rank);
 }
 
 /** Unseen unlock rewards earned when completed count reached `completed`. Null if none. */
 export function pendingDelivery(progress: Progress, completed: number = progress.completedOrders): Delivery | null {
-  const earned = unlocksEarnedAt(completed);
+  const earned = unlocksEarnedAt(completed, progress.rankUps);
   const apples = earned.apples.filter((a) => !progress.seenUnlockRewards.includes(`apple:${a}`));
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
-  if (!apples.length && !recipes.length) return null;
-  return { apples, recipes, collectionComplete: completed === COLLECTION_COMPLETE_AT };
+  const reached = rankReachedWith(progress, completed);
+  const rank = reached && !progress.seenUnlockRewards.includes(`rank:${reached}`) ? reached : null;
+  if (!apples.length && !recipes.length && !rank) return null;
+  return { apples, recipes, rank, collectionComplete: completed === COLLECTION_COMPLETE_AT };
 }
 
 /**
@@ -209,9 +232,10 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     golden: evaluation.score.golden,
     grades: evaluation.grades.map((g) => g.grade),
     fit: evaluation.fitStars,
+    stars: evaluation.score.stars,
     newBest: prevBest === undefined || pts > prevBest,
   };
-  return {
+  const next: Progress = {
     ...progress,
     totalPoints: progress.totalPoints + pts,
     bestPoints: { ...progress.bestPoints, [evaluation.recipeId]: Math.max(prevBest ?? 0, pts) },
@@ -219,16 +243,20 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     completedOrders,
     completedOrderIds: [...progress.completedOrderIds, order.orderId],
     unlockedApples: canonApples(progress.unlockedApples, scheduleApples(completedOrders)),
-    unlockedRecipes: canonRecipes(progress.unlockedRecipes, scheduleRecipes(completedOrders)),
+    unlockedRecipes: canonRecipes(progress.unlockedRecipes, scheduleRecipes(completedOrders, progress.rankUps)),
     bestScores: {
       ...progress.bestScores,
-      [evaluation.recipeId]: Math.max(progress.bestScores[evaluation.recipeId] ?? 0, evaluation.finishedStars),
+      [evaluation.recipeId]: Math.max(progress.bestScores[evaluation.recipeId] ?? 0, evaluation.score.stars),
     },
     discoveredPairings: {
       ...progress.discoveredPairings,
-      [key]: { bestStars: Math.max(prevPair?.bestStars ?? 0, evaluation.finishedStars), fit: evaluation.fitStars },
+      [key]: { bestStars: Math.max(prevPair?.bestStars ?? 0, evaluation.score.stars), fit: evaluation.fitStars },
     },
   };
+  // Rank-up check after the order counts; a new rank can bring a recipe at this same count.
+  const rankUps = advanceRank(next);
+  if (rankUps.length === next.rankUps.length) return next;
+  return { ...next, rankUps, unlockedRecipes: canonRecipes(next.unlockedRecipes, scheduleRecipes(completedOrders, rankUps)) };
 }
 
 function union(a: readonly string[], b: readonly string[]): string[] {
@@ -245,12 +273,14 @@ function canonRecipes(a: readonly string[], b: readonly string[]): string[] {
 }
 
 function progressFromSave(save: SaveData): Progress {
+  const rankUps = cleanRankUps(save.rankUps, save.completedOrders);
   return {
     seed: save.seed,
     completedOrders: save.completedOrders,
     completedOrderIds: [...save.completedOrderIds],
+    rankUps,
     unlockedApples: canonApples(save.unlockedApples, scheduleApples(save.completedOrders)),
-    unlockedRecipes: canonRecipes(save.unlockedRecipes, scheduleRecipes(save.completedOrders)),
+    unlockedRecipes: canonRecipes(save.unlockedRecipes, scheduleRecipes(save.completedOrders, rankUps)),
     bestScores: { ...save.bestScores },
     discoveredPairings: { ...save.discoveredPairings },
     seenUnlockRewards: [...save.seenUnlockRewards],
@@ -276,7 +306,7 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
     settings: { ...save.settings },
     mode: 'order',
     phase: 'shop',
-    order: orderForIndex(progress.completedOrders + 1, progress.seed),
+    order: orderForIndex(progress.completedOrders + 1, progress.seed, progress.rankUps),
     practiceRecipeId: null,
     previewAppleId: null,
     appleId: null,
@@ -293,7 +323,7 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
   if (cur.phase === 'result' || cur.phase === 'delivery') {
     const committed = progress.completedOrderIds.includes(cur.orderId) || cur.orderNumber <= progress.completedOrders;
     if (!committed || !cur.pendingResult || cur.orderNumber !== progress.completedOrders) return base;
-    const order = customOrder(cur.orderNumber, cur.pendingResult.recipeId as Order['recipeId'], progress.seed);
+    const order = customOrder(cur.orderNumber, cur.pendingResult.recipeId as Order['recipeId'], progress.seed, progress.rankUps);
     const delivery = pendingDelivery(progress, cur.orderNumber);
     const phase: Phase = cur.phase === 'delivery' && delivery ? 'delivery' : 'result';
     return {
@@ -307,7 +337,7 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
   }
 
   if (cur.orderNumber !== progress.completedOrders + 1) return base;
-  const order = customOrder(cur.orderNumber, cur.recipeId as Order['recipeId'], progress.seed);
+  const order = customOrder(cur.orderNumber, cur.recipeId as Order['recipeId'], progress.seed, progress.rankUps);
   const state: GameState = { ...base, order };
   const appleOk = cur.appleId !== null && progress.unlockedApples.includes(cur.appleId);
   if (cur.phase === 'shop') return state;
@@ -342,6 +372,8 @@ export function initialState(seed?: number): GameState {
  * saved as done (stepIndex + 1); unfinished steps restart with a fresh count-in on reload.
  */
 export function toSaveData(state: GameState): SaveData {
+  // The day recap is not resumable: a reload goes straight to the next order.
+  if (state.phase === 'day') return toSaveData(nextOrderState(state));
   const p = state.progress;
   const rec = recipe(state.order.recipeId);
   let current: CurrentOrderSave;
@@ -380,11 +412,12 @@ export function toSaveData(state: GameState): SaveData {
     };
   }
   return {
-    version: 2,
+    version: 3,
     actionSystemVersion: '2.0',
     seed: p.seed,
     completedOrders: p.completedOrders,
     completedOrderIds: [...p.completedOrderIds],
+    rankUps: [...p.rankUps],
     unlockedApples: [...p.unlockedApples],
     unlockedRecipes: [...p.unlockedRecipes],
     bestScores: { ...p.bestScores },
@@ -523,14 +556,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'result') return state;
       if (state.mode === 'practice') return exitPractice(state);
       if (state.delivery) return { ...state, phase: 'delivery' };
-      return nextOrderState(state);
+      return afterOrder(state);
 
     case 'DELIVERY_DONE': {
       if (state.phase !== 'delivery') return state;
       const seen = state.delivery ? rewardKeys(state.delivery) : [];
       const progress = { ...state.progress, seenUnlockRewards: union(state.progress.seenUnlockRewards, seen) };
-      return nextOrderState({ ...state, progress });
+      return afterOrder({ ...state, progress });
     }
+
+    case 'DAY_DONE':
+      if (state.phase !== 'day') return state;
+      return nextOrderState(state);
 
     case 'VISIBILITY_HIDDEN': {
       const cook = state.cook;
@@ -576,6 +613,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
+}
+
+/** Day recap after the last order of a day, otherwise the next order. */
+function afterOrder(state: GameState): GameState {
+  const done = state.progress.completedOrders;
+  if (done > 0 && done % DAY_LENGTH === 0 && state.order.orderNumber === done) return { ...state, phase: 'day' };
+  return nextOrderState(state);
 }
 
 function withCook(state: GameState, sub: CookSub, fn: (cook: CookState) => GameState): GameState {
@@ -689,6 +733,20 @@ export const selectors = {
   },
   previewFit(state: GameState): 0 | 1 | 2 | 3 | null {
     return state.previewAppleId ? fitStars(state.previewAppleId, activeRecipeId(state)) : null;
+  },
+  rank(state: GameState): Rank {
+    return rankOf(state.progress.rankUps);
+  },
+  /** 1-based day number of the current order (the finished day while in 'day'). */
+  day(state: GameState): number {
+    const done = state.progress.completedOrders;
+    return state.phase === 'day' ? done / DAY_LENGTH : Math.floor(done / DAY_LENGTH) + 1;
+  },
+  /** History records of the day just finished (phase 'day'). */
+  dayRecords(state: GameState): OrderRecord[] {
+    const done = state.progress.completedOrders;
+    const from = done - ((done - 1) % DAY_LENGTH);
+    return state.progress.history.filter((h) => h.orderNumber >= from && h.orderNumber <= done);
   },
   stallLevel(state: GameState): 0 | 1 | 2 | 3 {
     return stallLevel(state.progress.completedOrders);

@@ -11,6 +11,7 @@ import { GameScene, type ViewMode } from './three/Scene.tsx';
 import { CookOverlay } from './ui/CookOverlay.tsx';
 import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
 import { UnlockReveal } from './ui/Reveal.tsx';
+import { DayRecap } from './ui/Ranks.tsx';
 import { Review } from './ui/Review.tsx';
 import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
@@ -118,7 +119,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     return stage.ready;
   }, [state.phase, cook, stage, bridgeFrame]);
 
-  const view: ViewMode = state.phase === 'cook' ? 'cook' : state.phase;
+  const view: ViewMode = state.phase === 'day' ? 'result' : state.phase;
 
   // Chef greets each new customer.
   useEffect(() => {
@@ -172,6 +173,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
       )}
       {state.phase === 'serve' && <ServeOverlay state={state} dispatch={dispatch} reduced={reducedMotion} />}
       {state.phase === 'result' && <ResultCard state={state} dispatch={dispatch} reduced={reducedMotion} />}
+      {state.phase === 'day' && <DayRecap state={state} dispatch={dispatch} reduced={reducedMotion} />}
       {state.phase === 'delivery' && <UnlockReveal key={state.order.orderId} state={state} dispatch={dispatch} reduced={reducedMotion} />}
 
       <Notice text={state.notice} onClose={() => dispatch({ type: 'DISMISS_NOTICE' })} />
