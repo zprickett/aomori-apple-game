@@ -83,26 +83,33 @@ const CONFETTI = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 /**
- * Rank-up: a three-panel manga page, unlike the apple/recipe reveal. Top panel: the shout.
- * Middle panel: the player's chef jumping with arms up in a sparkle burst. Bottom panel: the new
- * rank medal and name. Panels slam in one after another; confetti falls over the page.
+ * Rank-up: one three-panel manga page, unlike the apple/recipe reveal. Top: RANK UP!, the new rank
+ * and a congrats line. Middle: the player's chef jumping with arms up in a sparkle burst. Bottom:
+ * the next rank and its goals (or the top-rank banner at Golden Chef). Stays until tapped.
  */
-export function RankUpIntro({ rank, reduced, onSkip }: { rank: Rank; reduced: boolean; onSkip: () => void }) {
+export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; state: GameState; reduced: boolean; onDone: () => void }) {
   const r = rankInfo(rank);
   const chef = useContext(ChefContext);
+  const goals = nextRankGoals(state.progress);
+  const next = rank < MAX_RANK ? rankInfo(rank + 1) : null;
   useEffect(() => { emitCue({ type: 'chef', anim: 'cheer' }); }, []);
   return (
-    <div className={`reveal rank-page ${reduced ? 'still' : ''}`} role="dialog" aria-label={`Rank up: ${r.name}`}
-      data-testid="rank-up" onClick={onSkip} style={{ ['--hue' as string]: RANK_HUE[rank] }}>
+    <div className={`reveal rank-page ${reduced ? 'still' : ''} ${next ? '' : 'top-rank'}`} role="dialog" aria-label={`Rank up: ${r.name}`}
+      data-testid="rank-up" onClick={onDone} style={{ ['--hue' as string]: RANK_HUE[rank] }}>
       <div className="rp-panel rp-top">
         <div className="rp-speed" />
-        <svg className="rp-burst" viewBox="0 0 200 120" aria-hidden>
-          <polygon points={BURST} />
-        </svg>
-        <div className="rp-shout">
+        <div className="rp-shoutbox">
+          <svg className="rp-burst" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden><polygon points={BURST} /></svg>
           <span className="rp-kick">RANK UP!</span>
-          <span className="rp-kick-ja" lang="ja" aria-hidden>ランクアップ！</span>
         </div>
+        <div className="rp-new">
+          <RankBadge rank={rank} size={56} />
+          <div className="rp-rank">
+            <span className="rp-name">{r.name}</span>
+            <span className="rp-ja" lang="ja">{r.nameJa}</span>
+          </div>
+        </div>
+        <div className="rp-congrats">Congratulations, {chef.name || 'Chef'}!</div>
       </div>
       <div className="rp-panel rp-mid">
         <div className="rp-sun" />
@@ -114,11 +121,25 @@ export function RankUpIntro({ rank, reduced, onSkip }: { rank: Rank; reduced: bo
       </div>
       <div className="rp-panel rp-bot">
         <div className="rp-dots" />
-        <RankBadge rank={rank} size={74} />
-        <div className="rp-rank">
-          <span className="rp-name">{r.name}</span>
-          <span className="rp-ja" lang="ja">{r.nameJa}</span>
-        </div>
+        {next ? (
+          <div className="rp-goals" data-testid="rank-goals">
+            <div className="rp-next">Next <RankBadge rank={next.rank} size={26} /> <b>{next.name}</b></div>
+            <ul>
+              {goals.map((g) => (
+                <li key={g.id} className={g.done ? 'done' : ''}>
+                  <span className="rg-check" aria-hidden>{g.done ? '✓' : ''}</span>
+                  <span className="rg-label">{g.label}</span>
+                  {g.need > 1 && <span className="rg-count">{g.have}/{g.need}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="rp-final">
+            <span className="rp-final-kick">TOP RANK!</span>
+            <span>Every recipe, mastered.</span>
+          </div>
+        )}
       </div>
       {!reduced && (
         <div className="rp-confetti" aria-hidden>

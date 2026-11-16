@@ -4,7 +4,7 @@ import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
 import { dishIcon, GestureIcon } from './icons.tsx';
-import { RankSheet, RankUpIntro } from './Ranks.tsx';
+import { RankUpIntro } from './Ranks.tsx';
 
 type D = (a: GameAction) => void;
 
@@ -24,40 +24,30 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   ];
   const [i, setI] = useState(0);
   const [stage, setStage] = useState<'intro' | 'overview'>('intro');
-  /** A rank-up is shown first: its intro, then a card with the next rank's goals. */
-  const [rankStage, setRankStage] = useState<'intro' | 'card' | null>(d.rank ? 'intro' : null);
+  /** A rank-up is shown first, on one page that stays until tapped (it carries the next goals). */
+  const [showRank, setShowRank] = useState(d.rank !== null);
   const item = items[i];
   const last = i >= items.length - 1;
 
   useEffect(() => {
-    if (rankStage !== 'intro') return;
+    if (!showRank) return;
     sfx.swish();
     const t1 = window.setTimeout(() => { sfx.chop(); sfx.fanfare(); }, reduced ? 0 : 380);
-    const t2 = window.setTimeout(() => setRankStage('card'), reduced ? 900 : INTRO_MS);
-    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
-  }, [rankStage, reduced]);
+    return () => window.clearTimeout(t1);
+  }, [showRank, reduced]);
 
   useEffect(() => {
-    if (rankStage || stage !== 'intro') return;
+    if (showRank || stage !== 'intro') return;
     sfx.swish();
     const t1 = window.setTimeout(() => { sfx.chop(); sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, reduced ? 0 : 380);
     const t2 = window.setTimeout(() => setStage('overview'), reduced ? 900 : INTRO_MS);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
-  }, [stage, i, reduced, rankStage]);
+  }, [stage, i, reduced, showRank]);
 
-  if (rankStage === 'intro') return <RankUpIntro rank={d.rank!} reduced={reduced} onSkip={() => setRankStage('card')} />;
-  if (rankStage === 'card') {
-    const done = !item;
+  if (showRank) {
     return (
-      <div className="reveal overview rank-card" role="dialog" aria-label="New rank" data-testid="rank-card">
-        <div className="ov-body"><RankSheet state={state} /></div>
-        <div className="ov-foot">
-          <button className="btn primary huge" data-testid={done ? 'delivery-done' : 'reveal-next'}
-            onClick={() => { sfx.tap(); if (done) dispatch({ type: 'DELIVERY_DONE' }); else setRankStage(null); }}>
-            {done ? 'Back to the shop' : 'Next'}
-          </button>
-        </div>
-      </div>
+      <RankUpIntro rank={d.rank!} state={state} reduced={reduced}
+        onDone={() => { sfx.tap(); if (item) setShowRank(false); else dispatch({ type: 'DELIVERY_DONE' }); }} />
     );
   }
   if (!item) return null;
