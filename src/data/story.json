@@ -1,6 +1,10 @@
 {
-  "_comment": "Golden Chef Journey story text. Edit freely; src/core/story.ts validates it (tests fail if a page or recipe is missing). {name} = the chef's name. Never use he/she for the chef.",
-  "grandpa": { "name": "Ojiichan", "nameJa": "おじいちゃん", "gloss": "Grandpa" },
+  "_comment": "Golden Chef Journey story text. Edit freely; src/core/story.ts validates it (tests fail if a page, visit or recipe is missing). {name} = the chef's name, {dish} = the dish being ordered. Never use he/she for the chef.",
+  "grandpa": {
+    "name": "Ojiichan",
+    "nameJa": "おじいちゃん",
+    "gloss": "Grandpa"
+  },
   "letter": {
     "greeting": "Dear {name},",
     "body": [
@@ -17,8 +21,14 @@
       "rank": 1,
       "title": "Aomori Bay",
       "riddle": "Squeeze me and I'm a drink. Cut me just right and I grow two long ears. What am I?",
-      "riddleRecipes": ["fresh_juice", "rabbit_apples"],
-      "doodle": { "art": "🧓🍎🐇", "caption": "Me, trying rabbit ears. They look like cats!" },
+      "riddleRecipes": [
+        "fresh_juice",
+        "rabbit_apples"
+      ],
+      "doodle": {
+        "art": "🧓🍎🐇",
+        "caption": "Me, trying rabbit ears. They look like cats!"
+      },
       "postcard": null,
       "backdrop": "aomori_city",
       "where": "Our stall is by Aomori Bay. Wave to ASPAM, the big triangle building!"
@@ -27,8 +37,14 @@
       "rank": 2,
       "title": "Sweet and sticky",
       "riddle": "Bubble me slowly in a pot and I spread on toast. Dip me in shiny red sugar and I'm a festival treat.",
-      "riddleRecipes": ["apple_jam", "ringo_ame"],
-      "doodle": { "art": "🫙✨", "caption": "A jar of jam. (I ate it all.)" },
+      "riddleRecipes": [
+        "apple_jam",
+        "ringo_ame"
+      ],
+      "doodle": {
+        "art": "🫙✨",
+        "caption": "A jar of jam. (I ate it all.)"
+      },
       "postcard": {
         "place": "Norway",
         "stamp": "🇳🇴",
@@ -42,8 +58,14 @@
       "rank": 3,
       "title": "Off to Lake Towada",
       "riddle": "Hirosaki's favourite: apples tucked in golden pastry. And my breakfast: jam on crunchy bread.",
-      "riddleRecipes": ["hirosaki_pie", "jam_toast"],
-      "doodle": { "art": "🥧😋", "caption": "Pie for breakfast? Why not!" },
+      "riddleRecipes": [
+        "hirosaki_pie",
+        "jam_toast"
+      ],
+      "doodle": {
+        "art": "🥧😋",
+        "caption": "Pie for breakfast? Why not!"
+      },
       "postcard": {
         "place": "Paris, France",
         "stamp": "🇫🇷",
@@ -57,8 +79,15 @@
       "rank": 4,
       "title": "The red gates",
       "riddle": "Layer me with cold yogurt. Bake me whole until I'm soft. Simmer me slowly until I shine.",
-      "riddleRecipes": ["yogurt_parfait", "baked_apple", "apple_compote"],
-      "doodle": { "art": "🦇🍎💨", "caption": "A flying fox stole my apple!" },
+      "riddleRecipes": [
+        "yogurt_parfait",
+        "baked_apple",
+        "apple_compote"
+      ],
+      "doodle": {
+        "art": "🦇🍎💨",
+        "caption": "A flying fox stole my apple!"
+      },
       "postcard": {
         "place": "Queensland, Australia",
         "stamp": "🇦🇺",
@@ -73,10 +102,142 @@
       "title": "The last page",
       "riddle": null,
       "riddleRecipes": [],
-      "doodle": { "art": "🧓🥇", "caption": "Me, very very proud." },
+      "doodle": {
+        "art": "🧓🥇",
+        "caption": "Me, very very proud."
+      },
       "postcard": null,
       "backdrop": "takayama_inari",
       "where": "You found every dish, {name}. A Golden Chef! I've told the whole world about our stall, so keep an eye on the post..."
     }
-  ]
+  ],
+  "regulars": [
+    {
+      "id": "sota",
+      "customer": "A",
+      "name": "Sota",
+      "visits": [
+        {
+          "at": 4,
+          "line": "Hi! I'm Sota. I'm going to be a chef too! Can I watch you make {dish}?"
+        },
+        {
+          "at": 13,
+          "line": "I practised your moves at home! Swish, swish! One {dish}, please, Chef {name}!"
+        },
+        {
+          "at": 24,
+          "line": "What's your best tip, Chef {name}? Mine is: always wash the apples! One {dish}, please."
+        },
+        {
+          "at": 37,
+          "line": "I opened my own juice stand next door! It's pretend. One {dish} for my first customer: me!"
+        }
+      ]
+    },
+    {
+      "id": "yui",
+      "customer": "B",
+      "name": "Yui",
+      "visits": [
+        {
+          "at": 7,
+          "line": "Hello! I'm Yui. I'm learning to cook for my little brother. Is {dish} hard to make?"
+        },
+        {
+          "at": 18,
+          "line": "My brother loved the last one! Could I have {dish}? I'll watch how you do it."
+        },
+        {
+          "at": 29,
+          "line": "I tried something harder at home. It was... a little burnt. One {dish}, please!"
+        },
+        {
+          "at": 42,
+          "line": "I made jam all by myself! It's lumpy, but it's for you. And one {dish}, please!"
+        }
+      ]
+    },
+    {
+      "id": "kiyoshi",
+      "customer": "C",
+      "name": "Grandpa Kiyoshi",
+      "visits": [
+        {
+          "at": 11,
+          "line": "Good day! I'm Kiyoshi. One {dish}, please. Oh, and do you sell pie apples? No reason!"
+        },
+        {
+          "at": 21,
+          "line": "{dish}, please. And six more pie apples... still no reason!"
+        },
+        {
+          "at": 33,
+          "line": "All right, I'll tell you. I'm entering the town pie contest! Wish me luck. One {dish}, please."
+        },
+        {
+          "at": 45,
+          "line": "Second place in the pie contest! This ribbon is half yours, Chef {name}. One {dish} to celebrate!"
+        }
+      ]
+    },
+    {
+      "id": "mei",
+      "customer": "D",
+      "name": "Mei",
+      "visits": [
+        {
+          "at": 9,
+          "line": "Hi, I'm Mei! I collect apples too. Aomori grows more apples than anywhere else in Japan! One {dish}, please."
+        },
+        {
+          "at": 26,
+          "line": "Apple fact: the Fuji apple was first grown here in Aomori! One {dish}, please."
+        },
+        {
+          "at": 40,
+          "line": "Apple fact: apples float because about a quarter of an apple is air! One {dish}, please."
+        },
+        {
+          "at": 48,
+          "line": "This is my rarest apple, Oirase, named after a stream near Lake Towada. It's yours! One {dish}, please.",
+          "giftApple": "a096"
+        }
+      ]
+    }
+  ],
+  "news": [
+    {
+      "rank": 2,
+      "kind": "note",
+      "icon": "💌",
+      "title": "A thank-you note!",
+      "text": "Thank you for the yummiest apple treats in Aomori! You made my day. — Yui"
+    },
+    {
+      "rank": 3,
+      "kind": "paper",
+      "icon": "📰",
+      "title": "Aomori Daily",
+      "text": "New stall's rabbit apples hop off the counter! Chef {name}'s little apple stall is the talk of the town."
+    },
+    {
+      "rank": 4,
+      "kind": "invite",
+      "icon": "✉️",
+      "title": "An invitation",
+      "text": "The Hirosaki Apple Festival invites Chef {name} to cook on the main street this year!"
+    },
+    {
+      "rank": 5,
+      "kind": "award",
+      "icon": "🏆",
+      "title": "The Golden Apple award",
+      "text": "The whole town cheers as Chef {name} receives the Golden Apple award. And look who's here..."
+    }
+  ],
+  "ojiichanVisit": {
+    "customer": "O",
+    "line": "Surprise! I came home for your big day, {name}. One {dish} for your proud Ojiichan, please!"
+  }
 }

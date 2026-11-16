@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
 import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
-import { GrandpaLetter } from './ui/Notebook.tsx';
+import { GrandpaLetter, NewsCard } from './ui/Notebook.tsx';
 import { devPlayParams, useGame } from './game/useGame.ts';
 import { recipeStages, type PropSpec } from './game/stations.ts';
 import { emitCue } from './game/bus.ts';
@@ -136,6 +136,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
   // The stall moves after the rank-up and its notebook page have been shown, not behind the result.
   const pendingRank = (state.phase === 'result' || state.phase === 'delivery') ? state.delivery?.rank ?? null : null;
   const backdrop = backgroundFor(pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state));
+  const news = selectors.pendingNews(state);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
   const deliveryApple = state.phase === 'delivery' ? state.delivery?.apples[0] ?? null : null;
 
@@ -177,7 +178,9 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
 
       <TopBar state={state} onOpen={setSheet} onExitPractice={() => dispatch({ type: 'EXIT_PRACTICE' })} />
 
-      {state.phase === 'shop' && <ShopOverlay state={state} dispatch={dispatch} />}
+      {state.phase === 'shop' && (news
+        ? <NewsCard item={news} name={chef.name} onDone={() => dispatch({ type: 'NEWS_SEEN', rank: news.rank })} />
+        : <ShopOverlay state={state} dispatch={dispatch} />)}
       {state.phase === 'choose' && <AppleDrawer state={state} dispatch={dispatch} />}
       {state.phase === 'cook' && stage && (
         <CookOverlay state={state} dispatch={dispatch} stage={stage} stages={stages} bridgeFrame={bridgeFrame} setBridgeFrame={setBridgeFrame} reduced={reducedMotion} />

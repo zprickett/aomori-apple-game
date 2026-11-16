@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, type GameAction, type GameState } from '../core/index.ts';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -15,6 +16,7 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
   const r = recipe(o.recipeId);
   const head = anchors.customerHead;
   const isPractice = state.mode === 'practice';
+  const chef = useContext(ChefContext);
   return (
     <>
       <div
@@ -25,9 +27,11 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
       >
         <img src={dishIcon(r.id)} alt="" className="order-dish" />
         <div className="order-text">
-          <div className="order-kicker">{o.intro ? 'New recipe!' : `Order ${o.orderNumber}`}</div>
+          <div className="order-kicker">
+            {o.visit ? <span className={`visitor v-${o.visit.who}`}>{o.visit.visitorName}</span> : o.intro ? 'New recipe!' : `Order ${o.orderNumber}`}
+          </div>
           <div className="order-name">{r.name}</div>
-          <div className="order-line">“{o.line}”</div>
+          <div className="order-line">“{withName(o.line, chef.name)}”</div>
           {o.suggestedAppleId && state.progress.unlockedApples.includes(o.suggestedAppleId) && (
             <div className="order-hint"><img src={appleIcon(o.suggestedAppleId)} alt="" /> Try {apple(o.suggestedAppleId).nameEn}?</div>
           )}

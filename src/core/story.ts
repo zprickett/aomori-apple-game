@@ -38,16 +38,58 @@ export interface Letter {
   signature: string;
 }
 
+export interface RegularVisit {
+  /** Earliest order number for this visit (it moves later past intro/demo orders). */
+  at: number;
+  /** Order line; {dish} = the dish ordered, {name} = the chef (filled in by the UI). */
+  line: string;
+  /** An apple the regular gives the player on this visit. */
+  giftApple?: string;
+}
+
+export interface Regular {
+  id: string;
+  /** Customer model id ('A'..'D'). */
+  customer: string;
+  name: string;
+  visits: RegularVisit[];
+}
+
+/** Recognition after a rank-up, shown at the start of the next day. */
+export interface NewsItem {
+  rank: Rank;
+  kind: 'note' | 'paper' | 'invite' | 'award';
+  icon: string;
+  title: string;
+  text: string;
+}
+
 interface StoryData {
   grandpa: { name: string; nameJa: string; gloss: string };
   letter: Letter;
   pages: NotebookPage[];
+  regulars: Regular[];
+  news: NewsItem[];
+  ojiichanVisit: { customer: string; line: string };
 }
 
 const STORY = STORY_JSON as unknown as StoryData;
 
 export const GRANDPA = Object.freeze({ ...STORY.grandpa });
 export const NOTEBOOK: readonly NotebookPage[] = Object.freeze([...STORY.pages].sort((a, b) => a.rank - b.rank));
+export const REGULARS: readonly Regular[] = Object.freeze(STORY.regulars);
+export const NEWS: readonly NewsItem[] = Object.freeze([...STORY.news].sort((a, b) => a.rank - b.rank));
+/** Ojiichan comes home for the Golden Chef ceremony as a customer (model 'O'). */
+export const OJIICHAN_VISIT = Object.freeze({ ...STORY.ojiichanVisit });
+
+export function newsFor(rank: Rank): NewsItem | null {
+  return NEWS.find((n) => n.rank === rank) ?? null;
+}
+
+/** First order of the day after the one in which `completed` orders were reached. */
+export function nextDayStart(completed: number, dayLength = 5): number {
+  return Math.ceil(completed / dayLength) * dayLength + 1;
+}
 
 /** Replace {name} with the chef's name ("Chef" when blank). */
 export function withName(text: string, name: string): string {

@@ -133,7 +133,7 @@ describe('order queue', () => {
         const o = orderForIndex(n, seed);
         expect(unlockedRecipes(n - 1)).toContain(o.recipeId);
         expect(o.orderId).toBe(`o-${String(n).padStart(4, '0')}`);
-        expect(['A', 'B', 'C', 'D']).toContain(o.customerId);
+        expect(o.visit?.who === 'ojiichan' ? ['O'] : ['A', 'B', 'C', 'D']).toContain(o.customerId);
         if (n > 2) expect(o.recipeId).not.toBe(prev);
         prev = o.recipeId;
       }

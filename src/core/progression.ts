@@ -4,6 +4,7 @@
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
 import { EARLIEST_RANK_UPS, rankInfo, recipeRank, recipeUnlockAtFor } from './ranks.ts';
+import { OJIICHAN_VISIT, REGULARS, nextDayStart } from './story.ts';
 
 /**
  * Apple unlocks: completed-order threshold → ids. Five starters, then one new apple after every
@@ -93,7 +94,9 @@ export function isCollectionComplete(completed: number): boolean {
 // Order queue
 // ---------------------------------------------------------------------------
 
-export type CustomerId = 'A' | 'B' | 'C' | 'D';
+/** Customer models: A Sota, B Yui, C Grandpa Kiyoshi, D Mei; O Ojiichan (ceremony only). */
+export type CustomerId = 'A' | 'B' | 'C' | 'D' | 'O';
+/** Models used for everyday customers. */
 export const CUSTOMERS: readonly CustomerId[] = ['A', 'B', 'C', 'D'];
 
 export interface Order {
@@ -110,6 +113,10 @@ export interface Order {
   demo?: boolean;
   /** First order after this recipe unlocked. */
   intro?: boolean;
+  /** A story visit: a regular (by id) or Ojiichan. The UI shows `visitorName` and fills {name}. */
+  visit?: { who: string; visitorName: string };
+  /** An apple the visitor gives on this order (unlocked when it is served). */
+  giftAppleId?: AppleId;
 }
 
 export const DEFAULT_SEED = 20261015;
@@ -245,6 +252,58 @@ function recipeQueue(seed: number, n: number, rankUps: readonly number[]): Queue
   return q;
 }
 
+// ---------------------------------------------------------------------------
+// Story visits (regulars, Ojiichan) laid over the queue
+// ---------------------------------------------------------------------------
+
+type StoryVisit =
+  | { kind: 'regular'; regularIndex: number; visitIndex: number }
+  | { kind: 'ojiichan' };
+const visitCache = new Map<string, Map<number, StoryVisit>>();
+
+/** Order on which Ojiichan visits: the first order of the day after reaching Golden Chef. */
+export function ojiichanOrder(rankUps: readonly number[]): number | null {
+  const g = rankUps[3];
+  return g === undefined ? null : nextDayStart(g);
+}
+
+/**
+ * Which orders are story visits. Visits never replace a recipe intro or an apple demo (they move
+ * to the next free order), each regular's visits stay in order, and Ojiichan's visit comes first.
+ * Earlier orders never change when a later rank-up is added.
+ */
+function storyVisits(seed: number, rankUps: readonly number[]): Map<number, StoryVisit> {
+  const key = `${seed}|${rankUps.join(',')}`;
+  const hit = visitCache.get(key);
+  if (hit) return hit;
+  const taken = new Map<number, StoryVisit>();
+  const free = (m: number) => {
+    const e = recipeQueue(seed, m, rankUps)[m - 1];
+    return !e.intro && !e.demoApple && !taken.has(m);
+  };
+  const oj = ojiichanOrder(rankUps);
+  if (oj !== null) {
+    let m = oj;
+    while (!free(m)) m++;
+    taken.set(m, { kind: 'ojiichan' });
+  }
+  REGULARS.forEach((r, regularIndex) => {
+    let last = 0;
+    r.visits.forEach((v, visitIndex) => {
+      let m = Math.max(v.at, last + 1);
+      while (!free(m)) m++;
+      taken.set(m, { kind: 'regular', regularIndex, visitIndex });
+      last = m;
+    });
+  });
+  if (visitCache.size > 32) visitCache.clear();
+  visitCache.set(key, taken);
+  return taken;
+}
+
+/** Fill {dish}; {name} is left for the UI (the core does not know the chef's name). */
+const withDish = (line: string, recipeId: RecipeId) => line.replaceAll('{dish}', recipe(recipeId).name);
+
 /**
  * Deterministic order for a 1-based order number. Only requests recipes unlocked by
  * completed = orderNumber − 1 under `rankUps`. The first order after a recipe unlocks introduces
@@ -268,6 +327,19 @@ export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, 
     order.line = lines[Math.floor(rand(seed, orderNumber, 2) * lines.length)];
   }
   if (entry.intro) order.intro = true;
+  const visit = storyVisits(seed, rankUps).get(orderNumber);
+  if (visit?.kind === 'ojiichan') {
+    order.customerId = OJIICHAN_VISIT.customer as CustomerId;
+    order.line = withDish(OJIICHAN_VISIT.line, recipeId);
+    order.visit = { who: 'ojiichan', visitorName: 'Ojiichan' };
+  } else if (visit) {
+    const r = REGULARS[visit.regularIndex];
+    const v = r.visits[visit.visitIndex];
+    order.customerId = r.customer as CustomerId;
+    order.line = withDish(v.line, recipeId);
+    order.visit = { who: r.id, visitorName: r.name };
+    if (v.giftApple) order.giftAppleId = v.giftApple as AppleId;
+  }
   return order;
 }
 

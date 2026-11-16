@@ -523,6 +523,70 @@ def build_customer_C():
     return assemble(P, body, head, eo, None, arms, legs)
 
 
+def build_customer_O():
+    """Ojiichan: the player's grandpa, a cheerful Hirosaki apple chef home from his travels.
+    Same build as Grandpa Kiyoshi (C) but in chef whites: tall white toque, double-breasted
+    jacket with red buttons, red neckerchief and a red apron. Only appears at the Golden Chef
+    ceremony, so he must read as 'a chef', not as an everyday customer."""
+    P = 'Customer_O'
+    hip, sh = 0.5, 0.88
+    b = MB()
+    stoop = T((0, 0, hip), (-5, 0, 0)) @ T((0, 0, -hip))
+    prof = [(0.0, hip - 0.08), (0.15, hip - 0.08), (0.158, hip + 0.04), (0.155, hip + 0.18), (0.16, sh - 0.1),
+            (0.145, sh - 0.01), (0.08, sh + 0.035), (0.0, sh + 0.04)]
+    b.lathe(prof, 10, m='M_Cloth_White', scale=(1, 0.85, 1), M=stoop)
+    # red apron: front panel from the knee to mid-chest, with a waist tie
+    arc_panel(b, 0.168, 0.145, -58, 58, hip - 0.2, sh - 0.16, 'M_AppleRed', 0.012, flare=1.18, seg=10, M=stoop)
+    b.torus(0.162, 0.011, 10, 4, (0, 0, hip + 0.07), 'M_AppleRed', scale=(1, 0.86, 1), M=stoop)
+    # double-breasted buttons above the apron bib
+    for s in (-1, 1):
+        for z in (sh - 0.13, sh - 0.07):
+            b.sphere((0.013, 0.008, 0.013), (s * 0.05, -0.138, z), 'M_AppleRed', 6, 4, M=stoop)
+    # red neckerchief knot + collar
+    b.cyl(0.072, 0.064, 0.045, 10, (0, -0.01, sh + 0.035), 'M_Cloth_White', M=stoop)
+    b.sphere((0.03, 0.022, 0.026), (0, -0.075, sh + 0.02), 'M_AppleRed', 8, 5, M=stoop)
+    body = b.build(f'{P}_Body')
+    legs = []
+    for s in (1, -1):
+        l = MB()
+        x = s * 0.075
+        l.cyl(0.068, 0.06, hip - 0.04, 8, (x, 0, (hip + 0.04) / 2 + 0.02), 'M_Cloth_Charcoal')
+        l.box((0.105, 0.17, 0.065), (x, -0.025, 0.0325), 'M_WoodDark', bevel=0.022)
+        legs.append(l.build(f'{P}_Leg{"L" if s > 0 else "R"}', pivot=(x, 0, hip)))
+    C = (0, -0.06, 1.08)
+    R = (0.195, 0.18, 0.18)
+    h = MB()
+    face_base(h, C, R, brow_el=0.3, brows='M_HairGrey', blush_el=-0.3, blush_az=0.66)
+    p, n = surf(C, R, 0, -0.18)
+    h.sphere((0.026, 0.024, 0.022), tuple(p), 'M_Skin', 8, 6)
+    hair_shell(h, C, R, 1.06, m='M_HairGrey', keep=lambda az, el: abs(az) > 1.2 and -0.55 < el < 0.35)
+    # big friendly moustache
+    for s in (-1, 1):
+        p, n = surf(C, R, s * 0.14, -0.3, 0.006)
+        h.sphere((0.058, 0.024, 0.03), tuple(p), 'M_HairGrey', 8, 5, rot=(0, s * 22, 0))
+    # tall puffy chef's toque on a band
+    tm = T((C[0], C[1] + 0.01, C[2] + R[2] * 0.5), (-6, 0, 0))
+    h.lathe([(0.186, -0.01), (0.19, 0.07), (0.215, 0.11), (0.245, 0.18), (0.24, 0.25), (0.2, 0.3), (0.11, 0.325), (0.0, 0.33)],
+            14, m='M_Cloth_White', M=tm, scale=(1, 0.98, 1))
+    h.torus(0.19, 0.012, 14, 4, (0, 0, 0.07), 'M_Cream', M=tm)
+    _head_common(h, C, R, -0.44, 0.05, 0.03)
+    # round glasses on the head (not the Eyes node) so blinking does not squash them
+    for s in (-1, 1):
+        p, n = surf(C, R, s * 0.33, -0.06, 0.016)
+        h.torus(0.05, 0.007, 12, 4, (0, 0, 0), 'M_Black', M=align_z(n, p))
+    pb, nb = surf(C, R, 0, -0.04, 0.024)
+    h.cyl(0.005, 0.005, 0.06, 4, tuple(pb), 'M_Black', (0, 90, 0))
+    for s in (-1, 1):
+        p, n = surf(C, R, s * 0.95, -0.03, 0.01)
+        h.tube([p, p + Vector((s * 0.02, 0.1, 0.0))], 0.005, 4, 'M_Black')
+    head = h.build(f'{P}_Head', pivot=(0, -0.04, sh + 0.03))
+    e, ec = eyes(C, R, az=0.33, el=-0.06, ew=0.03, eh=0.036, brown=False)
+    eo = e.build(f'{P}_Eyes', pivot=tuple(ec))
+    arms = [arm(P, s, (s * 0.158, -0.045, sh - 0.05), 0.33, 'M_Cloth_White', r_top=0.052, r_bot=0.046,
+                sleeve_frac=0.88, cuff_m='M_Cloth_White', hand_r=0.045, splay=7) for s in (1, -1)]
+    return assemble(P, body, head, eo, None, arms, legs)
+
+
 def build_customer_D():
     P = 'Customer_D'
     hip, sh = 0.34, 0.63

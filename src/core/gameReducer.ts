@@ -49,6 +49,7 @@ import { gradeStep, toleranceMultiplier, trackZones, type TrackZones } from './s
 import { GRADE_POINTS, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
 import { advanceRank, cleanRankUps, rankOf, type Rank } from './ranks.ts';
+import { newsFor, nextDayStart, type NewsItem } from './story.ts';
 
 export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'day';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
@@ -134,6 +135,8 @@ export type GameAction =
   | { type: 'RESULT_DONE' }
   | { type: 'DELIVERY_DONE' }
   | { type: 'DAY_DONE' }
+  /** The player closed a news card (recognition after a rank-up). */
+  | { type: 'NEWS_SEEN'; rank: Rank }
   | { type: 'VISIBILITY_HIDDEN' }
   | { type: 'RESUME' }
   | { type: 'SET_SETTINGS'; settings: Partial<SaveSettings> }
@@ -202,9 +205,11 @@ function rankReachedWith(progress: Progress, completed: number): Rank | null {
 }
 
 /** Unseen unlock rewards earned when completed count reached `completed`. Null if none. */
-export function pendingDelivery(progress: Progress, completed: number = progress.completedOrders): Delivery | null {
+export function pendingDelivery(progress: Progress, completed: number = progress.completedOrders, order?: Order): Delivery | null {
   const earned = unlocksEarnedAt(completed, progress.rankUps);
-  const apples = earned.apples.filter((a) => !progress.seenUnlockRewards.includes(`apple:${a}`));
+  // A regular's gift apple (served with this order) is revealed like a delivery.
+  const gift = order && order.orderNumber === completed && order.giftAppleId ? [order.giftAppleId] : [];
+  const apples = [...new Set([...gift, ...earned.apples])].filter((a) => !progress.seenUnlockRewards.includes(`apple:${a}`));
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
   const reached = rankReachedWith(progress, completed);
   const rank = reached && !progress.seenUnlockRewards.includes(`rank:${reached}`) ? reached : null;
@@ -242,7 +247,7 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     history: [...progress.history, record].slice(-HISTORY_LIMIT),
     completedOrders,
     completedOrderIds: [...progress.completedOrderIds, order.orderId],
-    unlockedApples: canonApples(progress.unlockedApples, scheduleApples(completedOrders)),
+    unlockedApples: canonApples(progress.unlockedApples, [...scheduleApples(completedOrders), ...(order.giftAppleId ? [order.giftAppleId] : [])]),
     unlockedRecipes: canonRecipes(progress.unlockedRecipes, scheduleRecipes(completedOrders, progress.rankUps)),
     bestScores: {
       ...progress.bestScores,
@@ -324,7 +329,7 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
     const committed = progress.completedOrderIds.includes(cur.orderId) || cur.orderNumber <= progress.completedOrders;
     if (!committed || !cur.pendingResult || cur.orderNumber !== progress.completedOrders) return base;
     const order = customOrder(cur.orderNumber, cur.pendingResult.recipeId as Order['recipeId'], progress.seed, progress.rankUps);
-    const delivery = pendingDelivery(progress, cur.orderNumber);
+    const delivery = pendingDelivery(progress, cur.orderNumber, order);
     const phase: Phase = cur.phase === 'delivery' && delivery ? 'delivery' : 'result';
     return {
       ...base,
@@ -548,7 +553,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         progress,
         phase: 'result',
         result: evaluation,
-        delivery: pendingDelivery(progress, state.order.orderNumber),
+        delivery: pendingDelivery(progress, state.order.orderNumber, state.order),
       };
     }
 
@@ -568,6 +573,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'DAY_DONE':
       if (state.phase !== 'day') return state;
       return nextOrderState(state);
+
+    case 'NEWS_SEEN': {
+      const key = `news:${action.rank}`;
+      if (state.progress.seenUnlockRewards.includes(key)) return state;
+      return { ...state, progress: { ...state.progress, seenUnlockRewards: [...state.progress.seenUnlockRewards, key] } };
+    }
 
     case 'VISIBILITY_HIDDEN': {
       const cook = state.cook;
@@ -736,6 +747,28 @@ export const selectors = {
   },
   rank(state: GameState): Rank {
     return rankOf(state.progress.rankUps);
+  },
+  /**
+   * The news card to show now: in the shop, from the first order of the day after the rank-up,
+   * oldest unseen first. Null when there is none.
+   */
+  pendingNews(state: GameState): NewsItem | null {
+    if (state.phase !== 'shop' || state.mode !== 'order') return null;
+    const p = state.progress;
+    for (let i = 0; i < p.rankUps.length; i++) {
+      const rank = (i + 2) as Rank;
+      if (p.seenUnlockRewards.includes(`news:${rank}`)) continue;
+      if (state.order.orderNumber < nextDayStart(p.rankUps[i])) continue;
+      const n = newsFor(rank);
+      if (n) return n;
+    }
+    return null;
+  },
+  /** News cards already seen (the scrapbook), oldest first. */
+  seenNews(state: GameState): NewsItem[] {
+    return state.progress.rankUps
+      .map((_, i) => newsFor((i + 2) as Rank))
+      .filter((n): n is NewsItem => n !== null && state.progress.seenUnlockRewards.includes(`news:${n.rank}`));
   },
   /** 1-based day number of the current order (the finished day while in 'day'). */
   day(state: GameState): number {

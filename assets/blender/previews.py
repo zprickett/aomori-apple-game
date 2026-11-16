@@ -255,7 +255,7 @@ def render_all(prev, icons_dir, only=None, icons=True):
             R.look(cam, (0.5, -4.6, 1.0), (0.38, 0, 0.72), 40)
             _render(['Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Chef'], P('characters_lineup'),
                     (900, 500))
-        for n in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D'):
+        for n in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O'):
             R.auto_cam(cam, [n], yaw=-25, pitch=8, fill=0.95, lens=50)
             _render([n], P(n.lower()), (500, 600))
     if want('chef_styles'):
@@ -319,7 +319,7 @@ def render_all(prev, icons_dir, only=None, icons=True):
                 _render([root], os.path.join(icons_dir, f'dish_{rid}.png'), (256, 256), True, 48, hide=hide)
     if want('icons') or want('portraits'):
         ports = {'Chef': (1.37, 0.0), 'Customer_A': (0.87, 0.0), 'Customer_B': (0.86, 0.0),
-                 'Customer_C': (1.08, -0.06), 'Customer_D': (0.84, 0.0)}
+                 'Customer_C': (1.08, -0.06), 'Customer_D': (0.84, 0.0), 'Customer_O': (1.12, -0.05)}
         for n, (hz, hy) in ports.items():
             fn = 'chef_portrait.png' if n == 'Chef' else f'customer_{n[-1]}_portrait.png'
             s = 1.0 if n == 'Chef' else 0.9

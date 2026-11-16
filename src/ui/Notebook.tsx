@@ -6,11 +6,11 @@
 import { useState } from 'react';
 import {
   GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
-  type GameState, type NotebookPage, type Rank,
+  type GameState, type NewsItem, type NotebookPage, type Rank,
 } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { BACKGROUNDS } from '../game/backgrounds.ts';
-import { dishIcon } from './icons.tsx';
+import { dishIcon, portrait } from './icons.tsx';
 import { RankBadge } from './Ranks.tsx';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
@@ -128,6 +128,39 @@ export function NotebookBook({ state, name }: { state: GameState; name: string }
         <button className="btn small" disabled={i >= pages.length - 1} onClick={() => { tap(); setI(i + 1); }} aria-label="Next page">›</button>
       </div>
       {next && i === pages.length - 1 && <div className="nb-locked">🔒 The next page opens at <b>{next.name}</b>.</div>}
+    </div>
+  );
+}
+
+/** A news card (recognition after a rank-up), shown at the start of the next day. */
+export function NewsCard({ item, name, onDone }: { item: NewsItem; name: string; onDone: () => void }) {
+  return (
+    <div className="news-backdrop" role="dialog" aria-label={item.title} data-testid="news-card">
+      <div className={`news-card n-${item.kind}`}>
+        <div className="news-icon" aria-hidden>{item.icon}</div>
+        <div className="news-title">{item.title}</div>
+        <p className="news-text">{withName(item.text, name)}</p>
+        {item.kind === 'award' && <img className="news-portrait" src={portrait('O')} alt="Ojiichan" />}
+        <button className="btn primary big" data-testid="news-done" onClick={() => { tap(); onDone(); }}>
+          {item.kind === 'award' ? 'Ojiichan!' : 'Yay!'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Scrapbook in My chef: every news card seen so far. */
+export function Scrapbook({ state, name }: { state: GameState; name: string }) {
+  const items = selectors.seenNews(state);
+  if (!items.length) return null;
+  return (
+    <div className="scrapbook" data-testid="scrapbook">
+      {items.map((n) => (
+        <div key={n.rank} className={`scrap n-${n.kind}`}>
+          <span className="scrap-icon" aria-hidden>{n.icon}</span>
+          <div><b>{n.title}</b><span>{withName(n.text, name)}</span></div>
+        </div>
+      ))}
     </div>
   );
 }

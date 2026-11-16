@@ -30,7 +30,7 @@ import dishes  # noqa: E402
 import expansion  # noqa: E402
 
 ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Chef',
-         'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D',
+         'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O',
          'Apple', 'Apple_Peeled', 'Apple_Wedges', 'Rabbit_Wedges', 'Apple_Dice', 'Apple_Slices', 'Apple_Chunks',
          'CuttingBoard', 'Knife', 'Juicer', 'Pot', 'Pan', 'Spoon', 'PieTin', 'Oven', 'SyrupPan', 'CoolingTray',
          'Stick', 'Dish_Juice', 'Dish_Pie', 'Dish_Rabbit', 'Dish_Jam', 'Dish_CandyApple', 'Crate_Delivery',
@@ -45,6 +45,7 @@ def build_all():
     chars.build_customer_B()
     chars.build_customer_C()
     chars.build_customer_D()
+    chars.build_customer_O()
     props.build_apple()
     props.build_cut_pieces()
     props.build_tools()
@@ -86,7 +87,7 @@ def verify():
     assert sorted(roots) == sorted(ROOTS), (sorted(set(ROOTS) - set(roots)), sorted(set(roots) - set(ROOTS)))
     byname = {n['name']: n for n in nodes}
     # front check: eyes sit in front (+Z) of the head pivot in glTF space
-    for ch in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D'):
+    for ch in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O'):
         t = byname[f'{ch}_Eyes'].get('translation', [0, 0, 0])
         assert t[2] > 0.05, (ch, t)
     t = byname['Juice_Emblem'].get('translation', [0, 0, 0])

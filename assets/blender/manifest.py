@@ -90,7 +90,8 @@ def write(glb, out_md, roots_order):
     checks = []
     for n, p in (('Chef_Eyes', 'Chef_Head'), ('Customer_A_Eyes', 'Customer_A_Head'),
                  ('Customer_B_Eyes', 'Customer_B_Head'), ('Customer_C_Eyes', 'Customer_C_Head'),
-                 ('Customer_D_Eyes', 'Customer_D_Head'), ('Juice_Emblem', 'Juice_Glass'),
+                 ('Customer_D_Eyes', 'Customer_D_Head'), ('Customer_O_Eyes', 'Customer_O_Head'),
+                 ('Juice_Emblem', 'Juice_Glass'),
                  ('Counter_Cloth', 'Stall_Frame')):
         e = gl(bpy.data.objects[n].matrix_world.translation)
         lo, hi = bbox(bpy.data.objects[p])
