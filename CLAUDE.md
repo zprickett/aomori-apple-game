@@ -25,6 +25,7 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 - `/?review=recipes&recipe=<id>`: step through every frame of a recipe in the real scene. **▶ Play** opens the next URL.
 - `/?play=<recipeId>&apple=<appleId>`: an in-memory practice session with everything unlocked. It does not touch saves.
 - `/?skip=N`: start a fresh save with N orders already done, to test unlocks and reveals.
+- `/?skip=N&ready`: the same, with every rank skill goal already met (stars, apples, Golden Recipes). Cook one dish at N = 4, 14, 29 or 49 to see the next rank-up.
 
 ## Layout
 

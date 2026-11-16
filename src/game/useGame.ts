@@ -3,16 +3,19 @@ import {
   createMemoryStore, createSaveStore, defaultSave, earliestRankUps, gameReducer, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
   type GameAction, type GameState, type SaveStore,
 } from '../core/index.ts';
+import { APPLE_ORDER, APPLES_FOR_GOLDEN_CHEF, GOLDEN_RECIPES_FOR_HEAD_COOK, RECIPE_ORDER, fitStars, type SaveData } from '../core/index.ts';
 import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
 
 interface Boot { store: SaveStore; state: GameState; persistent: boolean }
 
 /**
  * DEV only: `?skip=N` starts a fresh save with N orders done (all unlocks up to N already seen,
- * every rank challenge passed as early as possible),
- * then removes the parameter so reloads keep playing normally. Never active in production builds.
+ * every rank challenge passed as early as possible). Add `&ready` to also meet every skill goal
+ * (3 stars on every recipe, 30 apples cooked, 5 Golden Recipes since Cook), so the next rank-up
+ * happens as soon as its order count is reached. The parameters are then removed so reloads keep
+ * playing normally. Never active in production builds.
  */
-function saveAfter(n: number) {
+function saveAfter(n: number, ready = false) {
   const s = defaultSave();
   s.completedOrders = n;
   s.completedOrderIds = Array.from({ length: n }, (_, i) => orderIdFor(i + 1));
@@ -22,7 +25,20 @@ function saveAfter(n: number) {
     const rank = i < 0 ? null : i + 2;
     s.seenUnlockRewards.push(...rewardKeys({ ...unlocksEarnedAt(k, s.rankUps), rank }));
   }
+  if (ready) meetRankGoals(s);
   return s;
+}
+
+/** Fill in stars, cooked apples and Golden Recipes so every rank skill goal is met. */
+function meetRankGoals(s: SaveData) {
+  for (const id of RECIPE_ORDER) s.bestScores[id] = 3;
+  for (const a of APPLE_ORDER.slice(0, APPLES_FOR_GOLDEN_CHEF)) s.discoveredPairings[`${a}:fresh_juice`] = { bestStars: 3, fit: fitStars(a, 'fresh_juice') };
+  // Golden Recipes on the latest orders (they count once they come after reaching Cook).
+  const golden = Array.from({ length: Math.min(GOLDEN_RECIPES_FOR_HEAD_COOK, s.completedOrders) }, (_, i) => s.completedOrders - i).reverse();
+  s.history = golden.map((orderNumber) => ({
+    orderId: orderIdFor(orderNumber), orderNumber, recipeId: 'fresh_juice', appleId: APPLE_ORDER[0],
+    points: 200, golden: true, grades: ['Perfect'], fit: 3, stars: 3, newBest: false,
+  }));
 }
 
 function devSkip(store: SaveStore) {
@@ -30,8 +46,9 @@ function devSkip(store: SaveStore) {
   const params = new URLSearchParams(location.search);
   const n = Number(params.get('skip'));
   if (!params.has('skip') || !Number.isInteger(n) || n < 0 || n > 200) return;
-  store.save(saveAfter(n));
+  store.save(saveAfter(n, params.has('ready')));
   params.delete('skip');
+  params.delete('ready');
   history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
 }
 
