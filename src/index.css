@@ -36,6 +36,13 @@ body {
   background: var(--bg);
   box-shadow: 0 0 40px rgba(74, 51, 38, 0.18);
 }
+.scene-bg { position: absolute; inset: 0; background-size: cover; background-position: center top; background-repeat: no-repeat;
+  transform-origin: 50% 62%; transition: transform 0.7s cubic-bezier(.2,.8,.3,1); }
+/* The painted backdrop zooms a little with the camera so the stall doesn't look pasted on. */
+.scene-bg.view-serve, .scene-bg.view-result, .scene-bg.view-delivery { transform: scale(1.12); }
+.scene-bg.view-choose { transform: scale(1.06) translateY(-3%); }
+.scene-bg.view-cook { transform: scale(1.22); }
+.frame.reduced .scene-bg { transition: none; }
 .canvas-wrap { position: absolute; inset: 0; }
 .canvas-wrap canvas { touch-action: none; display: block; }
 

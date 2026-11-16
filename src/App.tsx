@@ -12,6 +12,7 @@ import { CookOverlay } from './ui/CookOverlay.tsx';
 import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
 import { UnlockReveal } from './ui/Reveal.tsx';
 import { DayRecap } from './ui/Ranks.tsx';
+import { currentBackground } from './game/backgrounds.ts';
 import { Review } from './ui/Review.tsx';
 import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
@@ -129,16 +130,18 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     }
   }, [state.phase, state.order.orderId, reducedMotion]);
 
+  const backdrop = useMemo(() => currentBackground(), []);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
   const deliveryApple = state.phase === 'delivery' ? state.delivery?.apples[0] ?? null : null;
 
   return (
     <div className={`frame ${reducedMotion ? 'reduced' : ''}`} data-phase={state.phase} data-sub={cook?.sub ?? ''}>
+      <div className={`scene-bg view-${view}`} style={{ backgroundImage: `url(${backdrop.url})` }} aria-hidden />
       <div className="canvas-wrap">
         <Canvas
           shadows
           dpr={[1, 1.5]}
-          gl={{ antialias: true, powerPreference: 'high-performance' }}
+          gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
           camera={{ fov: 34, near: 0.1, far: 60, position: [0, 3, 12] }}
           frameloop={state.hidden ? 'never' : 'always'}
         >
@@ -159,6 +162,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               stallLevel={selectors.stallLevel(state)}
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
+              backdrop
             />
           </Suspense>
         </Canvas>

@@ -25,6 +25,7 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 - `/?review=recipes&recipe=<id>`: step through every frame of a recipe in the real scene. **▶ Play** opens the next URL.
 - `/?play=<recipeId>&apple=<appleId>`: an in-memory practice session with everything unlocked. It does not touch saves.
 - `/?skip=N`: start a fresh save with N orders already done, to test unlocks and reveals.
+- `/?bg=<id>`: preview another painted backdrop (`aomori_city`, `lake_towada`, `takayama_inari`; see `src/game/backgrounds.ts`).
 - `/?skip=N&ready`: the same, with every rank skill goal already met (stars, apples, Golden Recipes). Cook one dish at N = 4, 14, 29 or 49 to see the next rank-up.
 
 ## Layout
@@ -32,7 +33,7 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 | Path | What |
 |---|---|
 | `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
-| `src/game/` | `stations.ts`: per-recipe counter stages (props before, during and after each action). `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
+| `src/game/` | `backgrounds.ts`: painted backdrops behind the stall (Aomori City by default). `stations.ts`: per-recipe counter stages (props before, during and after each action). `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
 | `src/three/` | `Scene.tsx`: camera, stall, chef, customers. `Showcase.tsx`: spinning hero model. `ChefPreview.tsx`, `chefLook.ts`: applies hair and colours to the chef model. `props.ts`. |
 | `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up intro, day recap. `Onboarding.tsx`: welcome, story, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
 | `src/data/` | Content data. See the next section. |

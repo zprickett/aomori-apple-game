@@ -29,6 +29,9 @@ export interface SceneProps {
   stallLevel: number;
   deliveryAppleId: string | null;
   reducedMotion: boolean;
+  /** A painted backdrop shows through a transparent canvas: no sky colour, fog or visible ground
+   *  (the ground only catches shadows). The Canvas needs `gl={{ alpha: true }}`. */
+  backdrop?: boolean;
 }
 
 const BG = '#FCF8F0';
@@ -103,12 +106,18 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 // ---------------------------------------------------------------------------
 // Stall
 // ---------------------------------------------------------------------------
-function Stall({ level, reduced, view }: { level: number; reduced: boolean; view: ViewMode }) {
+function Stall({ level, reduced, view, backdrop }: { level: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
   const sign = useMemo(() => lib.clone('Upgrade_Sign'), [lib]);
   const crate2 = useMemo(() => lib.clone('Upgrade_Crate2'), [lib]);
   const banner = useMemo(() => lib.clone('Upgrade_Banner'), [lib]);
+  // Over a painted backdrop the painting's sand is the ground: hide the model's round ground patch
+  // (its stepping stones and bushes stay).
+  useEffect(() => {
+    const disc = stall.getObjectByName('Ground_1');
+    if (disc) disc.visible = !backdrop;
+  }, [stall, backdrop]);
   const sway = useMemo(() => ['Noren_L', 'Noren_C', 'Noren_R', 'Lantern'].map((n) => stall.getObjectByName(n)).filter(Boolean) as THREE.Object3D[], [stall]);
   useFrame(({ clock }) => {
     // cutaway: the noren would hide the owner's face from the overhead cooking camera
@@ -404,11 +413,11 @@ function AnchorPublisher({ anchor, view }: { anchor: StepStage['anchor'] | null;
 export function GameScene(p: SceneProps) {
   const { gl, scene } = useThree();
   useEffect(() => {
-    scene.background = new THREE.Color(BG);
-    scene.fog = new THREE.Fog(BG, 18, 44);
+    scene.background = p.backdrop ? null : new THREE.Color(BG);
+    scene.fog = p.backdrop ? null : new THREE.Fog(BG, 18, 44);
     gl.toneMapping = THREE.NoToneMapping;
     if (import.meta.env.DEV) Object.assign(window, { __scene: scene, __stepClock: stepClock });
-  }, [gl, scene]);
+  }, [gl, scene, p.backdrop]);
   const showDish = p.view === 'serve' || p.view === 'result' || p.view === 'delivery';
   return (
     <>
@@ -421,10 +430,12 @@ export function GameScene(p: SceneProps) {
       />
       <directionalLight position={[4, 3, 5]} intensity={0.35} color="#FFE9D6" />
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow>
-        <circleGeometry args={[60, 32]} />
-        <meshLambertMaterial color="#F3EBDC" />
+        {/* Over a backdrop, only catch shadows near the stall: past the light's shadow area the
+            shadow material shades the sand and draws a visible curve. */}
+        <circleGeometry args={[p.backdrop ? 3.6 : 60, 32]} />
+        {p.backdrop ? <shadowMaterial opacity={0.16} color="#6b4a2c" /> : <meshLambertMaterial color="#F3EBDC" />}
       </mesh>
-      <Stall level={p.stallLevel} reduced={p.reducedMotion} view={p.view} />
+      <Stall level={p.stallLevel} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
       <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} />
       <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
