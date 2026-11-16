@@ -9,7 +9,7 @@ import { Puppet } from './puppet.ts';
 
 type Framing = 'full' | 'bust' | 'large' | 'jump';
 
-function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: boolean; framing: Framing }) {
+function PreviewChef({ look, reduced, framing, spin }: { look: ChefLook; reduced: boolean; framing: Framing; spin: boolean }) {
   const obj = useMemo(() => getLib().clone('Chef'), []);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const { camera } = useThree();
@@ -28,14 +28,16 @@ function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: bool
   useFrame(({ clock }) => {
     puppet.reduced = reduced;
     puppet.base = framing === 'jump' ? 'jump' : 'idle';
-    obj.rotation.y = framing === 'jump' ? Math.sin(clock.elapsedTime * 1.1) * (reduced ? 0 : 0.2)
+    obj.rotation.y = spin ? (reduced ? -0.25 : clock.elapsedTime * 0.7)
+      : framing === 'jump' ? Math.sin(clock.elapsedTime * 1.1) * (reduced ? 0 : 0.2)
       : reduced ? -0.25 : -0.25 + Math.sin(clock.elapsedTime * 0.6) * 0.35;
     puppet.update(clock.elapsedTime);
   });
   return <primitive object={obj} />;
 }
 
-export function ChefPreview({ look, reduced = false, framing = 'full', className }: { look: ChefLook; reduced?: boolean; framing?: Framing; className?: string }) {
+/** `spin` turns the chef slowly all the way round (player panel). */
+export function ChefPreview({ look, reduced = false, framing = 'full', spin = false, className }: { look: ChefLook; reduced?: boolean; framing?: Framing; spin?: boolean; className?: string }) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ fov: 32, position: [0, 1, 3.6] }}
@@ -43,7 +45,7 @@ export function ChefPreview({ look, reduced = false, framing = 'full', className
         <hemisphereLight args={['#FFF7E8', '#C9B79A', 1.55]} />
         <directionalLight position={[-2, 4, 4]} intensity={1.6} color="#FFF4E0" />
         <directionalLight position={[3, 2, 3]} intensity={0.4} color="#FFE9D6" />
-        <PreviewChef look={look} reduced={reduced} framing={framing} />
+        <PreviewChef look={look} reduced={reduced} framing={framing} spin={spin} />
       </Canvas>
     </div>
   );

@@ -4,11 +4,12 @@ import {
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
-import { RankBadge, RankSheet } from './Ranks.tsx';
+import { RankBadge } from './Ranks.tsx';
+import { PlayerSheet } from './Player.tsx';
 import { sfx, unlockAudio } from '../game/audio.ts';
 
 type D = (a: GameAction) => void;
-export type SheetKind = 'collection' | 'practice' | 'settings' | 'history' | 'rank';
+export type SheetKind = 'collection' | 'practice' | 'settings' | 'history' | 'player';
 
 export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; onOpen: (k: SheetKind) => void; onExitPractice: () => void }) {
   const inShop = state.phase === 'shop' && state.mode === 'order';
@@ -29,8 +30,9 @@ export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; on
             )}
             {!inShop && <span className="pill" aria-label={`${state.progress.unlockedApples.length} of ${APPLES.length} apples`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</span>}
             {inShop && (
-              <button className="pill pill-btn rank-pill" data-testid="open-rank" aria-label={`Rank: ${rankInfo(selectors.rank(state)).name}. See next rank`}
-                onClick={() => { unlockAudio(); onOpen('rank'); }}>
+              <button className="pill pill-btn rank-pill" data-testid="open-player"
+                aria-label={`My chef: level ${chefLevel(state.progress.totalPoints).level}, ${rankInfo(selectors.rank(state)).name}`}
+                onClick={() => { unlockAudio(); onOpen('player'); }}>
                 <RankBadge rank={selectors.rank(state)} size={22} />
               </button>
             )}
@@ -65,7 +67,7 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
   chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
 }) {
   const title = kind === 'collection' ? 'Apple collection' : kind === 'practice' ? 'Practice kitchen' : kind === 'history' ? 'Past orders'
-    : kind === 'rank' ? 'Chef rank' : 'Settings';
+    : kind === 'player' ? 'My chef' : 'Settings';
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={title} onClick={(e) => e.stopPropagation()} data-testid={`sheet-${kind}`}>
@@ -77,7 +79,7 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
           {kind === 'collection' && <Collection state={state} />}
           {kind === 'practice' && <Practice state={state} dispatch={dispatch} onClose={onClose} />}
           {kind === 'history' && <History state={state} />}
-          {kind === 'rank' && <RankSheet state={state} />}
+          {kind === 'player' && <PlayerSheet state={state} />}
           {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent}
             chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
         </div>
@@ -154,19 +156,9 @@ const PIP: Record<string, string> = { Perfect: 'p-Perfect', Good: 'p-Good', OK: 
 
 function History({ state }: { state: GameState }) {
   const p = state.progress;
-  const lv = chefLevel(p.totalPoints);
   const orders = [...p.history].reverse();
   return (
     <div className="history" data-testid="history">
-      <div className="hist-level">
-        <div className="lv-row">
-          <span className="lv-badge">Lv {lv.level}</span>
-          <span className="lv-title">{lv.title}</span>
-          <span className="lv-pts">{p.totalPoints.toLocaleString()} pts</span>
-        </div>
-        <div className="lv-track"><i style={{ width: `${Math.round(lv.frac * 100)}%` }} /></div>
-        <div className="small-print">{(lv.next - p.totalPoints).toLocaleString()} pts to Lv {lv.level + 1}</div>
-      </div>
       <h3>Best scores</h3>
       <div className="hist-bests">
         {RECIPES.filter((r) => p.unlockedRecipes.includes(r.id)).map((r) => {

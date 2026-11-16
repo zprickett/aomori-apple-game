@@ -45,22 +45,6 @@ export function RankGoals({ state }: { state: GameState }) {
   );
 }
 
-export function RankSheet({ state }: { state: GameState }) {
-  const r = rankInfo(selectors.rank(state));
-  return (
-    <>
-      <div className="rank-now">
-        <RankBadge rank={r.rank} size={52} />
-        <div>
-          <div className="rn-name">{r.name}</div>
-          <div className="rn-ja" lang="ja">{r.nameJa}</div>
-        </div>
-      </div>
-      <RankGoals state={state} />
-    </>
-  );
-}
-
 /** Jagged manga shout balloon (a starburst polygon). */
 function burstPoints(spikes: number, rx: number, ry: number, inner: number): string {
   const pts: string[] = [];

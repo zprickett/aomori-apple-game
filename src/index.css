@@ -622,9 +622,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .rank-goals li.done .rg-check { background: #6fae4f; border-color: #4f8e33; }
 .rg-label { flex: 1; min-width: 0; }
 .rg-count { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 0.9rem; }
-.rank-now { display: flex; align-items: center; gap: 14px; margin: 4px 0 6px; }
-.rn-name { font-size: 1.6rem; font-weight: 900; line-height: 1.1; }
-.rn-ja { font-weight: 800; color: var(--ink-soft); }
 .res-stars { margin: 2px 0 0; line-height: 0; }
 .day-recap .dr-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .day-recap h2 { margin: 0; font-size: 1.7rem; font-weight: 900; }
@@ -702,3 +699,13 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 @keyframes rp-shake { 0%, 100% { margin-left: 0; } 25% { margin-left: -6px; } 50% { margin-left: 5px; } 75% { margin-left: -3px; } }
 @keyframes rp-twinkle { 0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.3; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
 @keyframes rp-fall { from { transform: translateY(0) rotate(var(--spin)); } to { transform: translateY(115vh) rotate(calc(var(--spin) + 540deg)); } }
+
+/* ---- Player panel ("My chef") ---- */
+.player h3 { margin: 14px 0 6px; font-size: 1rem; font-weight: 900; }
+.pl-hero { position: relative; background: radial-gradient(circle at 50% 60%, #fdeacb 0 45%, #fbf2e2 70%); border-radius: 20px; padding-bottom: 10px; }
+.pl-chef { height: 260px; }
+.pl-name { text-align: center; font-size: 1.5rem; font-weight: 900; margin-top: -6px; }
+.pl-rank { display: flex; align-items: center; gap: 12px; }
+.pl-rank-name { font-size: 1.25rem; font-weight: 900; line-height: 1.1; }
+.pl-rank-ja { font-weight: 800; color: var(--ink-soft); }
+.player .rank-goals { margin-top: 8px; }
