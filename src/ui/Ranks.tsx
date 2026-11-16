@@ -1,9 +1,11 @@
 /** Story ranks UI: rank badge, next-rank goals, the rank-up intro and the end-of-day recap. */
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { DAY_LENGTH, MAX_RANK, nextRankGoals, rankInfo, recipe, selectors, type GameAction, type GameState, type Rank } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { dishIcon, Stars } from './icons.tsx';
+import { ChefContext } from '../game/chef.ts';
+import { ChefPreview } from '../three/ChefPreview.tsx';
 
 type D = (a: GameAction) => void;
 
@@ -59,24 +61,74 @@ export function RankSheet({ state }: { state: GameState }) {
   );
 }
 
-/** Manga-style "RANK UP!" entrance. */
+/** Jagged manga shout balloon (a starburst polygon). */
+function burstPoints(spikes: number, rx: number, ry: number, inner: number): string {
+  const pts: string[] = [];
+  for (let i = 0; i < spikes * 2; i++) {
+    const a = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2;
+    const k = i % 2 === 0 ? 1 : inner + 0.06 * Math.sin(i * 2.3);
+    pts.push(`${(100 + Math.cos(a) * rx * k).toFixed(1)},${(60 + Math.sin(a) * ry * k).toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+const BURST = burstPoints(14, 98, 58, 0.78);
+
+/** Falling confetti: apple petals and sparkles at fixed, varied spots. */
+const CONFETTI = Array.from({ length: 18 }, (_, i) => ({
+  left: (i * 37 + 11) % 100,
+  delay: ((i * 0.53) % 2.4).toFixed(2),
+  dur: (2.6 + ((i * 0.71) % 1.6)).toFixed(2),
+  kind: i % 3 === 0 ? 'spark' : i % 3 === 1 ? 'petal' : 'apple',
+  spin: (i * 47) % 360,
+}));
+
+/**
+ * Rank-up: a three-panel manga page, unlike the apple/recipe reveal. Top panel: the shout.
+ * Middle panel: the player's chef jumping with arms up in a sparkle burst. Bottom panel: the new
+ * rank medal and name. Panels slam in one after another; confetti falls over the page.
+ */
 export function RankUpIntro({ rank, reduced, onSkip }: { rank: Rank; reduced: boolean; onSkip: () => void }) {
   const r = rankInfo(rank);
+  const chef = useContext(ChefContext);
   useEffect(() => { emitCue({ type: 'chef', anim: 'cheer' }); }, []);
   return (
-    <div className={`reveal manga rank-up ${reduced ? 'still' : ''}`} role="dialog" aria-label={`Rank up: ${r.name}`}
+    <div className={`reveal rank-page ${reduced ? 'still' : ''}`} role="dialog" aria-label={`Rank up: ${r.name}`}
       data-testid="rank-up" onClick={onSkip} style={{ ['--hue' as string]: RANK_HUE[rank] }}>
-      <div className="mg-rays" />
-      <div className="mg-dots" />
-      <div className="mg-slash" />
-      <div className="mg-ja" lang="ja" aria-hidden>{r.nameJa}</div>
-      <div className="mg-shout">
-        <span className="mg-kick">RANK UP!</span>
-        <span className="mg-kick-ja" lang="ja" aria-hidden>ランクアップ！</span>
+      <div className="rp-panel rp-top">
+        <div className="rp-speed" />
+        <svg className="rp-burst" viewBox="0 0 200 120" aria-hidden>
+          <polygon points={BURST} />
+        </svg>
+        <div className="rp-shout">
+          <span className="rp-kick">RANK UP!</span>
+          <span className="rp-kick-ja" lang="ja" aria-hidden>ランクアップ！</span>
+        </div>
       </div>
-      <div className="ru-medal"><RankBadge rank={rank} size={150} /></div>
-      <div className="mg-name">{r.name}</div>
-      <div className="mg-skip">Tap to continue</div>
+      <div className="rp-panel rp-mid">
+        <div className="rp-sun" />
+        <div className="rp-tone" />
+        <ChefPreview look={chef.look} reduced={reduced} framing="jump" className="rp-chef" />
+        <div className="rp-sfx rp-sfx-l" lang="ja" aria-hidden>ドーン!</div>
+        <div className="rp-sfx rp-sfx-r" aria-hidden>YATTA!</div>
+        {['a', 'b', 'c', 'd'].map((k) => <span key={k} className={`rp-twinkle t-${k}`} aria-hidden>✦</span>)}
+      </div>
+      <div className="rp-panel rp-bot">
+        <div className="rp-dots" />
+        <RankBadge rank={rank} size={74} />
+        <div className="rp-rank">
+          <span className="rp-name">{r.name}</span>
+          <span className="rp-ja" lang="ja">{r.nameJa}</span>
+        </div>
+      </div>
+      {!reduced && (
+        <div className="rp-confetti" aria-hidden>
+          {CONFETTI.map((c, i) => (
+            <i key={i} className={`c-${c.kind}`}
+              style={{ left: `${c.left}%`, animationDelay: `${c.delay}s`, animationDuration: `${c.dur}s`, ['--spin' as string]: `${c.spin}deg` }} />
+          ))}
+        </div>
+      )}
+      <div className="rp-skip">Tap to continue</div>
     </div>
   );
 }

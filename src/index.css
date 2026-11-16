@@ -628,8 +628,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .rank-now { display: flex; align-items: center; gap: 14px; margin: 4px 0 6px; }
 .rn-name { font-size: 1.6rem; font-weight: 900; line-height: 1.1; }
 .rn-ja { font-weight: 800; color: var(--ink-soft); }
-.ru-medal { position: absolute; left: 0; right: 0; top: 34%; display: grid; place-items: center; animation: mg-slam 0.5s 0.4s cubic-bezier(.2,1.7,.4,1) both; }
-.ru-medal .rank-badge { filter: drop-shadow(4px 6px 0 rgba(74,51,38,0.35)); }
 .reveal.overview.rank-card .ov-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px 20px; }
 .reveal.overview.rank-card .rank-now { justify-content: center; margin-bottom: 18px; }
 .res-stars { margin: 2px 0 0; line-height: 0; }
@@ -641,3 +639,61 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .dr-dish { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fffaf0; border-radius: 14px; padding: 6px 2px; }
 .dr-dish.golden { background: #fdf0c8; box-shadow: inset 0 0 0 2px var(--gold); }
 .dr-dish img { width: 100%; max-width: 54px; aspect-ratio: 1; object-fit: contain; }
+
+/* ---- Rank-up: a three-panel manga page (distinct from the apple/recipe reveal) ---- */
+.reveal.rank-page { background: #2b1d16; cursor: pointer; padding: calc(env(safe-area-inset-top, 0px) + 10px) 10px calc(env(safe-area-inset-bottom, 0px) + 40px);
+  display: grid; grid-template-rows: 25fr 52fr 23fr; gap: 0; animation: mg-flash 0.3s ease-out both; }
+.rp-panel { position: relative; overflow: hidden; background: #fffdf7; border: 3px solid #1d130e; }
+/* Slanted gutters between panels (manga-style), drawn by clipping each panel. */
+.rp-top { clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%); margin-bottom: -4%; animation: rp-in-left 0.4s 0.05s cubic-bezier(.2,1.3,.4,1) both; }
+.rp-mid { clip-path: polygon(0 9%, 100% 0, 100% 91%, 0 100%); margin: 1% 0; animation: rp-pop 0.45s 0.3s cubic-bezier(.2,1.5,.4,1) both; }
+.rp-bot { clip-path: polygon(0 18%, 100% 0, 100% 100%, 0 100%); margin-top: -4%; display: flex; align-items: center; justify-content: center; gap: 14px; padding-top: 4%;
+  animation: rp-in-right 0.4s 0.6s cubic-bezier(.2,1.3,.4,1) both; }
+/* Top: horizontal speed lines + a jagged shout balloon. */
+.rp-top { background: var(--hue); }
+.rp-speed { position: absolute; inset: 0; background: repeating-linear-gradient(-6deg, transparent 0 9px, rgba(255,255,255,0.55) 9px 11px, transparent 11px 23px, rgba(29,19,14,0.18) 23px 24px);
+  animation: rp-speed 0.6s linear infinite; }
+.rp-burst { position: absolute; left: 50%; top: 46%; width: min(96%, 420px); transform: translate(-50%, -50%) rotate(-4deg); overflow: visible; }
+.rp-burst polygon { fill: #fff; stroke: #1d130e; stroke-width: 3.5; stroke-linejoin: round; filter: drop-shadow(5px 6px 0 rgba(29,19,14,0.8)); }
+.rp-shout { position: absolute; left: 0; right: 0; top: 46%; transform: translateY(-50%) rotate(-4deg); display: flex; flex-direction: column; align-items: center;
+  animation: rp-shake 0.35s 0.45s linear both; }
+.rp-kick { font-size: clamp(2.3rem, 12vw, 3.4rem); font-weight: 900; font-style: italic; color: var(--red); letter-spacing: 0.02em; line-height: 1;
+  -webkit-text-stroke: 3px #1d130e; paint-order: stroke; text-shadow: 3px 4px 0 #1d130e; }
+.rp-kick-ja { font-size: 0.95rem; font-weight: 900; color: #1d130e; letter-spacing: 0.15em; margin-top: 8px; }
+/* Middle: sunburst + screentone + the jumping chef + sound effects. */
+.rp-sun { position: absolute; inset: -60%; background: repeating-conic-gradient(from 0deg at 50% 50%, color-mix(in srgb, var(--hue) 75%, #fff) 0deg 9deg, #fffdf7 9deg 18deg);
+  animation: mg-spin 14s linear infinite; }
+.rp-tone { position: absolute; inset: 0; background-image: radial-gradient(rgba(29,19,14,0.22) 30%, transparent 32%); background-size: 9px 9px;
+  -webkit-mask: radial-gradient(circle at 50% 55%, transparent 0 34%, #000 70%); mask: radial-gradient(circle at 50% 55%, transparent 0 34%, #000 70%); }
+.rp-chef { position: absolute; inset: 4% 8% 0; }
+.rp-sfx { position: absolute; font-weight: 900; color: #fff; -webkit-text-stroke: 3px #1d130e; paint-order: stroke; text-shadow: 3px 3px 0 #1d130e; line-height: 1; }
+.rp-sfx-l { left: 5%; top: 16%; writing-mode: vertical-rl; font-size: clamp(2rem, 10vw, 2.8rem); color: #ffd84a; transform: rotate(-8deg); animation: rp-stamp 0.4s 0.75s cubic-bezier(.2,1.8,.4,1) both; }
+.rp-sfx-r { right: 4%; bottom: 14%; font-size: clamp(1.5rem, 8vw, 2.1rem); font-style: italic; transform: rotate(10deg); animation: rp-stamp 0.4s 1s cubic-bezier(.2,1.8,.4,1) both; }
+.rp-twinkle { position: absolute; color: #fff; font-size: 1.6rem; text-shadow: 0 0 6px #ffd84a, 0 0 2px #1d130e; animation: rp-twinkle 1.1s ease-in-out infinite; }
+.rp-twinkle.t-a { left: 22%; top: 22%; } .rp-twinkle.t-b { right: 20%; top: 30%; animation-delay: 0.3s; font-size: 2.1rem; }
+.rp-twinkle.t-c { left: 16%; bottom: 26%; animation-delay: 0.6s; } .rp-twinkle.t-d { right: 26%; bottom: 36%; animation-delay: 0.85s; font-size: 1.2rem; }
+/* Bottom: halftone + medal and the rank name on a banner. */
+.rp-bot { background: color-mix(in srgb, var(--hue) 35%, #fffdf7); }
+.rp-dots { position: absolute; inset: 0; background-image: radial-gradient(color-mix(in srgb, var(--hue) 80%, #1d130e) 26%, transparent 28%); background-size: 12px 12px; opacity: 0.35; }
+.rp-bot .rank-badge { position: relative; filter: drop-shadow(3px 4px 0 rgba(29,19,14,0.6)); animation: rp-stamp 0.45s 0.85s cubic-bezier(.2,1.8,.4,1) both; }
+.rp-rank { position: relative; display: flex; flex-direction: column; background: #1d130e; color: #fff; padding: 6px 16px 7px; transform: rotate(-3deg);
+  clip-path: polygon(0 0, 100% 6%, 96% 100%, 3% 92%); }
+.rp-name { font-size: clamp(1.5rem, 7.5vw, 2.1rem); font-weight: 900; line-height: 1.05; color: #ffd84a; }
+.rp-ja { font-weight: 800; font-size: 0.95rem; letter-spacing: 0.1em; }
+.rp-skip { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); text-align: center; font-weight: 800; font-size: 0.85rem; color: #f3e6d2; animation: mg-up 0.4s 1.4s both; }
+/* Confetti over the whole page. */
+.rp-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.rp-confetti i { position: absolute; top: -6%; width: 12px; height: 12px; animation: rp-fall linear infinite both; }
+.rp-confetti .c-petal { background: #f7a8b8; border-radius: 0 70% 0 70%; }
+.rp-confetti .c-apple { background: var(--red); border-radius: 50% 50% 46% 46%; box-shadow: inset -2px -2px 0 rgba(0,0,0,0.15); }
+.rp-confetti .c-spark { background: #ffd84a; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); width: 16px; height: 16px; }
+.reveal.rank-page.still, .reveal.rank-page.still * { animation: none !important; }
+@keyframes rp-in-left { from { transform: translateX(-110%) rotate(-4deg); } to { transform: none; } }
+@keyframes rp-in-right { from { transform: translateX(110%) rotate(4deg); } to { transform: none; } }
+/* No scale here: the 3D canvas inside measures its size on mount, so the panel must start full size. */
+@keyframes rp-pop { from { transform: translateY(-14%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rp-stamp { from { transform: scale(2.6) rotate(-14deg); opacity: 0; } }
+@keyframes rp-speed { to { background-position: 48px 0; } }
+@keyframes rp-shake { 0%, 100% { margin-left: 0; } 25% { margin-left: -6px; } 50% { margin-left: 5px; } 75% { margin-left: -3px; } }
+@keyframes rp-twinkle { 0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.3; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
+@keyframes rp-fall { from { transform: translateY(0) rotate(var(--spin)); } to { transform: translateY(115vh) rotate(calc(var(--spin) + 540deg)); } }

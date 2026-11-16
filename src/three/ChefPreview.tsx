@@ -7,31 +7,35 @@ import { getLib } from './assetLib.ts';
 import { applyChefLook } from './chefLook.ts';
 import { Puppet } from './puppet.ts';
 
-function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: boolean; framing: 'full' | 'bust' | 'large' }) {
+type Framing = 'full' | 'bust' | 'large' | 'jump';
+
+function PreviewChef({ look, reduced, framing }: { look: ChefLook; reduced: boolean; framing: Framing }) {
   const obj = useMemo(() => getLib().clone('Chef'), []);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const { camera } = useThree();
   useEffect(() => {
     applyChefLook(obj, look);
-    if (!reduced) puppet.play('happy', 1.1);
-  }, [obj, puppet, look, reduced]);
+    if (!reduced && framing !== 'jump') puppet.play('happy', 1.1);
+  }, [obj, puppet, look, reduced, framing]);
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     if (framing === 'bust') { cam.position.set(0, 1.45, 2.3); cam.lookAt(0, 1.22, 0); }
     else if (framing === 'large') { cam.position.set(0, 1.2, 2.55); cam.lookAt(0, 1.05, 0); }
+    else if (framing === 'jump') { cam.position.set(0, 1.15, 4.1); cam.lookAt(0, 1.05, 0); }
     else { cam.position.set(0, 1.0, 3.6); cam.lookAt(0, 0.85, 0); }
     cam.updateProjectionMatrix();
   }, [camera, framing]);
   useFrame(({ clock }) => {
     puppet.reduced = reduced;
-    puppet.base = 'idle';
-    obj.rotation.y = reduced ? -0.25 : -0.25 + Math.sin(clock.elapsedTime * 0.6) * 0.35;
+    puppet.base = framing === 'jump' ? 'jump' : 'idle';
+    obj.rotation.y = framing === 'jump' ? Math.sin(clock.elapsedTime * 1.1) * (reduced ? 0 : 0.2)
+      : reduced ? -0.25 : -0.25 + Math.sin(clock.elapsedTime * 0.6) * 0.35;
     puppet.update(clock.elapsedTime);
   });
   return <primitive object={obj} />;
 }
 
-export function ChefPreview({ look, reduced = false, framing = 'full', className }: { look: ChefLook; reduced?: boolean; framing?: 'full' | 'bust' | 'large'; className?: string }) {
+export function ChefPreview({ look, reduced = false, framing = 'full', className }: { look: ChefLook; reduced?: boolean; framing?: Framing; className?: string }) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ fov: 32, position: [0, 1, 3.6] }}

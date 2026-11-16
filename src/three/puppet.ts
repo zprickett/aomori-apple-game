@@ -1,7 +1,7 @@
 /** Bone-free procedural animation for the Blender characters (rotate pivoted part nodes). */
 import * as THREE from 'three';
 
-export type BasePose = 'idle' | 'lean' | 'work' | 'walk' | 'stand';
+export type BasePose = 'idle' | 'lean' | 'work' | 'walk' | 'stand' | 'jump';
 export type OneShot = 'wave' | 'cheer' | 'nod' | 'tilt' | 'serve' | 'clap' | 'happy' | 'joy' | 'think';
 
 interface Part { node: THREE.Object3D; rest: THREE.Euler; restPos: THREE.Vector3 }
@@ -60,6 +60,22 @@ export class Puppet {
         pose.aRx = -1.25 + 0.28 * s(t * 13) * r; pose.aRz = -0.2;
         pose.bob = 0.01 * Math.abs(s(t * 6.5)) * r;
         break;
+      case 'jump': {
+        // Excited jumping with both arms up: a hop every JUMP_PERIOD s, legs kick back in the air,
+        // a little squash on landing. Reduced motion keeps the arms-up pose without the hop.
+        const JUMP_PERIOD = 0.8;
+        const ph = (t % JUMP_PERIOD) / JUMP_PERIOD;
+        const air = ph < 0.72 ? Math.sin((ph / 0.72) * Math.PI) : 0;
+        const land = ph >= 0.72 ? Math.sin(((ph - 0.72) / 0.28) * Math.PI) : 0;
+        pose.aLz = 2.55 + 0.25 * air + 0.12 * s(t * 14) * r;
+        pose.aRz = -2.55 - 0.25 * air - 0.12 * s(t * 14 + 1) * r;
+        pose.aLx = -0.25; pose.aRx = -0.25;
+        pose.headX = -0.18 * air * r - 0.06;
+        pose.headZ = 0.08 * s(t * 4) * r;
+        pose.lLx = 0.55 * air * r; pose.lRx = 0.35 * air * r;
+        pose.bob = (0.42 * air - 0.04 * land) * r;
+        break;
+      }
       case 'walk': {
         const w = s(t * 9);
         pose.lLx = 0.55 * w; pose.lRx = -0.55 * w;
