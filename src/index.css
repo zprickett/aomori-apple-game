@@ -290,8 +290,6 @@ body {
 .fit-row .best { font-size: 0.78rem; color: var(--ink-soft); }
 .fit-row.locked { opacity: 0.55; }
 .recipe-list h3 { margin: 14px 0 4px; }
-.grownup { font-size: 0.8rem; color: var(--ink-soft); background: #f7efe1; border-radius: 12px; padding: 8px; margin: 8px 0; line-height: 1.35; }
-.grownup > div { margin-top: 4px; }
 .practice-list { display: grid; gap: 8px; }
 .practice-item { font: inherit; color: var(--ink); display: flex; gap: 10px; align-items: center; background: #fff; border: 2.5px solid #e6d6bb; border-radius: 16px; padding: 8px; min-height: 64px; font-weight: 900; text-align: left; cursor: pointer; }
 .practice-item img { width: 48px; height: 48px; }

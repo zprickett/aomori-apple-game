@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, pairing, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
+  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -90,7 +90,6 @@ const STAT_LABEL: Record<string, string> = { sweetness: 'Sweet', tartness: 'Tart
 
 function Collection({ state }: { state: GameState }) {
   const [open, setOpen] = useState<string | null>(null);
-  const [grown, setGrown] = useState(false);
   const disc = state.progress.discoveredPairings;
   return (
     <>
@@ -131,11 +130,6 @@ function Collection({ state }: { state: GameState }) {
                 );
               })}
             </div>
-            {grown && (
-              <div className="grownup">
-                {RECIPES.map((r) => { const p = pairing(a.id, r.id); return <div key={r.id}><b>{r.name}</b>: {p.reason} <i>({p.evidenceBasis.replace(/_/g, ' ')}, {p.confidence} confidence)</i></div>; })}
-              </div>
-            )}
           </div>
         );
       })()}
@@ -152,13 +146,6 @@ function Collection({ state }: { state: GameState }) {
           );
         })}
       </div>
-      <label className="toggle small-print"><input type="checkbox" checked={grown} onChange={(e) => setGrown(e.target.checked)} /> Notes for grown-ups (why each fit rating)</label>
-      {grown && (
-        <div className="grownup">
-          Fit ratings are authored game-design judgements informed by variety descriptions, not lab results. Timing windows are authored tuning values that still need child playtesting.
-          {RECIPES.map((r) => <div key={r.id}><b>{r.name}</b>: {r.researchNote}</div>)}
-        </div>
-      )}
     </>
   );
 }
