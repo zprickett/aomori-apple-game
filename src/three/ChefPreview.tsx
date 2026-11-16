@@ -9,14 +9,14 @@ import { Puppet } from './puppet.ts';
 
 type Framing = 'full' | 'bust' | 'large' | 'jump';
 
-function PreviewChef({ look, reduced, framing, spin }: { look: ChefLook; reduced: boolean; framing: Framing; spin: boolean }) {
+function PreviewChef({ look, reduced, framing, spin, rank }: { look: ChefLook; reduced: boolean; framing: Framing; spin: boolean; rank: number }) {
   const obj = useMemo(() => getLib().clone('Chef'), []);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const { camera } = useThree();
   useEffect(() => {
-    applyChefLook(obj, look);
+    applyChefLook(obj, look, rank);
     if (!reduced && framing !== 'jump') puppet.play('happy', 1.1);
-  }, [obj, puppet, look, reduced, framing]);
+  }, [obj, puppet, look, reduced, framing, rank]);
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     if (framing === 'bust') { cam.position.set(0, 1.45, 2.3); cam.lookAt(0, 1.22, 0); }
@@ -36,8 +36,8 @@ function PreviewChef({ look, reduced, framing, spin }: { look: ChefLook; reduced
   return <primitive object={obj} />;
 }
 
-/** `spin` turns the chef slowly all the way round (player panel). */
-export function ChefPreview({ look, reduced = false, framing = 'full', spin = false, className }: { look: ChefLook; reduced?: boolean; framing?: Framing; spin?: boolean; className?: string }) {
+/** `spin` turns the chef slowly all the way round (player panel); `rank` adds the outfit pieces earned. */
+export function ChefPreview({ look, reduced = false, framing = 'full', spin = false, rank = 1, className }: { look: ChefLook; reduced?: boolean; framing?: Framing; spin?: boolean; rank?: number; className?: string }) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }} camera={{ fov: 32, position: [0, 1, 3.6] }}
@@ -45,7 +45,7 @@ export function ChefPreview({ look, reduced = false, framing = 'full', spin = fa
         <hemisphereLight args={['#FFF7E8', '#C9B79A', 1.55]} />
         <directionalLight position={[-2, 4, 4]} intensity={1.6} color="#FFF4E0" />
         <directionalLight position={[3, 2, 3]} intensity={0.4} color="#FFE9D6" />
-        <PreviewChef look={look} reduced={reduced} framing={framing} spin={spin} />
+        <PreviewChef look={look} reduced={reduced} framing={framing} spin={spin} rank={rank} />
       </Canvas>
     </div>
   );

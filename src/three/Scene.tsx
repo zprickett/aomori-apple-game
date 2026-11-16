@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { apple as appleInfo, type RecipeId } from '../core/content.ts';
-import { getLib, plainMaterial, tintApple } from './assetLib.ts';
+import { getLib, plainMaterial, swapMaterial, tintApple } from './assetLib.ts';
 import { animateFx, appleScaleFor, makeFx, prepareProp } from './props.ts';
 import { Puppet } from './puppet.ts';
-import { applyChefLook } from './chefLook.ts';
+import { GOLD, applyChefLook } from './chefLook.ts';
 import { DEFAULT_LOOK, type ChefLook } from '../core/profiles.ts';
 import { COUNTER_Y, DISH_DISPLAY_SCALE, dishProp, type PropSpec, type StepStage } from '../game/stations.ts';
 import { mixing, onCue, pointer, publishAnchors, stepClock, type AnchorMap } from '../game/bus.ts';
@@ -26,7 +26,8 @@ export interface SceneProps {
   cue: StepStage['cue'] | null;
   chefBase: 'idle' | 'lean' | 'work';
   recipeId: RecipeId;
-  stallLevel: number;
+  /** Story rank shown on the stall and chef (upgrades and outfit pieces). */
+  rank: number;
   deliveryAppleId: string | null;
   reducedMotion: boolean;
   /** A painted backdrop shows through a transparent canvas: no sky colour, fog or visible ground
@@ -106,12 +107,26 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 // ---------------------------------------------------------------------------
 // Stall
 // ---------------------------------------------------------------------------
-function Stall({ level, reduced, view, backdrop }: { level: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
+/** Stall upgrades and the rank that brings each one (models in assets/blender/stall.py). */
+const STALL_UPGRADES: ReadonlyArray<readonly [string, number]> = [
+  ['Upgrade_Sign', 2], ['Upgrade_Crate2', 2],
+  ['Upgrade_Banner', 3], ['Upgrade_Oven', 3], ['Upgrade_Bench', 3],
+  ['Upgrade_Lanterns', 4], ['Upgrade_Cart', 4], ['Upgrade_AppleTree', 4],
+  ['Upgrade_Trophy', 5],
+];
+
+function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
-  const sign = useMemo(() => lib.clone('Upgrade_Sign'), [lib]);
-  const crate2 = useMemo(() => lib.clone('Upgrade_Crate2'), [lib]);
-  const banner = useMemo(() => lib.clone('Upgrade_Banner'), [lib]);
+  const upgrades = useMemo(() => STALL_UPGRADES.map(([n, at]) => [lib.clone(n), at] as const), [lib]);
+  // Golden Chef: gold noren curtains.
+  useEffect(() => {
+    const gold = rank >= 5;
+    for (const n of ['Noren_L', 'Noren_C', 'Noren_R']) {
+      const o = stall.getObjectByName(n);
+      if (o) swapMaterial(o, 'M_AppleRed', plainMaterial(gold ? 'noren-gold' : 'noren-red', gold ? GOLD : '#D94232', gold, 'M_AppleRed'));
+    }
+  }, [stall, rank]);
   // Over a painted backdrop the painting's sand is the ground: hide the model's round ground patch
   // (its stepping stones and bushes stay).
   useEffect(() => {
@@ -129,9 +144,7 @@ function Stall({ level, reduced, view, backdrop }: { level: number; reduced: boo
   return (
     <group>
       <primitive object={stall} />
-      <primitive object={sign} visible={level >= 1} />
-      <primitive object={crate2} visible={level >= 2} />
-      <primitive object={banner} visible={level >= 3} />
+      {upgrades.map(([o, at]) => <primitive key={o.name} object={o} visible={rank >= at} />)}
     </group>
   );
 }
@@ -139,10 +152,10 @@ function Stall({ level, reduced, view, backdrop }: { level: number; reduced: boo
 // ---------------------------------------------------------------------------
 // Chef (shop owner)
 // ---------------------------------------------------------------------------
-function Chef({ base, view, reduced, look }: { base: 'idle' | 'lean' | 'work'; view: ViewMode; reduced: boolean; look: ChefLook }) {
+function Chef({ base, view, reduced, look, rank }: { base: 'idle' | 'lean' | 'work'; view: ViewMode; reduced: boolean; look: ChefLook; rank: number }) {
   const lib = getLib();
   const obj = useMemo(() => lib.clone('Chef'), [lib]);
-  useEffect(() => { applyChefLook(obj, look); }, [obj, look]);
+  useEffect(() => { applyChefLook(obj, look, rank); }, [obj, look, rank]);
   const puppet = useMemo(() => new Puppet(obj, 'Chef'), [obj]);
   const S = 1.18;
   useEffect(() => onCue((c) => {
@@ -435,8 +448,8 @@ export function GameScene(p: SceneProps) {
         <circleGeometry args={[p.backdrop ? 3.6 : 60, 32]} />
         {p.backdrop ? <shadowMaterial opacity={0.16} color="#6b4a2c" /> : <meshLambertMaterial color="#F3EBDC" />}
       </mesh>
-      <Stall level={p.stallLevel} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
-      <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} />
+      <Stall rank={p.rank} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
+      <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} rank={p.rank} />
       <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
       {p.view === 'cook' && <Tool tool={p.tool} live={p.toolLive} anchor={p.anchor} />}

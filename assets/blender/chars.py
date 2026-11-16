@@ -340,8 +340,34 @@ def build_chef():
 
     arms = [arm(P, s, (s * 0.18, 0, 1.11), 0.36, 'M_White', r_top=0.058, r_bot=0.05,
                 cuff_m='M_White', hand_r=0.052, splay=10) for s in (1, -1)]
+    # ---- rank pieces (shown by the game as the player ranks up; hidden by default in Scene.tsx)
+    # Apprentice: gold apple badge on the left chest (clear of the buttons)
+    bd = MB()
+    bp = (-0.125, -0.096, 1.06)
+    Mb = align_z((-0.62, -0.78, 0), bp)
+    bd.cyl(0.032, 0.032, 0.01, 12, (0, 0, 0), 'M_Gold', M=Mb)
+    emblem(bd, Mb @ T((0, -0.004, 0.006)), 0.042, 0.006, 'M_AppleRed', leaf='M_Leaf', stem='M_WoodDark')
+    badge = bd.build('Chef_Badge')
+    # Cook: neckerchief in the outfit colour, knotted at the front
+    sc = MB()
+    # sits on the shoulders below the chin (the torso narrows to the collar here)
+    sc.torus(0.142, 0.026, 14, 5, (0, 0, 1.15), 'M_ChefSkirt', scale=(1, 0.8, 1))
+    sc.sphere((0.042, 0.03, 0.036), (0, -0.128, 1.12), 'M_ChefSkirt', 8, 5)
+    for sx in (-1, 1):
+        sc.box((0.045, 0.014, 0.1), (sx * 0.026, -0.14, 1.05), 'M_ChefSkirt', (0, sx * 14, 0), bevel=0.004)
+    scarf = sc.build('Chef_Scarf')
+    # Head Cook: gold star on the front of the beret
+    st = MB()
+    star = []
+    for i in range(10):
+        a = math.pi / 2 + i * math.pi / 5
+        r = 0.042 if i % 2 == 0 else 0.018
+        star.append((r * math.cos(a), r * math.sin(a)))
+    st.prism(star, 0.012, bt @ align_z((0, -1, 0.15), (0.0, -0.196, 0.045)), 'M_Gold')
+    hatstar = st.build('Chef_HatStar')
     return assemble('Chef', body, head, eo, mo, arms,
-                    extra=[(buttons, body), (apron, body)] + [(hr, head) for hr in hairs])
+                    extra=[(buttons, body), (apron, body), (badge, body), (scarf, body), (hatstar, head)]
+                    + [(hr, head) for hr in hairs])
 
 
 # ------------------------------------------------------------------ CUSTOMERS

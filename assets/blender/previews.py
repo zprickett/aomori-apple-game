@@ -249,6 +249,14 @@ def render_all(prev, icons_dir, only=None, icons=True):
             R.look(cam, (3.4, -6.0, 2.3), (0.1, 0, 1.15), 36)
             _render(['Stall', 'Chef', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Customer_A'],
                     P('hero_upgrades_customer'))
+    if want('ranks'):
+        ups = ['Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Upgrade_Oven', 'Upgrade_Bench', 'Upgrade_Lanterns',
+               'Upgrade_Cart', 'Upgrade_AppleTree', 'Upgrade_Trophy']
+        with Pose(loc={'Chef': (0, 0.36, 0)}):
+            R.look(cam, (0.6, -7.2, 2.2), (0.0, 0, 1.15), 34)
+            _render(['Stall', 'Chef'] + ups, P('stall_all_ranks'), (900, 700))
+        R.auto_cam(cam, ['Chef'], yaw=-20, pitch=8, fill=0.95, lens=50)
+        _render(['Chef'], P('chef_rank_pieces'), (500, 600))
     if want('chars'):
         with Pose(loc={'Customer_A': (-1.05, 0, 0), 'Customer_B': (-0.35, 0, 0), 'Customer_C': (0.35, 0, 0),
                        'Customer_D': (1.05, 0, 0), 'Chef': (1.8, 0, 0)}):

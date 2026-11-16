@@ -60,16 +60,18 @@ $B -b --factory-startup --python scripts/icons_blender.py   # assets/icons-png/*
 
 The chef's customisable parts are named nodes and materials, which `chefLook.ts` relies on:
 - hair: `Chef_Hair_F1..3`, `Chef_Hair_M1..3`
+- rank pieces: `Chef_Badge`, `Chef_Scarf`, `Chef_HatStar` (the apron `Chef_Apron` turns gold at Golden Chef)
 - materials: `M_ChefIris`, `M_ChefButton`, `M_ChefSkirt`, `M_ChefHat`
 
 Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 
 ## Game design decisions (from the user)
 
-- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) and phase 3 (regulars, news cards, Ojiichan's visit).
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit) and phase 4 (stall upgrades and chef outfit pieces per rank).
 - Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
 - Customers: A Sota, B Yui, C Grandpa Kiyoshi, D Mei (the four regulars, also everyday customers); O Ojiichan (chef whites, only on his visit the day after Golden Chef). Each regular has 4 story visits (`story.json` `regulars`), laid over the order queue in `progression.ts` without replacing recipe intros or apple demos. Mei's last visit gives the Oirase apple early.
 - News cards (thank-you note, Aomori Daily, festival invite, Golden Apple award) show at the start of the day after each rank-up and are kept in the My chef scrapbook.
+- Rank upgrades (shown from the rank, after its reveal): Apprentice sign + 2nd crate, chef apple badge; Cook bunting, brick oven, bench, neckerchief; Head Cook lantern string, side cart, apple tree, gold beret star; Golden Chef trophy shelf, gold noren, gold apron. Lists live in `STALL_UPGRADES` (Scene.tsx) and `RANK_PIECES` (chefLook.ts); models in `stall.py build_rank_upgrades` and `build_chef`.
 - The stall tours with rank: Aomori City (Helper, Apprentice), Lake Towada (Cook), Takayama Inari (Head Cook, Golden Chef). Each backdrop's `groundTop` lines its sand up with the stall.
 - Ranks and levels both exist on purpose: 5 story ranks (Helper → Golden Chef, `ranks.ts`) gate recipes; the 11 point-based chef levels stay as the points bar. Each rank-up needs orders served plus a skill goal.
 - A day is 5 orders, then a recap. Saves are v3 (`rankUps`); v2 saves get the earliest rank schedule.

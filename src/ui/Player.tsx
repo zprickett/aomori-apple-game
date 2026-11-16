@@ -43,7 +43,7 @@ export function PlayerSheet({ state, reduced = false }: { state: GameState; redu
   return (
     <div className="player" data-testid="player">
       <div className="pl-hero">
-        <ChefPreview look={chef.look} reduced={reduced} spin className="pl-chef" />
+        <ChefPreview look={chef.look} reduced={reduced} spin rank={r.rank} className="pl-chef" />
         <div className="pl-name">{chef.name || 'Chef'}</div>
       </div>
       <h3>Level</h3>

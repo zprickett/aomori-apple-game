@@ -133,9 +133,10 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     }
   }, [state.phase, state.order.orderId, reducedMotion]);
 
-  // The stall moves after the rank-up and its notebook page have been shown, not behind the result.
+  // The stall moves and upgrades after the rank-up and its notebook page have been shown.
   const pendingRank = (state.phase === 'result' || state.phase === 'delivery') ? state.delivery?.rank ?? null : null;
-  const backdrop = backgroundFor(pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state));
+  const shownRank: Rank = pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state);
+  const backdrop = backgroundFor(shownRank);
   const news = selectors.pendingNews(state);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
   const deliveryApple = state.phase === 'delivery' ? state.delivery?.apples[0] ?? null : null;
@@ -167,7 +168,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               cue={stage?.cue ?? null}
               chefBase={cook?.sub === 'bridge' ? 'work' : 'lean'}
               recipeId={recipeId}
-              stallLevel={selectors.stallLevel(state)}
+              rank={shownRank}
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
               backdrop

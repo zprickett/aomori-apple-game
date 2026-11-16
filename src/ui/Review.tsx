@@ -158,7 +158,7 @@ function RecipesTab() {
                 cue={f.phase === 'ready' ? f.stage?.cue ?? null : null}
                 chefBase={f.phase === 'bridge' ? 'work' : 'lean'}
                 recipeId={rid}
-                stallLevel={3}
+                rank={5}
                 deliveryAppleId={null}
                 reducedMotion={false}
               />

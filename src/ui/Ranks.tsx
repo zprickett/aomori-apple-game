@@ -98,7 +98,7 @@ export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; stat
       <div className="rp-panel rp-mid">
         <div className="rp-sun" />
         <div className="rp-tone" />
-        <ChefPreview look={chef.look} reduced={reduced} framing="jump" className="rp-chef" />
+        <ChefPreview look={chef.look} reduced={reduced} framing="jump" rank={rank} className="rp-chef" />
         <div className="rp-sfx rp-sfx-l" lang="ja" aria-hidden>ドーン!</div>
         <div className="rp-sfx rp-sfx-r" aria-hidden>YATTA!</div>
         {['a', 'b', 'c', 'd'].map((k) => <span key={k} className={`rp-twinkle t-${k}`} aria-hidden>✦</span>)}
