@@ -252,12 +252,6 @@ function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef
         <span>Helper mode<small>Wider timing windows and a helper bonus (marked on results).</small></span></label>
       <label className="toggle"><input type="checkbox" checked={s.altControls} onChange={(e) => set({ altControls: e.target.checked })} data-testid="set-alt" />
         <span>Button controls<small>Use a big button (or Space) instead of swiping and circling.</small></span></label>
-      <div className="seg" role="radiogroup" aria-label="Reduced motion">
-        <span>Less motion</span>
-        {(['system', 'on', 'off'] as const).map((v) => (
-          <button key={v} role="radio" aria-checked={s.reducedMotion === v} className={`btn small ${s.reducedMotion === v ? 'on' : ''}`} onClick={() => set({ reducedMotion: v })}>{v === 'system' ? 'Auto' : v === 'on' ? 'On' : 'Off'}</button>
-        ))}
-      </div>
       <p className="muted small-print">{persistent ? 'Progress is saved on this device.' : 'Progress cannot be saved on this device.'}</p>
       {!confirm ? (
         <button className="btn danger" onClick={() => setConfirm(true)} data-testid="reset">Reset progress…</button>

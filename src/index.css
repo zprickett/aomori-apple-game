@@ -298,7 +298,6 @@ body {
 .toggle { display: flex; align-items: center; gap: 10px; font-weight: 800; min-height: 48px; }
 .toggle input { width: 26px; height: 26px; accent-color: var(--red); flex: none; }
 .toggle small { display: block; font-weight: 600; color: var(--ink-soft); font-size: 0.8rem; }
-.seg { display: flex; gap: 6px; align-items: center; font-weight: 800; flex-wrap: wrap; }
 .confirm { background: #fdeacb; border-radius: 14px; padding: 10px; }
 
 .notice { position: absolute; left: 12px; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 25; display: flex; align-items: center; gap: 8px; background: #fff; border: 2.5px solid var(--wood-d); border-radius: 16px; padding: 6px 6px 6px 12px; font-weight: 800; box-shadow: var(--shadow); }

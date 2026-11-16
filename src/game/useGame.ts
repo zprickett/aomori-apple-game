@@ -110,7 +110,9 @@ export function useGame(saveKey?: string) {
     return () => { document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', onVis); };
   }, []);
 
-  const reducedMotion = useReducedMotion(state.settings.reducedMotion);
+  // No in-game motion setting for now: follow the device's "reduce motion" preference only.
+  // (settings.reducedMotion is still saved for when an option comes back.)
+  const reducedMotion = useReducedMotion('system');
   return useMemo(() => ({ state, dispatch, persistent: persistent && (store.persistent || devPlayParams() !== null), reducedMotion }), [state, persistent, store, reducedMotion]);
 }
 
