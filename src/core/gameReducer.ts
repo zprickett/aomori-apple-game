@@ -50,6 +50,7 @@ import { GRADE_POINTS, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
 import { advanceRank, cleanRankUps, rankOf, type Rank } from './ranks.ts';
 import { newsFor, nextDayStart, type NewsItem } from './story.ts';
+import { addDish, sanitizeStats, trophyKey, trophyStatus, type TrophyInput, type TrophyStats, type TrophyStatus } from './trophies.ts';
 
 export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'day';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
@@ -79,6 +80,8 @@ export interface Delivery {
   recipes: string[];
   /** Rank reached with this order (shown before the unlocks), or null. */
   rank: Rank | null;
+  /** Golden Trophy steps reached with this order (highest new step per trophy). */
+  trophies: { id: string; tier: number }[];
   collectionComplete: boolean;
 }
 
@@ -96,6 +99,8 @@ export interface Progress {
   totalPoints: number;
   bestPoints: Record<string, number>;
   history: OrderRecord[];
+  /** Golden Trophy counters. */
+  trophyStats: TrophyStats;
 }
 
 export interface GameState {
@@ -190,9 +195,10 @@ export function isAssistedDish(state: GameState): boolean {
 }
 
 /** Reward keys for celebrations ('apple:a094', 'recipe:apple_jam', 'rank:3'). */
-export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[]; rank?: number | null }): string[] {
+export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[]; rank?: number | null; trophies?: readonly { id: string; tier: number }[] }): string[] {
   return [
     ...(d.rank ? [`rank:${d.rank}`] : []),
+    ...(d.trophies ?? []).flatMap((t) => Array.from({ length: t.tier }, (_, k) => trophyKey(t.id, k + 1))),
     ...d.apples.map((a) => `apple:${a}`),
     ...d.recipes.map((r) => `recipe:${r}`),
   ];
@@ -213,8 +219,17 @@ export function pendingDelivery(progress: Progress, completed: number = progress
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
   const reached = rankReachedWith(progress, completed);
   const rank = reached && !progress.seenUnlockRewards.includes(`rank:${reached}`) ? reached : null;
-  if (!apples.length && !recipes.length && !rank) return null;
-  return { apples, recipes, rank, collectionComplete: completed === COLLECTION_COMPLETE_AT };
+  const trophies = trophyStatus(trophyInput(progress))
+    .filter((t) => t.tier > 0 && !progress.seenUnlockRewards.includes(trophyKey(t.id, t.tier)))
+    .map((t) => ({ id: t.id, tier: t.tier }));
+  if (!apples.length && !recipes.length && !rank && !trophies.length) return null;
+  return { apples, recipes, rank, trophies, collectionComplete: completed === COLLECTION_COMPLETE_AT };
+}
+
+/** What the Golden Trophies read from progress. */
+export function trophyInput(p: Progress): TrophyInput {
+  const cooked = [...new Set(Object.keys(p.discoveredPairings).map((k) => k.split(':')[0]))];
+  return { stats: p.trophyStats, cookedApples: cooked, unlockedApples: p.unlockedApples };
 }
 
 /**
@@ -240,8 +255,12 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     stars: evaluation.score.stars,
     newBest: prevBest === undefined || pts > prevBest,
   };
+  // A regular's story is finished when their last visit is served.
+  const v = order.visit;
+  const storyDone = v && v.who !== 'ojiichan' && v.step === v.of ? v.who : undefined;
   const next: Progress = {
     ...progress,
+    trophyStats: addDish(progress.trophyStats, evaluation.recipeId, evaluation.grades.map((g) => g.grade), storyDone),
     totalPoints: progress.totalPoints + pts,
     bestPoints: { ...progress.bestPoints, [evaluation.recipeId]: Math.max(prevBest ?? 0, pts) },
     history: [...progress.history, record].slice(-HISTORY_LIMIT),
@@ -292,6 +311,7 @@ function progressFromSave(save: SaveData): Progress {
     totalPoints: save.totalPoints,
     bestPoints: { ...save.bestPoints },
     history: save.history.map((h) => ({ ...h, grades: [...h.grades] })),
+    trophyStats: sanitizeStats(save.trophyStats, save.history),
   };
 }
 
@@ -430,6 +450,7 @@ export function toSaveData(state: GameState): SaveData {
     totalPoints: p.totalPoints,
     bestPoints: { ...p.bestPoints },
     history: p.history.map((h) => ({ ...h, grades: [...h.grades] })),
+    trophyStats: { ...p.trophyStats, storiesDone: [...p.trophyStats.storiesDone] },
     settings: { ...state.settings },
     seenUnlockRewards: [...p.seenUnlockRewards],
     current,
@@ -763,6 +784,10 @@ export const selectors = {
       if (n) return n;
     }
     return null;
+  },
+  /** Golden Trophy progress, in cabinet order. */
+  trophies(state: GameState): TrophyStatus[] {
+    return trophyStatus(trophyInput(state.progress));
   },
   /** News cards already seen (the scrapbook), oldest first. */
   seenNews(state: GameState): NewsItem[] {

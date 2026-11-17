@@ -88,7 +88,9 @@ describe('full order loop', () => {
       expect(state.result!.finishedStars).toBe(Math.min(3, state.result!.fitStars + 1));
       dispatch({ type: 'RESULT_DONE' });
       if (state.phase === 'delivery') {
-        deliveries[n] = { apples: state.delivery!.apples, recipes: state.delivery!.recipes, rank: state.delivery!.rank };
+        const d = state.delivery!;
+        // Trophy-only deliveries are checked in trophies.test.ts.
+        if (d.apples.length || d.recipes.length || d.rank) deliveries[n] = { apples: d.apples, recipes: d.recipes, rank: d.rank };
         expect(state.delivery!.collectionComplete).toBe(false);
         dispatch({ type: 'DELIVERY_DONE' });
       }

@@ -6,6 +6,7 @@
 import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './content.ts';
 import { DEFAULT_SEED, unlockedApples, unlockedRecipes } from './progression.ts';
 import { cleanRankUps } from './ranks.ts';
+import { EMPTY_STATS, sanitizeStats, type TrophyStats } from './trophies.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
@@ -67,6 +68,8 @@ export interface SaveData {
   bestPoints: Record<string, number>;
   /** Past orders, oldest first (capped at HISTORY_LIMIT). */
   history: OrderRecord[];
+  /** Golden Trophy counters (rebuilt from history when missing). */
+  trophyStats?: TrophyStats;
   settings: SaveSettings;
   /** Unlock celebrations already shown, e.g. 'apple:a094', 'recipe:apple_jam'. */
   seenUnlockRewards: string[];
@@ -98,6 +101,7 @@ export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings 
     totalPoints: 0,
     bestPoints: {},
     history: [],
+    trophyStats: { ...EMPTY_STATS, storiesDone: [] },
     settings: { ...settings },
     seenUnlockRewards: [],
     current: null,
@@ -268,6 +272,7 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     totalPoints: nonNegInt(v.totalPoints, 0),
     bestPoints,
     history,
+    trophyStats: sanitizeStats(v.trophyStats, history),
     settings: sanitizeSettings(v.settings),
     seenUnlockRewards: uniq(strArr(v.seenUnlockRewards)),
     current,

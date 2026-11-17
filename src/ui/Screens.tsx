@@ -249,7 +249,11 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
       </div>
       {score && <LevelBar before={before} after={after} reduced={reduced} />}
       <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
-        {pr ? 'Back to the shop' : state.delivery?.rank ? 'Rank up!' : state.delivery ? 'A delivery is here!' : dayEnd ? 'End of the day' : 'Next customer'}
+        {pr ? 'Back to the shop'
+          : state.delivery?.rank ? 'Rank up!'
+          : state.delivery && !state.delivery.apples.length && !state.delivery.recipes.length ? '🏆 Golden Trophy!'
+          : state.delivery ? 'A delivery is here!'
+          : dayEnd ? 'End of the day' : 'Next customer'}
       </button>
     </div>
   );

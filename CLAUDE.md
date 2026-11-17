@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (144 tests)
+npm test                   # vitest (151 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -32,10 +32,10 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 
 | Path | What |
 |---|---|
-| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `story.ts`: Ojiichan's letter and notebook (from `src/data/story.json`). `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
+| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `trophies.ts`: Golden Trophies. `ranks.ts`: the 5 story ranks, rank-up goals, which recipes each rank brings. `story.ts`: Ojiichan's letter and notebook (from `src/data/story.json`). `progression.ts`: unlock schedule and order queue. `points.ts`: scoring, dish stars, golden, chef levels. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
 | `src/game/` | `backgrounds.ts`: painted backdrops behind the stall (Aomori City by default). `stations.ts`: per-recipe counter stages (props before, during and after each action). `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
 | `src/three/` | `Scene.tsx`: camera, stall, chef, customers. `Showcase.tsx`: spinning hero model. `ChefPreview.tsx`, `chefLook.ts`: applies hair and colours to the chef model. `props.ts`. |
-| `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up page, day recap. `Notebook.tsx`: Ojiichan's letter, notebook pages and reveal. `Player.tsx`: My chef panel. `Onboarding.tsx`: welcome, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
+| `src/ui/` | `Ranks.tsx`: rank badge, goals, rank-up page, day recap. `Notebook.tsx`: Ojiichan's letter, notebook pages and reveal. `Player.tsx`: My chef panel. `Trophies.tsx`: trophy pop-up and cabinet. `Onboarding.tsx`: welcome, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
 | `src/data/` | Content data. See the next section. |
 | `assets/blender/` | Blender Python that builds every model. `expansion.py` holds the newer dishes and tools. `chars.py` holds the chef and customers. |
 
@@ -68,12 +68,13 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 
 ## Game design decisions (from the user)
 
-- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit) and phase 4 (stall upgrades and chef outfit pieces per rank).
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit), phase 4 (stall upgrades and chef outfit pieces per rank) and phase 5 (Golden Trophy cabinet). Stage 1 is complete; Stage 2 (Golden Requests) is next.
 - Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
 - Customers: A Sota, B Yui, C Grandpa Kiyoshi, D Mei (the four regulars, also everyday customers); O Ojiichan (chef whites, only on his visit the day after Golden Chef). Each regular has 4 story visits (`story.json` `regulars`), laid over the order queue in `progression.ts` without replacing recipe intros or apple demos. Mei's last visit gives the Oirase apple early.
 - News cards (thank-you note, Aomori Daily, festival invite, Golden Apple award) show at the start of the day after each rank-up, say why they came and who sent them, have their own entrance per kind, and are kept in the My chef scrapbook. Customers stay hidden while one shows.
 - Story characters (regulars, Ojiichan) get their own order bubble: colour, portrait, big name, tagline and story hearts. Everyday customers keep the plain bubble.
 - Rank upgrades (shown from the rank, after its reveal): Apprentice sign + 2nd crate, chef apple badge; Cook bunting, brick oven, bench, neckerchief; Head Cook lantern string, side cart, apple tree, gold beret star; Golden Chef trophy shelf, gold noren, gold apron. Lists live in `STALL_UPGRADES` (Scene.tsx) and `RANK_PIECES` (chefLook.ts); models in `stall.py build_rank_upgrades` and `build_chef`.
+- Golden Trophies (`trophies.ts`): 8 trophies with bronze/silver/gold steps (Golden Peeler, Hop-Hop Warren, Golden Spoon, Perfect Streak, Rainbow Basket, Apple Encyclopedia, Big and Small, Regulars' Friend). Counters live in `trophyStats` in the save (rebuilt from history for older saves). A new step pops up after the dish; the cabinet is in My chef. World Traveller, Golden Seal Master and Collector's Crown come with Stage 2.
 - The stall tours with rank: Aomori City (Helper, Apprentice), Lake Towada (Cook), Takayama Inari (Head Cook, Golden Chef). Each backdrop's `groundTop` lines its sand up with the stall.
 - Ranks and levels both exist on purpose: 5 story ranks (Helper → Golden Chef, `ranks.ts`) gate recipes; the 11 point-based chef levels stay as the points bar. Each rank-up needs orders served plus a skill goal.
 - A day is 5 orders, then a recap. Saves are v3 (`rankUps`); v2 saves get the earliest rank schedule.

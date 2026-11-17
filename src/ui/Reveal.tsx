@@ -6,6 +6,7 @@ import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
 import { appleIcon, dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
+import { TrophyReveal } from './Trophies.tsx';
 import { ChefContext } from '../game/chef.ts';
 
 type D = (a: GameAction) => void;
@@ -27,8 +28,15 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   ];
   const [i, setI] = useState(0);
   const [stage, setStage] = useState<'intro' | 'overview'>('intro');
-  /** A rank-up is shown first, on one page that stays until tapped (it carries the next goals). */
-  const [showRank, setShowRank] = useState<'rank' | 'page' | null>(d.rank !== null ? 'rank' : null);
+  /** Before the unlocks: the rank-up page and its notebook page, then any Golden Trophy pop-ups. */
+  const pre: Array<{ kind: 'rank' } | { kind: 'page' } | { kind: 'trophy'; id: string; tier: number }> = [
+    ...(d.rank !== null ? [{ kind: 'rank' as const }, { kind: 'page' as const }] : []),
+    ...(d.trophies ?? []).map((t) => ({ kind: 'trophy' as const, ...t })),
+  ];
+  const [preIdx, setPreIdx] = useState(0);
+  const preStep = pre[preIdx] ?? null;
+  const preDone = preStep === null;
+  const showRank = preStep?.kind === 'rank' || preStep?.kind === 'page' ? preStep.kind : null;
   const chef = useContext(ChefContext);
   const item = items[i];
   const last = i >= items.length - 1;
@@ -41,18 +49,24 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   }, [showRank, reduced]);
 
   useEffect(() => {
-    if (showRank || stage !== 'intro') return;
+    if (!preDone || stage !== 'intro') return;
     sfx.swish();
     const t1 = window.setTimeout(() => { sfx.chop(); sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, reduced ? 0 : 380);
     const t2 = window.setTimeout(() => setStage('overview'), reduced ? 900 : INTRO_MS);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
-  }, [stage, i, reduced, showRank]);
+  }, [stage, i, reduced, preDone]);
 
-  const afterRank = () => { if (item) setShowRank(null); else dispatch({ type: 'DELIVERY_DONE' }); };
-  if (showRank === 'rank') {
-    return <RankUpIntro rank={d.rank!} state={state} reduced={reduced} onDone={() => { sfx.tap(); setShowRank('page'); }} />;
+  const nextPre = () => {
+    if (preIdx + 1 < pre.length || item) setPreIdx(preIdx + 1);
+    else dispatch({ type: 'DELIVERY_DONE' });
+  };
+  if (preStep?.kind === 'rank') {
+    return <RankUpIntro rank={d.rank!} state={state} reduced={reduced} onDone={() => { sfx.tap(); nextPre(); }} />;
   }
-  if (showRank === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={afterRank} />;
+  if (preStep?.kind === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={nextPre} />;
+  if (preStep?.kind === 'trophy') {
+    return <TrophyReveal key={preStep.id} state={state} id={preStep.id} tier={preStep.tier} reduced={reduced} onDone={nextPre} />;
+  }
   if (!item) return null;
   const next = () => {
     sfx.tap();

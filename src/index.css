@@ -849,3 +849,43 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 .reduced .news-card, .reduced .news-envelope, .reduced .news-rays, .reduced .news-pin, .reduced .env-flap { animation: none !important; }
 .reduced .news-envelope { display: none; }
 .mg-kick.long { font-size: clamp(1.8rem, 9vw, 2.6rem); white-space: nowrap; }
+
+/* ---- Golden Trophies ---- */
+.trophy-medal { display: inline-grid; place-items: center; flex: none; border-radius: 50%; border: 3px solid var(--wood-d); background: #efe6d6; line-height: 1; }
+.trophy-medal span { filter: grayscale(1) opacity(0.45); }
+.trophy-medal.t-bronze { background: radial-gradient(circle at 35% 30%, #f6c79a, #c9874f 70%); box-shadow: inset 0 -4px 0 rgba(0,0,0,0.12); }
+.trophy-medal.t-silver { background: radial-gradient(circle at 35% 30%, #ffffff, #b9c0c8 70%); box-shadow: inset 0 -4px 0 rgba(0,0,0,0.12); }
+.trophy-medal.t-gold { background: radial-gradient(circle at 35% 30%, #fff3b0, #e8b230 70%); box-shadow: inset 0 -4px 0 rgba(0,0,0,0.12), 0 0 14px rgba(244,201,84,0.7); }
+.trophy-medal:not(.t-none) span { filter: none; }
+/* pop-up */
+.reveal.trophy-pop { --tc: #e8b230; background: #fffdf7; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 24px; text-align: center; animation: mg-flash 0.3s ease-out both; }
+.reveal.trophy-pop.t-bronze { --tc: #c9874f; } .reveal.trophy-pop.t-silver { --tc: #9aa4ae; }
+.tp-rays { position: absolute; inset: -50%; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tc) 45%, transparent) 0 9deg, transparent 9deg 18deg);
+  animation: mg-spin 14s linear infinite; -webkit-mask: radial-gradient(circle, #000 25%, transparent 60%); mask: radial-gradient(circle, #000 25%, transparent 60%); }
+.trophy-pop > *:not(.tp-rays) { position: relative; }
+.tp-kick { font-size: clamp(1.9rem, 9vw, 2.6rem); font-weight: 900; font-style: italic; color: #fff; -webkit-text-stroke: 3px var(--wood-d); paint-order: stroke;
+  text-shadow: 3px 4px 0 var(--wood-d); transform: rotate(-4deg); animation: mg-slam 0.45s 0.1s cubic-bezier(.2,1.7,.4,1) both; }
+.tp-medal { margin: 10px 0 6px; animation: rp-stamp 0.5s 0.35s cubic-bezier(.2,1.8,.4,1) both; }
+.tp-medal .trophy-medal { border-width: 5px; box-shadow: 5px 6px 0 rgba(74,51,38,0.3); }
+.tp-name { font-size: 1.7rem; font-weight: 900; animation: mg-up 0.4s 0.6s both; }
+.tp-tier { font-weight: 900; color: #fff; background: var(--tc); border: 2px solid var(--wood-d); border-radius: 999px; padding: 2px 16px; animation: pop 0.4s 0.75s both; }
+.tp-goal { font-weight: 800; font-size: 1.05rem; margin-top: 6px; animation: mg-up 0.4s 0.9s both; }
+.tp-next { font-weight: 800; color: var(--ink-soft); font-size: 0.92rem; animation: mg-up 0.4s 1.05s both; }
+.tp-skip { color: var(--ink-soft); }
+.reveal.trophy-pop.still *, .reveal.trophy-pop.still { animation: none !important; }
+/* cabinet */
+.cab-count { font-weight: 800; color: var(--ink-soft); margin-bottom: 8px; }
+.cab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cab-card { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; background: #fff; border: 2px solid #e6d6bb; border-radius: 16px; padding: 10px 8px; }
+.cab-card.t-gold { border-color: var(--gold); background: #fffaf0; }
+.cab-name { font-weight: 900; font-size: 0.92rem; line-height: 1.15; }
+.cab-pips { display: flex; gap: 4px; }
+.cab-pips i { width: 12px; height: 12px; border-radius: 50%; background: #eadcc4; }
+.cab-pips i.on.t-bronze { background: #c9874f; } .cab-pips i.on.t-silver { background: #b9c0c8; } .cab-pips i.on.t-gold { background: #e8b230; }
+.cab-goal { font-size: 0.78rem; font-weight: 700; color: var(--ink-soft); line-height: 1.2; min-height: 2.4em; }
+.cab-goal.gold-done { color: #b07b0c; font-weight: 900; font-size: 1rem; min-height: 0; }
+.cab-bar { width: 100%; height: 8px; background: #eadcc4; border-radius: 6px; overflow: hidden; }
+.cab-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f4c954, #e8a92a); }
+.cab-num { font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.trophy-pop .tp-skip { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); }

@@ -8,6 +8,7 @@ import { ChefContext } from '../game/chef.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
 import { RankBadge, RankGoals } from './Ranks.tsx';
 import { NotebookBook, Scrapbook } from './Notebook.tsx';
+import { TrophyCabinet } from './Trophies.tsx';
 import { GRANDPA } from '../core/index.ts';
 import { sfx } from '../game/audio.ts';
 
@@ -57,6 +58,8 @@ export function PlayerSheet({ state, reduced = false }: { state: GameState; redu
         </div>
       </div>
       <RankGoals state={state} />
+      <h3>Golden Trophies</h3>
+      <TrophyCabinet state={state} />
       {selectors.seenNews(state).length > 0 && (<>
         <h3>Scrapbook</h3>
         <Scrapbook state={state} name={chef.name} />
