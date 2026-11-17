@@ -52,6 +52,10 @@ export interface Regular {
   /** Customer model id ('A'..'D'). */
   customer: string;
   name: string;
+  /** Who they are, in a few words (shown under their name). */
+  tagline: string;
+  /** Their bubble colour. */
+  color: string;
   visits: RegularVisit[];
 }
 
@@ -62,6 +66,10 @@ export interface NewsItem {
   icon: string;
   title: string;
   text: string;
+  /** Who sent it (signed at the bottom). */
+  from: string;
+  /** One line of context at the top: what this is. */
+  headline: string;
 }
 
 interface StoryData {
@@ -70,7 +78,7 @@ interface StoryData {
   pages: NotebookPage[];
   regulars: Regular[];
   news: NewsItem[];
-  ojiichanVisit: { customer: string; line: string };
+  ojiichanVisit: { customer: string; line: string; tagline: string; color: string };
 }
 
 const STORY = STORY_JSON as unknown as StoryData;

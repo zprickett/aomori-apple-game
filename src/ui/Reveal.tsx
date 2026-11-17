@@ -3,7 +3,7 @@ import { RECIPES, apple, fitStars, recipe, type GameAction, type GameState } fro
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
-import { dishIcon, GestureIcon } from './icons.tsx';
+import { appleIcon, dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
 import { ChefContext } from '../game/chef.ts';
@@ -16,7 +16,8 @@ const shortName = (n: string) => n.replace(' (Jonathan)', '');
 
 /**
  * Unlock celebration: a manga-style entrance (speed lines, halftone, slam-in title, the new apple
- * or dish zooming in) followed by a full-screen overview card. One pass per unlocked item.
+ * or dish zooming in) followed by a full-screen overview card. One pass per unlocked item, except
+ * that a batch of apples shares one intro ("3 NEW APPLES!") and then shows each apple's card.
  */
 export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; dispatch: D; reduced: boolean }) {
   const d = state.delivery!;
@@ -56,10 +57,18 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   const next = () => {
     sfx.tap();
     if (last) dispatch({ type: 'DELIVERY_DONE' });
-    else { setI(i + 1); setStage('intro'); }
+    else {
+      // The rest of an apple batch skips straight to its card (the batch intro showed them all).
+      const sameBatch = item.kind === 'apple' && items[i + 1].kind === 'apple';
+      setI(i + 1);
+      setStage(sameBatch ? 'overview' : 'intro');
+    }
   };
 
-  if (stage === 'intro') return <MangaIntro key={`${i}`} item={item} reduced={reduced} onSkip={() => setStage('overview')} />;
+  if (stage === 'intro') {
+    const batch = item.kind === 'apple' && d.apples.length > 1 ? d.apples : undefined;
+    return <MangaIntro key={`${i}`} item={item} batch={batch} reduced={reduced} onSkip={() => setStage('overview')} />;
+  }
   return (
     <div className="reveal overview" role="dialog" aria-label="New unlock" data-testid="delivery-card"
       style={{ ['--hue' as string]: item.kind === 'apple' ? apple(item.id).skin.base : '#E8A92A' }}>
@@ -84,9 +93,9 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   );
 }
 
-function MangaIntro({ item, reduced, onSkip }: { item: ShowcaseItem; reduced: boolean; onSkip: () => void }) {
+function MangaIntro({ item, batch, reduced, onSkip }: { item: ShowcaseItem; batch?: readonly string[]; reduced: boolean; onSkip: () => void }) {
   const isApple = item.kind === 'apple';
-  const name = isApple ? shortName(apple(item.id).nameEn) : recipe(item.id).name;
+  const name = batch ? batch.map((id) => shortName(apple(id).nameEn)).join(' · ') : isApple ? shortName(apple(item.id).nameEn) : recipe(item.id).name;
   const ja = isApple ? apple(item.id).nameJa : recipe(item.id).nameJa;
   return (
     <div className={`reveal manga ${reduced ? 'still' : ''}`} role="dialog" aria-label={`${isApple ? 'New apple' : 'New recipe'}: ${name}`}
@@ -97,11 +106,22 @@ function MangaIntro({ item, reduced, onSkip }: { item: ShowcaseItem; reduced: bo
       <div className="mg-slash" />
       <div className="mg-ja" lang="ja" aria-hidden>{ja}</div>
       <div className="mg-shout">
-        <span className="mg-kick">{isApple ? 'NEW APPLE!' : 'NEW RECIPE!'}</span>
+        <span className={`mg-kick ${batch ? 'long' : ''}`}>{batch ? `${batch.length} NEW APPLES!` : isApple ? 'NEW APPLE!' : 'NEW RECIPE!'}</span>
         <span className="mg-kick-ja" lang="ja" aria-hidden>{isApple ? '新しいりんご！' : '新メニュー！'}</span>
       </div>
-      <Showcase item={item} reduced={reduced} punch className="mg-canvas" />
-      <div className="mg-name">{name}</div>
+      <Showcase item={item} reduced={reduced} punch className={`mg-canvas ${batch ? 'batch' : ''}`} />
+      {batch ? (
+        <div className="mg-batch">
+          {batch.map((id, k) => (
+            <div key={id} className="mg-batch-apple" style={{ animationDelay: `${0.75 + k * 0.18}s` }}>
+              <img src={appleIcon(id)} alt="" />
+              <span>{shortName(apple(id).nameEn)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mg-name">{name}</div>
+      )}
       <div className="mg-skip">Tap to continue</div>
     </div>
   );

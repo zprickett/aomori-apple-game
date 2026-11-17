@@ -3,7 +3,7 @@ import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, withName
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
-import { appleIcon, dishIcon, Stars } from './icons.tsx';
+import { appleIcon, dishIcon, portrait, Stars } from './icons.tsx';
 
 type D = (a: GameAction) => void;
 
@@ -17,26 +17,22 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
   const head = anchors.customerHead;
   const isPractice = state.mode === 'practice';
   const chef = useContext(ChefContext);
+  const tailX = head ? { ['--tail-x' as string]: `${Math.min(85, Math.max(15, (head.x / Math.max(1, w)) * 100))}%` } : undefined;
   return (
     <>
-      <div
-        className="order-bubble"
-        style={head ? { ['--tail-x' as string]: `${Math.min(85, Math.max(15, (head.x / Math.max(1, w)) * 100))}%` } : undefined}
-        data-testid="order-bubble"
-        key={o.orderId}
-      >
-        <img src={dishIcon(r.id)} alt="" className="order-dish" />
-        <div className="order-text">
-          <div className="order-kicker">
-            {o.visit ? <span className={`visitor v-${o.visit.who}`}>{o.visit.visitorName}</span> : o.intro ? 'New recipe!' : `Order ${o.orderNumber}`}
+      {o.visit ? (
+        <StoryBubble state={state} tailX={tailX} name={chef.name} />
+      ) : (
+        <div className="order-bubble" style={tailX} data-testid="order-bubble" key={o.orderId}>
+          <img src={dishIcon(r.id)} alt="" className="order-dish" />
+          <div className="order-text">
+            <div className="order-kicker">{o.intro ? 'New recipe!' : `Order ${o.orderNumber}`}</div>
+            <div className="order-name">{r.name}</div>
+            <div className="order-line">“{withName(o.line, chef.name)}”</div>
+            <AppleHint state={state} />
           </div>
-          <div className="order-name">{r.name}</div>
-          <div className="order-line">“{withName(o.line, chef.name)}”</div>
-          {o.suggestedAppleId && state.progress.unlockedApples.includes(o.suggestedAppleId) && (
-            <div className="order-hint"><img src={appleIcon(o.suggestedAppleId)} alt="" /> Try {apple(o.suggestedAppleId).nameEn}?</div>
-          )}
         </div>
-      </div>
+      )}
       <div className="bottom-cta">
         {!isPractice && (
           <button className="btn primary huge" data-testid="accept" onClick={() => { unlockAudio(); sfx.tap(); dispatch({ type: 'ACCEPT_ORDER' }); }}>
@@ -45,6 +41,46 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
         )}
       </div>
     </>
+  );
+}
+
+function AppleHint({ state }: { state: GameState }) {
+  const o = state.order;
+  if (!o.suggestedAppleId || !state.progress.unlockedApples.includes(o.suggestedAppleId)) return null;
+  return <div className="order-hint"><img src={appleIcon(o.suggestedAppleId)} alt="" /> Try {apple(o.suggestedAppleId).nameEn}?</div>;
+}
+
+/**
+ * A regular's (or Ojiichan's) order: their own colour, a portrait, their name big with who they
+ * are, and hearts for how far along their story is. Everyday customers keep the plain bubble.
+ */
+function StoryBubble({ state, tailX, name }: { state: GameState; tailX?: React.CSSProperties; name: string }) {
+  const o = state.order;
+  const v = o.visit!;
+  const r = recipe(o.recipeId);
+  return (
+    <div className={`order-bubble story s-${v.who}`} data-testid="order-bubble" key={o.orderId}
+      style={{ ...tailX, ['--who' as string]: v.color }}>
+      <div className="sb-head">
+        <div className="sb-face" style={{ backgroundImage: `url(${portrait(v.customerId)})` }} aria-hidden />
+        <div className="sb-who">
+          <div className="sb-name">{v.visitorName}</div>
+          <div className="sb-tag">{v.tagline}</div>
+        </div>
+        {v.of > 1 && (
+          <div className="sb-hearts" aria-label={`Story visit ${v.step} of ${v.of}`}>
+            {Array.from({ length: v.of }, (_, i) => <span key={i} className={i < v.step ? 'on' : ''}>♥</span>)}
+          </div>
+        )}
+      </div>
+      <div className="sb-line">“{withName(o.line, name)}”</div>
+      <div className="sb-dish">
+        <img src={dishIcon(r.id)} alt="" />
+        <b>{r.name}</b>
+        {o.intro && <span className="sb-new">New recipe!</span>}
+      </div>
+      <AppleHint state={state} />
+    </div>
   );
 }
 

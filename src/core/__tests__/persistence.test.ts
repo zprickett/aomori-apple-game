@@ -95,8 +95,9 @@ describe('save store', () => {
     expect(notice).toBeNull();
     expect(data.settings).toEqual(defaultSave().settings);
     expect(data.unlockedApples).toEqual(unlockedApples(7));
-    expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094', 'a091']));
-    expect(data.unlockedApples).toHaveLength(12);
+    expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094']));
+    expect(data.unlockedApples).not.toContain('a091'); // arrives after order 9
+    expect(data.unlockedApples).toHaveLength(8);
     // A v2 save gets the earliest rank history: Apprentice at 5 (jam), candy apple not until 8.
     expect(data.rankUps).toEqual([5]);
     expect(data.unlockedRecipes).toEqual(['fresh_juice', 'rabbit_apples', 'apple_jam']);
@@ -295,7 +296,7 @@ describe('idempotent completion through save/reload', () => {
     state = gameReducer(state, { type: 'SERVE_DONE' });
     expect(state.phase).toBe('result');
     expect(state.progress.completedOrders).toBe(3);
-    expect(state.delivery?.apples).toEqual(['a094']);
+    expect(state.delivery?.apples).toEqual(['a045', 'a020', 'a094']); // the first batch of three
     store.save(toSaveData(state));
 
     // Second SERVE_DONE / COMPLETE_ORDER is a no-op.
@@ -310,7 +311,7 @@ describe('idempotent completion through save/reload', () => {
       expect(re.phase).toBe('result');
       expect(re.progress.completedOrders).toBe(3);
       expect(re.result).toEqual(state.result);
-      expect(re.delivery?.apples).toEqual(['a094']);
+      expect(re.delivery?.apples).toEqual(['a045', 'a020', 'a094']);
       store.save(toSaveData(re));
     }
 

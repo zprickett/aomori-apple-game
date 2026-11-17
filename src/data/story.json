@@ -116,6 +116,8 @@
       "id": "sota",
       "customer": "A",
       "name": "Sota",
+      "tagline": "Wants to be a chef one day",
+      "color": "#4F9A5A",
       "visits": [
         {
           "at": 4,
@@ -139,6 +141,8 @@
       "id": "yui",
       "customer": "B",
       "name": "Yui",
+      "tagline": "Learning to cook for her little brother",
+      "color": "#E8B230",
       "visits": [
         {
           "at": 7,
@@ -162,6 +166,8 @@
       "id": "kiyoshi",
       "customer": "C",
       "name": "Grandpa Kiyoshi",
+      "tagline": "Loves pie apples... for some reason",
+      "color": "#8A5A3B",
       "visits": [
         {
           "at": 11,
@@ -185,6 +191,8 @@
       "id": "mei",
       "customer": "D",
       "name": "Mei",
+      "tagline": "Apple collector, just like you",
+      "color": "#4A90C2",
       "visits": [
         {
           "at": 9,
@@ -212,32 +220,42 @@
       "kind": "note",
       "icon": "💌",
       "title": "A thank-you note!",
-      "text": "Thank you for the yummiest apple treats in Aomori! You made my day. — Yui"
+      "text": "Thank you for the yummiest apple treats in Aomori! You made my day.",
+      "from": "Yui",
+      "headline": "Yui pinned a note to your stall"
     },
     {
       "rank": 3,
       "kind": "paper",
       "icon": "📰",
       "title": "Aomori Daily",
-      "text": "New stall's rabbit apples hop off the counter! Chef {name}'s little apple stall is the talk of the town."
+      "text": "New stall's rabbit apples hop off the counter! Chef {name}'s little apple stall is the talk of the town.",
+      "from": "The Aomori Daily",
+      "headline": "Your stall is in the newspaper!"
     },
     {
       "rank": 4,
       "kind": "invite",
       "icon": "✉️",
       "title": "An invitation",
-      "text": "The Hirosaki Apple Festival invites Chef {name} to cook on the main street this year!"
+      "text": "The Hirosaki Apple Festival invites Chef {name} to cook on the main street this year!",
+      "from": "Hirosaki Apple Festival",
+      "headline": "A letter came in the post"
     },
     {
       "rank": 5,
       "kind": "award",
       "icon": "🏆",
       "title": "The Golden Apple award",
-      "text": "The whole town cheers as Chef {name} receives the Golden Apple award. And look who's here..."
+      "text": "The whole town cheers as Chef {name} receives the Golden Apple award. And look who's here...",
+      "from": "The town of Aomori",
+      "headline": "A ceremony, just for you"
     }
   ],
   "ojiichanVisit": {
     "customer": "O",
-    "line": "Surprise! I came home for your big day, {name}. One {dish} for your proud Ojiichan, please!"
+    "line": "Surprise! I came home for your big day, {name}. One {dish} for your proud Ojiichan, please!",
+    "tagline": "Your grandpa, home from his travels!",
+    "color": "#E8A92A"
   }
 }

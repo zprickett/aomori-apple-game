@@ -114,7 +114,17 @@ export interface Order {
   /** First order after this recipe unlocked. */
   intro?: boolean;
   /** A story visit: a regular (by id) or Ojiichan. The UI shows `visitorName` and fills {name}. */
-  visit?: { who: string; visitorName: string };
+  visit?: {
+    who: string;
+    visitorName: string;
+    tagline: string;
+    /** Bubble colour. */
+    color: string;
+    customerId: CustomerId;
+    /** 1-based story visit and how many there are (Ojiichan: 1 of 1). */
+    step: number;
+    of: number;
+  };
   /** An apple the visitor gives on this order (unlocked when it is served). */
   giftAppleId?: AppleId;
 }
@@ -331,13 +341,15 @@ export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, 
   if (visit?.kind === 'ojiichan') {
     order.customerId = OJIICHAN_VISIT.customer as CustomerId;
     order.line = withDish(OJIICHAN_VISIT.line, recipeId);
-    order.visit = { who: 'ojiichan', visitorName: 'Ojiichan' };
+    order.visit = { who: 'ojiichan', visitorName: 'Ojiichan', tagline: OJIICHAN_VISIT.tagline, color: OJIICHAN_VISIT.color,
+      customerId: order.customerId, step: 1, of: 1 };
   } else if (visit) {
     const r = REGULARS[visit.regularIndex];
     const v = r.visits[visit.visitIndex];
     order.customerId = r.customer as CustomerId;
     order.line = withDish(v.line, recipeId);
-    order.visit = { who: r.id, visitorName: r.name };
+    order.visit = { who: r.id, visitorName: r.name, tagline: r.tagline, color: r.color, customerId: order.customerId,
+      step: visit.visitIndex + 1, of: r.visits.length };
     if (v.giftApple) order.giftAppleId = v.giftApple as AppleId;
   }
   return order;

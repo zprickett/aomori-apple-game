@@ -751,8 +751,6 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .lt-notebook { margin: calc(env(safe-area-inset-top, 0px) + 4vh) 16px 0; animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
 
 /* ---- Regulars, news cards, scrapbook ---- */
-.visitor { display: inline-block; background: var(--red); color: #fff; border-radius: 999px; padding: 1px 10px; letter-spacing: 0.02em; }
-.visitor.v-ojiichan { background: #e8a92a; color: var(--ink); }
 .news-backdrop { position: absolute; inset: 0; z-index: 25; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.28); animation: ov-in 0.3s ease-out both; }
 .news-card { width: min(100%, 360px); text-align: center; border: 3px solid var(--wood-d); border-radius: 18px; padding: 18px 18px 16px; background: var(--paper);
   box-shadow: 5px 6px 0 rgba(104,69,46,0.3); display: grid; gap: 8px; justify-items: center; animation: pop 0.45s cubic-bezier(.2,1.5,.4,1) both; }
@@ -774,3 +772,80 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .scrap b { display: block; font-weight: 900; }
 .scrap span { display: block; font-size: 0.9rem; font-weight: 700; color: var(--ink-soft); line-height: 1.3; }
 .scrap.n-award { background: #fdf0c8; border-color: var(--gold); }
+
+/* Apple batch intro: three apples land in a row under the showcase */
+.mg-canvas.batch { top: 26%; height: 38%; }
+.mg-batch { position: absolute; left: 4%; right: 4%; bottom: 11%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mg-batch-apple { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fffdf7; border: 3px solid var(--wood-d); border-radius: 16px;
+  padding: 6px 4px 8px; box-shadow: 3px 4px 0 var(--wood-d); animation: rp-stamp 0.4s cubic-bezier(.2,1.8,.4,1) both; }
+.mg-batch-apple img { width: 54px; height: 54px; }
+.mg-batch-apple span { font-weight: 900; font-size: 0.82rem; text-align: center; line-height: 1.1; }
+
+/* Golden Recipe goal: gold pill with a moving shine, row glows gold */
+.golden-goal { position: relative; display: inline-flex; align-items: center; gap: 4px; overflow: hidden; font-weight: 900; color: #6b4300;
+  background: linear-gradient(135deg, #ffe58a, #f4c954 60%, #e8a92a); border: 2px solid #c98a16; border-radius: 999px; padding: 1px 10px;
+  box-shadow: 0 0 0 2px rgba(244,201,84,0.25); }
+.golden-goal i { position: absolute; top: -20%; bottom: -20%; width: 30%; left: -40%; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.85), transparent);
+  transform: skewX(-20deg); animation: gold-shine 2.4s ease-in-out infinite; }
+li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transparent); border-radius: 10px; margin: 0 -6px; padding: 2px 6px; }
+@keyframes gold-shine { 0%, 55% { left: -40%; } 85%, 100% { left: 120%; } }
+.reduced .golden-goal i, .still .golden-goal i { animation: none; display: none; }
+
+/* Story bubble: a regular or Ojiichan (own colour, portrait, big name, story hearts) */
+.order-bubble.story { display: block; padding: 10px 14px 12px; border-color: var(--who); border-width: 3.5px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--who) 16%, #fffdf7) 0 44px, #fffdf7 44px); }
+.order-bubble.story::after { border-right-color: var(--who); border-bottom-color: var(--who); border-right-width: 3.5px; border-bottom-width: 3.5px; }
+.sb-head { display: flex; align-items: center; gap: 10px; }
+.sb-face { width: 64px; height: 64px; flex: none; border-radius: 50%; background-color: #fffaf0; background-size: 165%; background-position: 50% 22%; background-repeat: no-repeat; border: 3px solid var(--who);
+  margin-top: -26px; box-shadow: 0 3px 0 rgba(74,51,38,0.2); }
+.sb-who { flex: 1; min-width: 0; }
+.sb-name { font-size: 1.45rem; font-weight: 900; line-height: 1.05; color: var(--ink); }
+.sb-tag { font-size: 0.82rem; font-weight: 800; color: color-mix(in srgb, var(--who) 70%, var(--ink)); line-height: 1.2; }
+.sb-hearts { display: flex; gap: 1px; font-size: 0.95rem; color: #e2d5bf; }
+.sb-hearts .on { color: #e8577a; }
+.sb-line { font-size: 1.02rem; font-weight: 700; line-height: 1.35; margin: 8px 0 6px; }
+.sb-dish { display: flex; align-items: center; gap: 6px; background: #fbf2e2; border-radius: 12px; padding: 3px 10px 3px 4px; width: fit-content; }
+.sb-dish img { width: 34px; height: 34px; }
+.sb-dish b { font-size: 0.95rem; }
+.sb-new { font-size: 0.72rem; font-weight: 900; color: #fff; background: var(--red); border-radius: 999px; padding: 1px 8px; }
+.order-bubble.s-ojiichan { background: linear-gradient(180deg, #fff1c2 0 44px, #fffdf7 44px); }
+
+/* ---- News cards: context line, sender, and an entrance per kind ---- */
+.news-backdrop { overflow: hidden; }
+.news-why { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; font-size: 0.85rem; background: #fff; border: 2px solid var(--wood-d);
+  border-radius: 999px; padding: 2px 10px 2px 4px; }
+.news-headline { font-size: 0.82rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: var(--red); }
+.news-from { font-weight: 900; font-style: italic; color: var(--ink-soft); }
+.news-photo { width: 110px; height: 80px; object-fit: contain; background: #e9e1d0; border: 2px solid var(--ink); filter: grayscale(0.6) contrast(1.1); }
+/* note: drops in on a pin, then sways */
+.news-card.n-note { position: relative; transform-origin: 50% 0; animation: note-drop 0.7s cubic-bezier(.3,1.4,.5,1) both, note-sway 3.2s 0.7s ease-in-out infinite; }
+.news-pin { position: absolute; top: -12px; left: 50%; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a8a, #d94232 60%); box-shadow: 0 3px 0 rgba(0,0,0,0.2); animation: pop 0.35s 0.6s cubic-bezier(.2,1.8,.4,1) both; }
+.news-card.n-note::before, .news-card.n-note::after { content: '♥'; position: absolute; color: #f08aa5; font-size: 1.2rem; }
+.news-card.n-note::before { left: 12px; top: 12px; transform: rotate(-15deg); }
+.news-card.n-note::after { right: 14px; bottom: 70px; transform: rotate(12deg); }
+@keyframes note-drop { from { transform: translateY(-120vh) rotate(-14deg); } 70% { transform: translateY(12px) rotate(3deg); } to { transform: rotate(-1.5deg); } }
+@keyframes note-sway { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+/* newspaper: the classic spin-in */
+.news-card.n-paper { animation: paper-spin 0.9s cubic-bezier(.25,1,.4,1) both; }
+@keyframes paper-spin { from { transform: scale(0.05) rotate(-900deg); opacity: 0; } 70% { opacity: 1; } to { transform: scale(1) rotate(-2deg); } }
+/* invitation: an envelope slides up, opens, and the card rises out of it */
+.news-envelope { position: absolute; left: 50%; bottom: 14%; width: 240px; height: 150px; margin-left: -120px; perspective: 600px;
+  animation: env-in 0.5s cubic-bezier(.2,1.2,.4,1) both, env-out 0.4s 1.4s ease-in forwards; }
+.env-back, .env-front { position: absolute; inset: 0; border-radius: 8px; }
+.env-back { background: #e9c98e; border: 3px solid var(--wood-d); }
+.env-front { background: linear-gradient(160deg, transparent 49%, #f3dba9 50%), linear-gradient(200deg, transparent 49%, #f3dba9 50%); border: 3px solid var(--wood-d); border-top: none; z-index: 2; }
+.env-flap { position: absolute; left: 0; right: 0; top: 0; height: 90px; background: #e2bb78; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: 50% 0;
+  z-index: 3; animation: flap-open 0.45s 0.45s ease-in-out forwards; border-top: 3px solid var(--wood-d); }
+.news-card.n-invite { animation: invite-rise 0.7s 0.85s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes env-in { from { transform: translateY(120%); } to { transform: none; } }
+@keyframes env-out { to { transform: translateY(140%); opacity: 0; } }
+@keyframes flap-open { to { transform: rotateX(180deg); z-index: 0; } }
+@keyframes invite-rise { from { transform: translateY(45vh) scale(0.55); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+/* award: gold rays turn behind it, confetti falls */
+.news-rays { position: absolute; inset: -50%; background: repeating-conic-gradient(from 0deg, rgba(244,201,84,0.55) 0 10deg, transparent 10deg 20deg);
+  animation: mg-spin 16s linear infinite, pop 0.5s both; }
+.news-card.n-award { position: relative; animation: pop 0.55s 0.15s cubic-bezier(.2,1.6,.4,1) both; }
+.reduced .news-card, .reduced .news-envelope, .reduced .news-rays, .reduced .news-pin, .reduced .env-flap { animation: none !important; }
+.reduced .news-envelope { display: none; }
+.mg-kick.long { font-size: clamp(1.8rem, 9vw, 2.6rem); white-space: nowrap; }

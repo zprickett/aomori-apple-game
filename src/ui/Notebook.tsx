@@ -132,19 +132,42 @@ export function NotebookBook({ state, name }: { state: GameState; name: string }
   );
 }
 
-/** A news card (recognition after a rank-up), shown at the start of the next day. */
+/**
+ * A news card: recognition for reaching a new rank, shown at the start of the next day. Says why it
+ * came (the new rank) and who sent it, and each kind has its own entrance: the note drops in on a
+ * pin and sways, the newspaper spins in, the invitation rises out of an opening envelope, the award
+ * lands on gold rays with confetti.
+ */
 export function NewsCard({ item, name, onDone }: { item: NewsItem; name: string; onDone: () => void }) {
+  const r = rankInfo(item.rank);
   return (
-    <div className="news-backdrop" role="dialog" aria-label={item.title} data-testid="news-card">
+    <div className={`news-backdrop k-${item.kind}`} role="dialog" aria-label={item.title} data-testid="news-card">
+      {item.kind === 'award' && <div className="news-rays" aria-hidden />}
+      {item.kind === 'invite' && (
+        <div className="news-envelope" aria-hidden><div className="env-back" /><div className="env-flap" /><div className="env-front" /></div>
+      )}
       <div className={`news-card n-${item.kind}`}>
+        {item.kind === 'note' && <div className="news-pin" aria-hidden />}
+        <div className="news-why"><RankBadge rank={item.rank} size={22} /> You’re {/^[AEIOU]/.test(r.name) ? 'an' : 'a'} {r.name} now!</div>
+        <div className="news-headline">{item.headline}</div>
         <div className="news-icon" aria-hidden>{item.icon}</div>
         <div className="news-title">{item.title}</div>
+        {item.kind === 'paper' && <img className="news-photo" src={dishIcon('rabbit_apples')} alt="Photo: rabbit apples" />}
         <p className="news-text">{withName(item.text, name)}</p>
+        <div className="news-from">— {item.from}</div>
         {item.kind === 'award' && <img className="news-portrait" src={portrait('O')} alt="Ojiichan" />}
         <button className="btn primary big" data-testid="news-done" onClick={() => { tap(); onDone(); }}>
           {item.kind === 'award' ? 'Ojiichan!' : 'Yay!'}
         </button>
       </div>
+      {item.kind === 'award' && (
+        <div className="rp-confetti" aria-hidden>
+          {Array.from({ length: 14 }, (_, i) => (
+            <i key={i} className={['c-spark', 'c-petal', 'c-apple'][i % 3]}
+              style={{ left: `${(i * 41 + 7) % 100}%`, animationDelay: `${((i * 0.37) % 2).toFixed(2)}s`, animationDuration: `${(2.8 + (i % 4) * 0.4).toFixed(1)}s`, ['--spin' as string]: `${(i * 53) % 360}deg` }} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -158,7 +181,7 @@ export function Scrapbook({ state, name }: { state: GameState; name: string }) {
       {items.map((n) => (
         <div key={n.rank} className={`scrap n-${n.kind}`}>
           <span className="scrap-icon" aria-hidden>{n.icon}</span>
-          <div><b>{n.title}</b><span>{withName(n.text, name)}</span></div>
+          <div><b>{n.title}</b><span>{withName(n.text, name)} — {n.from}</span></div>
         </div>
       ))}
     </div>

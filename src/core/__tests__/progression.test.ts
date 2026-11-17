@@ -13,20 +13,20 @@ import {
 } from '../progression.ts';
 
 describe('unlock schedule', () => {
-  it('5 starter apples, then one new apple per order (prototype apples keep 3/6/9/12/15)', () => {
+  it('5 starter apples, then 3 new apples every 6 orders from order 3', () => {
     expect(unlockedApples(0)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006']);
-    expect(unlockedApples(1)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006', 'a045']);
-    expect(unlockedApples(2)).toHaveLength(7);
-    expect(unlockedApples(2)).not.toContain('a094');
-    expect(unlockedApples(3)).toContain('a094');
-    expect(unlockedApples(5)).not.toContain('a091');
-    expect(unlockedApples(6)).toContain('a091');
-    expect(unlockedApples(9)).toContain('a032');
-    expect(unlockedApples(12)).toContain('a058');
-    expect(unlockedApples(14)).not.toContain('a086');
-    expect(unlockedApples(15)).toHaveLength(20);
-    expect(unlockedApples(94)).toHaveLength(99);
-    expect(unlockedApples(95)).toHaveLength(100);
+    expect(unlockedApples(2)).toHaveLength(5);
+    expect(unlockedApples(3)).toHaveLength(8);
+    expect(unlockedApples(3)).toContain('a094'); // Kogyoku, for the jam demo
+    expect(unlockedApples(8)).toHaveLength(8);
+    expect(unlockedApples(9)).toContain('a091'); // Alps Otome
+    expect(unlockedApples(9)).toHaveLength(11);
+    expect(unlockedApples(15)).toContain('a032');
+    expect(unlockedApples(21)).toContain('a058');
+    expect(unlockedApples(26)).not.toContain('a086');
+    expect(unlockedApples(27)).toContain('a086');
+    expect(unlockedApples(188)).toHaveLength(98);
+    expect(unlockedApples(189)).toHaveLength(100);
     expect(unlockedApples(999)).toHaveLength(100);
   });
 
@@ -57,30 +57,31 @@ describe('unlock schedule', () => {
     expect(unlocksEarnedAt(22, [5, 22]).recipes).toEqual(['hirosaki_pie']);
   });
 
-  it('each unlock is earned exactly once across 0..120', () => {
+  it('each unlock is earned exactly once across 0..200', () => {
     const seen: string[] = [];
-    for (let c = 0; c <= 120; c++) {
+    for (let c = 0; c <= 200; c++) {
       const u = unlocksEarnedAt(c);
       seen.push(...u.apples, ...u.recipes);
-      if (c >= 1 && c <= 95) expect(u.apples).toHaveLength(1);
+      const batch = c >= 3 && c <= 189 && (c - 3) % 6 === 0;
+      expect(u.apples).toHaveLength(batch ? (c === 189 ? 2 : 3) : 0);
     }
-    expect(seen.filter((x) => x.startsWith('a') && /^a\d{3}$/.test(x))).toHaveLength(95);
+    expect(seen.filter((x) => /^a\d{3}$/.test(x))).toHaveLength(95);
     expect(seen.filter((x) => !/^a\d{3}$/.test(x)).sort()).toEqual(
       ['rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie', 'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote'].sort(),
     );
     expect(new Set(seen).size).toBe(seen.length);
-    expect(unlocksEarnedAt(3)).toEqual({ apples: ['a094'], recipes: [] });
+    expect(unlocksEarnedAt(3).apples).toContain('a094');
     expect(unlocksEarnedAt(5).recipes).toEqual(['apple_jam']);
     expect(unlocksEarnedAt(8).recipes).toEqual(['ringo_ame']);
     expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });
-    expect(unlocksEarnedAt(96)).toEqual({ apples: [], recipes: [] });
+    expect(unlocksEarnedAt(4)).toEqual({ apples: [], recipes: [] });
   });
 
   it('stall level and collection completion', () => {
     expect([0, 4, 5, 9, 10, 14, 15, 40].map(stallLevel)).toEqual([0, 0, 1, 1, 2, 2, 3, 3]);
-    expect(isCollectionComplete(94)).toBe(false);
-    expect(isCollectionComplete(95)).toBe(true);
-    expect(unlockConditionText('a091')).toBe('Arrives after 6 orders');
+    expect(isCollectionComplete(188)).toBe(false);
+    expect(isCollectionComplete(189)).toBe(true);
+    expect(unlockConditionText('a091')).toBe('Arrives after 9 orders');
   });
 });
 
@@ -93,12 +94,14 @@ describe('order queue', () => {
       expect(o(3)).toMatchObject({ recipeId: 'rabbit_apples', intro: true });
       expect(o(4).recipeId).toBe('fresh_juice'); // not rabbit twice
       expect(o(6)).toMatchObject({ recipeId: 'apple_jam', intro: true, demo: true, suggestedAppleId: 'a094' });
-      expect(o(9)).toMatchObject({ recipeId: 'ringo_ame', intro: true, demo: true, suggestedAppleId: 'a091' });
-      expect(o(10)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a032' });
-      expect(o(13)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a058' });
-      expect(o(13).line).toMatch(/pink/i);
+      expect(o(9)).toMatchObject({ recipeId: 'ringo_ame', intro: true });
+      expect(o(9).demo).toBeFalsy(); // Alps Otome arrives after order 9
+      expect(o(11)).toMatchObject({ recipeId: 'ringo_ame', demo: true, suggestedAppleId: 'a091' });
       expect(o(16)).toMatchObject({ recipeId: 'hirosaki_pie', intro: true });
-      expect(o(17)).toMatchObject({ recipeId: 'rabbit_apples', demo: true, suggestedAppleId: 'a086' });
+      expect(o(17)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a032' });
+      expect(o(23)).toMatchObject({ recipeId: 'apple_jam', demo: true, suggestedAppleId: 'a058' });
+      expect(o(23).line).toMatch(/pink/i);
+      expect(o(28)).toMatchObject({ recipeId: 'rabbit_apples', demo: true, suggestedAppleId: 'a086' });
       // Each recipe is introduced on the first order after it unlocks.
       for (const [rid, first] of [['fresh_juice', 1], ['rabbit_apples', 3], ['apple_jam', 6], ['ringo_ame', 9], ['hirosaki_pie', 16],
         ['jam_toast', 22], ['yogurt_parfait', 31], ['baked_apple', 37], ['apple_compote', 43]] as const) {

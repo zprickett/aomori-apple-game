@@ -1,6 +1,6 @@
 /** Story ranks UI: rank badge, next-rank goals, the rank-up intro and the end-of-day recap. */
 import { useContext, useEffect } from 'react';
-import { DAY_LENGTH, MAX_RANK, nextRankGoals, rankInfo, recipe, selectors, type GameAction, type GameState, type Rank } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, MAX_RANK, nextRankGoals, type RankGoal, rankInfo, recipe, selectors, type GameAction, type GameState, type Rank } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { dishIcon, Stars } from './icons.tsx';
@@ -24,6 +24,16 @@ export function RankBadge({ rank, size = 28 }: { rank: Rank; size?: number }) {
   );
 }
 
+/** A goal's label; Golden Recipes get the same gold trophy look as the result card badge. */
+function GoalLabel({ goal }: { goal: RankGoal }) {
+  if (goal.id !== 'golden') return <span className="rg-label">{goal.label}</span>;
+  return (
+    <span className="rg-label">
+      <span className="golden-goal"><span aria-hidden>🏆</span> {goal.need} {GOLDEN_LABEL}s<i aria-hidden /></span>
+    </span>
+  );
+}
+
 export function RankGoals({ state }: { state: GameState }) {
   const goals = nextRankGoals(state.progress);
   const rank = selectors.rank(state);
@@ -34,9 +44,9 @@ export function RankGoals({ state }: { state: GameState }) {
       <div className="rg-head"><RankBadge rank={next.rank} size={24} /> Next rank: <b>{next.name}</b></div>
       <ul>
         {goals.map((g) => (
-          <li key={g.id} className={g.done ? 'done' : ''}>
+          <li key={g.id} className={`${g.done ? 'done' : ''} ${g.id === 'golden' ? 'golden-row' : ''}`}>
             <span className="rg-check" aria-hidden>{g.done ? '✓' : ''}</span>
-            <span className="rg-label">{g.label}</span>
+            <GoalLabel goal={g} />
             {g.need > 1 && <span className="rg-count">{g.have}/{g.need}</span>}
           </li>
         ))}
@@ -110,9 +120,9 @@ export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; stat
             <div className="rp-next">Next rank <RankBadge rank={next.rank} size={26} /> <b>{next.name}</b></div>
             <ul>
               {goals.map((g) => (
-                <li key={g.id} className={g.done ? 'done' : ''}>
+                <li key={g.id} className={`${g.done ? 'done' : ''} ${g.id === 'golden' ? 'golden-row' : ''}`}>
                   <span className="rg-check" aria-hidden>{g.done ? '✓' : ''}</span>
-                  <span className="rg-label">{g.label}</span>
+                  <GoalLabel goal={g} />
                   {g.need > 1 && <span className="rg-count">{g.have}/{g.need}</span>}
                 </li>
               ))}

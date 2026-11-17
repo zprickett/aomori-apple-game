@@ -118,7 +118,7 @@ export interface RankGoal {
 }
 
 export const GOLDEN_RECIPES_FOR_HEAD_COOK = 5;
-export const APPLES_FOR_GOLDEN_CHEF = 30;
+export const APPLES_FOR_GOLDEN_CHEF = 20;
 
 const goal = (id: string, label: string, have: number, need: number): RankGoal => ({
   id, label, have: Math.min(have, need), need, done: have >= need,

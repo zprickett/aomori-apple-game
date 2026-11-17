@@ -41,7 +41,7 @@ const startCooking = (s: GameState, appleId: string) =>
 const toActive = (s: GameState) => play(s, [{ type: 'BRIDGE_DONE' }, { type: 'READY' }, { type: 'COUNTIN_DONE' }]);
 
 describe('full order loop', () => {
-  it('plays 15 orders (reloading after every action) with a delivery after each', () => {
+  it('plays 15 orders (reloading after every action) with the right deliveries', () => {
     const storage = new FakeStorage();
     const store = createSaveStore(storage);
     let state = initialStateFromSave(store.load().data);
@@ -101,15 +101,18 @@ describe('full order loop', () => {
     // Best-fit apples and Perfect timing earn 3 stars, so Apprentice (5) and Cook (15) arrive on time.
     expect(state.progress.rankUps).toEqual([5, 15]);
     const expected: Record<number, { apples: string[]; recipes: string[]; rank: number | null }> = {};
-    for (let n = 1; n <= 15; n++) expected[n] = { ...unlocksEarnedAt(n, [5, 15]), rank: n === 5 ? 2 : n === 15 ? 3 : null };
+    for (let n = 1; n <= 15; n++) {
+      const e = { ...unlocksEarnedAt(n, [5, 15]), rank: n === 5 ? 2 : n === 15 ? 3 : null };
+      if (e.apples.length || e.recipes.length || e.rank) expected[n] = e;
+    }
     expect(deliveries).toEqual(expected);
     expect(deliveries[2].recipes).toEqual(['rabbit_apples']);
-    expect(deliveries[3].apples).toEqual(['a094']);
+    expect(deliveries[3].apples).toEqual(['a045', 'a020', 'a094']);
     expect(deliveries[5]).toMatchObject({ recipes: ['apple_jam'], rank: 2 });
     expect(deliveries[8].recipes).toEqual(['ringo_ame']);
     expect(deliveries[15]).toMatchObject({ recipes: ['hirosaki_pie'], rank: 3 });
     expect(state.progress.completedOrders).toBe(15);
-    expect(state.progress.unlockedApples).toHaveLength(20);
+    expect(state.progress.unlockedApples).toHaveLength(14);
     expect(state.progress.unlockedRecipes).toHaveLength(5);
     expect(selectors.rank(state)).toBe(3);
     expect(selectors.collectionComplete(state)).toBe(false);
@@ -299,14 +302,14 @@ describe('settings and reset', () => {
   });
 
   it('selectors expose unlocked apple cards (best fit first) plus the next locked one', () => {
-    const s = play(initialStateFromSave(at(8)), [{ type: 'ACCEPT_ORDER' }]);
-    expect(s.order.recipeId).toBe('ringo_ame');
+    const s = play(initialStateFromSave(at(10)), [{ type: 'ACCEPT_ORDER' }]);
+    expect(s.order).toMatchObject({ recipeId: 'ringo_ame', suggestedAppleId: 'a091' }); // Alps Otome demo
     const cards = selectors.appleCards(s);
-    expect(cards).toHaveLength(14);
+    expect(cards).toHaveLength(12);
     expect(cards[0]).toMatchObject({ unlocked: true, fitStars: 3 });
     expect(cards[0].apple.id).toBe('a091');
     expect(cards.filter((c) => !c.unlocked)).toHaveLength(1);
-    expect(cards[13]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 9 orders' });
+    expect(cards[11]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 15 orders' });
     expect(selectors.bridgeText(startCooking(initialState(), 'a048'))).toMatch(/Chef washes/);
   });
 });

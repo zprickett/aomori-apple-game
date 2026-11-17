@@ -33,6 +33,8 @@ export interface SceneProps {
   /** A painted backdrop shows through a transparent canvas: no sky colour, fog or visible ground
    *  (the ground only catches shadows). The Canvas needs `gl={{ alpha: true }}`. */
   backdrop?: boolean;
+  /** No customer yet (a news card is showing); they walk in once it closes. */
+  hideCustomer?: boolean;
 }
 
 const BG = '#FCF8F0';
@@ -450,7 +452,7 @@ export function GameScene(p: SceneProps) {
       </mesh>
       <Stall rank={p.rank} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
       <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} rank={p.rank} />
-      <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />
+      {!p.hideCustomer && <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />}
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
       {p.view === 'cook' && <Tool tool={p.tool} live={p.toolLive} anchor={p.anchor} />}
       {showDish && <DishDisplay recipeId={p.recipeId} appleId={p.appleId} visible reduced={p.reducedMotion} />}

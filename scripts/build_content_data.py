@@ -155,6 +155,7 @@ PROTO_VISUALS = {
 # taken from this list in turn: a curated opening run, then the rest in poster order.
 STARTERS = ['a048', 'a081', 'a023', 'a066', 'a006']
 PROTO_FIXED = {3: 'a094', 6: 'a091', 9: 'a032', 12: 'a058', 15: 'a086'}
+BATCH, BATCH_EVERY, BATCH_FIRST = 3, 6, 3
 CARD_RE = re.compile(r'## (\d{3}): (.+?) / (.+?)\n\n(.+?)\n\n\[Apple evidence\]\((.+?)\) · Game unlock (\d+) · Delivery tier (\d+)')
 
 
@@ -236,15 +237,19 @@ def main():
     size = {r['apple_id']: size_info(r['apple_id'], sizes) for r in rows}
     # unlock order: new apples in the cards' researched game-unlock order
     queue = sorted((r['apple_id'] for r in rows if r['apple_id'] not in proto_ids), key=lambda a: cards[a]['unlock'])
+    # The sequence keeps the prototype apples in their original slots (PROTO_FIXED positions)...
     order = list(STARTERS)
-    at = 1
-    unlocks = [{'at': 0, 'ids': list(STARTERS)}]
-    while queue or at in PROTO_FIXED:
-        aid = PROTO_FIXED[at] if at in PROTO_FIXED else queue.pop(0)
-        order.append(aid)
-        unlocks.append({'at': at, 'ids': [aid]})
-        at += 1
+    pos = 1
+    while queue or pos in PROTO_FIXED:
+        order.append(PROTO_FIXED[pos] if pos in PROTO_FIXED else queue.pop(0))
+        pos += 1
     assert len(order) == 100 and len(set(order)) == 100
+    # ...and arrives in batches of BATCH apples every BATCH_EVERY orders, the first after order
+    # BATCH_FIRST (3, 9, 15, ...): about one new apple per two orders (user decision, Nov 2026).
+    unlocks = [{'at': 0, 'ids': list(STARTERS)}]
+    rest = order[len(STARTERS):]
+    for k in range(0, len(rest), BATCH):
+        unlocks.append({'at': BATCH_FIRST + BATCH_EVERY * (k // BATCH), 'ids': rest[k:k + BATCH]})
 
     # apples + visuals
     apples = []

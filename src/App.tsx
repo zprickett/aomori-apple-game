@@ -172,6 +172,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
               backdrop
+              hideCustomer={news !== null}
             />
           </Suspense>
         </Canvas>
