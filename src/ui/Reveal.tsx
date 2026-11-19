@@ -3,7 +3,7 @@ import { RECIPES, apple, fitStars, recipe, type GameAction, type GameState } fro
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
-import { appleIcon, dishIcon, GestureIcon } from './icons.tsx';
+import { dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
 import { TrophyReveal } from './Trophies.tsx';
@@ -118,17 +118,16 @@ function MangaIntro({ item, batch, reduced, onSkip }: { item: ShowcaseItem; batc
       <div className="mg-rays" />
       <div className="mg-dots" />
       <div className="mg-slash" />
-      <div className="mg-ja" lang="ja" aria-hidden>{ja}</div>
+      {!batch && <div className="mg-ja" lang="ja" aria-hidden>{ja}</div>}
       <div className="mg-shout">
         <span className={`mg-kick ${batch ? 'long' : ''}`}>{batch ? `${batch.length} NEW APPLES!` : isApple ? 'NEW APPLE!' : 'NEW RECIPE!'}</span>
         <span className="mg-kick-ja" lang="ja" aria-hidden>{isApple ? '新しいりんご！' : '新メニュー！'}</span>
       </div>
-      <Showcase item={item} reduced={reduced} punch className={`mg-canvas ${batch ? 'batch' : ''}`} />
+      <Showcase item={item} items={batch?.map((id) => ({ kind: 'apple' as const, id }))} reduced={reduced} punch className={`mg-canvas ${batch ? 'batch' : ''}`} />
       {batch ? (
         <div className="mg-batch">
           {batch.map((id, k) => (
-            <div key={id} className="mg-batch-apple" style={{ animationDelay: `${0.75 + k * 0.18}s` }}>
-              <img src={appleIcon(id)} alt="" />
+            <div key={id} className="mg-batch-apple" style={{ animationDelay: `${0.75 + k * 0.22}s` }}>
               <span>{shortName(apple(id).nameEn)}</span>
             </div>
           ))}

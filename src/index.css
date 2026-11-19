@@ -774,11 +774,10 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .scrap.n-award { background: #fdf0c8; border-color: var(--gold); }
 
 /* Apple batch intro: three apples land in a row under the showcase */
-.mg-canvas.batch { top: 26%; height: 38%; }
-.mg-batch { position: absolute; left: 4%; right: 4%; bottom: 11%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mg-canvas.batch { left: 0; right: 0; top: 27%; height: 44%; }
+.mg-batch { position: absolute; left: 3%; right: 3%; bottom: 13%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .mg-batch-apple { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fffdf7; border: 3px solid var(--wood-d); border-radius: 16px;
-  padding: 6px 4px 8px; box-shadow: 3px 4px 0 var(--wood-d); animation: rp-stamp 0.4s cubic-bezier(.2,1.8,.4,1) both; }
-.mg-batch-apple img { width: 54px; height: 54px; }
+  padding: 6px 4px; box-shadow: 3px 4px 0 var(--wood-d); animation: rp-stamp 0.4s cubic-bezier(.2,1.8,.4,1) both; justify-content: center; min-height: 44px; }
 .mg-batch-apple span { font-weight: 900; font-size: 0.82rem; text-align: center; line-height: 1.1; }
 
 /* Golden Recipe goal: gold pill with a moving shine, row glows gold */
