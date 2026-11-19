@@ -110,3 +110,19 @@ describe('regulars, news and Ojiichan', () => {
     expect(selectors.seenNews(next).map((n) => n.rank)).toEqual([2]);
   });
 });
+
+describe('stall note', () => {
+  it('points out new stall pieces once after a rank-up (after any news card)', () => {
+    const at = (completed: number, rankUps: number[], seen: string[] = []) =>
+      initialStateFromSave({ ...defaultSave(), completedOrders: completed, completedOrderIds: [], rankUps, seenUnlockRewards: seen });
+    expect(selectors.pendingStallNote(at(3, []))).toBeNull(); // Helper: bare stall, nothing to show
+    expect(selectors.pendingStallNote(at(5, [5]))).toBeNull(); // the news card comes first
+    const s = at(5, [5], ['news:2']);
+    expect(selectors.pendingStallNote(s)).toBe(2);
+    const seen = gameReducer(s, { type: 'STALL_SEEN', rank: 2 });
+    expect(selectors.pendingStallNote(seen)).toBeNull();
+    // Catching up several ranks shows the latest once and marks the earlier ones seen.
+    const late = gameReducer(at(30, [5, 15, 30], ['news:2', 'news:3', 'news:4']), { type: 'STALL_SEEN', rank: 4 });
+    expect(late.progress.seenUnlockRewards).toEqual(expect.arrayContaining(['stall:2', 'stall:3', 'stall:4']));
+  });
+});

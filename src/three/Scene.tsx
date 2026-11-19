@@ -8,6 +8,7 @@ import { Puppet } from './puppet.ts';
 import { GOLD, applyChefLook } from './chefLook.ts';
 import { DEFAULT_LOOK, type ChefLook } from '../core/profiles.ts';
 import { COUNTER_Y, DISH_DISPLAY_SCALE, dishProp, type PropSpec, type StepStage } from '../game/stations.ts';
+import { STALL_PIECES } from '../game/stallPieces.ts';
 import { mixing, onCue, pointer, publishAnchors, stepClock, type AnchorMap } from '../game/bus.ts';
 
 export type ViewMode = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery';
@@ -109,18 +110,13 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 // ---------------------------------------------------------------------------
 // Stall
 // ---------------------------------------------------------------------------
-/** Stall upgrades and the rank that brings each one (models in assets/blender/stall.py). */
-const STALL_UPGRADES: ReadonlyArray<readonly [string, number]> = [
-  ['Upgrade_Sign', 2], ['Upgrade_Crate2', 2],
-  ['Upgrade_Banner', 3], ['Upgrade_Oven', 3], ['Upgrade_Bench', 3],
-  ['Upgrade_Lanterns', 4], ['Upgrade_Cart', 4], ['Upgrade_AppleTree', 4],
-  ['Upgrade_Trophy', 5],
-];
-
 function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
-  const upgrades = useMemo(() => STALL_UPGRADES.map(([n, at]) => [lib.clone(n), at] as const), [lib]);
+  const upgrades = useMemo(() => STALL_PIECES.filter((p) => !p.inStall).map((p) => [lib.clone(p.node), p.rank] as const), [lib]);
+  // Parts of the Stall model itself that arrive with a rank (noren, lantern, chalkboard).
+  const parts = useMemo(() => STALL_PIECES.filter((p) => p.inStall).map((p) => [stall.getObjectByName(p.node), p.rank] as const)
+    .filter((x): x is readonly [THREE.Object3D, number] => !!x[0]), [stall]);
   // Golden Chef: gold noren curtains.
   useEffect(() => {
     const gold = rank >= 5;
@@ -138,7 +134,7 @@ function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boole
   const sway = useMemo(() => ['Noren_L', 'Noren_C', 'Noren_R', 'Lantern'].map((n) => stall.getObjectByName(n)).filter(Boolean) as THREE.Object3D[], [stall]);
   useFrame(({ clock }) => {
     // cutaway: the noren would hide the owner's face from the overhead cooking camera
-    sway.forEach((o) => { if (o.name.startsWith('Noren')) o.visible = view !== 'cook'; });
+    for (const [o, at] of parts) o.visible = rank >= at && !(o.name.startsWith('Noren') && view === 'cook');
     if (reduced) return;
     const t = clock.elapsedTime;
     sway.forEach((o, i) => { o.rotation.x = 0.035 * Math.sin(t * 1.1 + i * 0.9); });

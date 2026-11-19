@@ -98,13 +98,17 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
     return () => window.clearInterval(id);
   }, [sub, cook.stepIndex, stage, dispatch, setBridgeFrame, reduced]);
 
+  // ---- first ever action: a short "time it right" tip before the verb flash -------------------
+  const [coachDone, setCoachDone] = useState(false);
+  const coach = !coachDone && state.mode === 'order' && state.order.orderNumber === 1 && cook.stepIndex === 0 && sub === 'instruction';
+
   // ---- instruction: flash the verb, then go (no Ready button) ----------------------------------
   useEffect(() => {
-    if (sub !== 'instruction') return;
+    if (sub !== 'instruction' || coach) return;
     const first = !seenGestures.has(g);
     const id = window.setTimeout(() => { seenGestures.add(g); dispatch({ type: 'READY' }); }, first ? PACE.firstTimePromptMs : PACE.promptMs);
     return () => window.clearTimeout(id);
-  }, [sub, g, dispatch, cook.stepIndex]);
+  }, [sub, g, dispatch, cook.stepIndex, coach]);
 
   useEffect(() => {
     if (sub !== 'countin') return;
@@ -381,7 +385,21 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
           </svg>
         )}
         {fx.map((f) => <FxView key={f.id} f={f} skin={skin} />)}
-        {sub === 'instruction' && tgt && (
+        {coach && (
+          <div className="coach" role="dialog" aria-label="How to cook" data-testid="coach">
+            <div className="coach-card">
+              <div className="coach-title">Time it right!</div>
+              <svg className="coach-demo" viewBox="0 0 120 120" aria-hidden>
+                <circle cx="60" cy="60" r="26" className="cd-zone" />
+                <circle cx="60" cy="60" r="26" className="cd-ring" />
+              </svg>
+              <p>When the ring shrinks onto the <b>gold circle</b>, do the action.</p>
+              <p className="coach-sub">Perfect timing scores the most. Every action Perfect makes a <span className="golden-goal">🏆 Golden Recipe<i aria-hidden /></span></p>
+              <button className="btn primary big" data-testid="coach-done" onClick={() => { unlockAudio(); sfx.tap(); setCoachDone(true); }}>Got it!</button>
+            </div>
+          </div>
+        )}
+        {sub === 'instruction' && tgt && !coach && (
           <div className="verb-flash" key={cook.attemptId + cook.stepIndex}>
             <span>{VERB[g]}</span>
           </div>

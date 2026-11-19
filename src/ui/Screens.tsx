@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
 import { ChefContext } from '../game/chef.ts';
+import { stallGains } from '../game/stallPieces.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, portrait, Stars } from './icons.tsx';
@@ -17,6 +18,8 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
   const head = anchors.customerHead;
   const isPractice = state.mode === 'practice';
   const chef = useContext(ChefContext);
+  const stallRank = isPractice ? null : selectors.pendingStallNote(state);
+  const firstOrder = !isPractice && state.progress.completedOrders === 0;
   const tailX = head ? { ['--tail-x' as string]: `${Math.min(85, Math.max(15, (head.x / Math.max(1, w)) * 100))}%` } : undefined;
   return (
     <>
@@ -34,13 +37,30 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
         </div>
       )}
       <div className="bottom-cta">
+        {stallRank && <StallNote rank={stallRank} onDone={() => dispatch({ type: 'STALL_SEEN', rank: stallRank })} />}
+        {firstOrder && (
+          <div className="first-order" data-testid="first-order">
+            <span className="fo-spark" aria-hidden>✨</span> Let’s make your first order! <span className="fo-spark" aria-hidden>✨</span>
+          </div>
+        )}
         {!isPractice && (
-          <button className="btn primary huge" data-testid="accept" onClick={() => { unlockAudio(); sfx.tap(); dispatch({ type: 'ACCEPT_ORDER' }); }}>
+          <button className={`btn primary huge ${firstOrder ? 'pulse' : ''}`} data-testid="accept"
+            onClick={() => { unlockAudio(); sfx.tap(); if (stallRank) dispatch({ type: 'STALL_SEEN', rank: stallRank }); dispatch({ type: 'ACCEPT_ORDER' }); }}>
             Let’s cook!
           </button>
         )}
       </div>
     </>
+  );
+}
+
+/** After a rank-up: what the stall just gained (once). */
+function StallNote({ rank, onDone }: { rank: number; onDone: () => void }) {
+  return (
+    <div className="stall-note" role="status" data-testid="stall-note" onClick={() => { sfx.tap(); onDone(); }}>
+      <div className="sn-title">🛠️ Your stall grew!</div>
+      <div className="sn-items">{stallGains(rank).map((n) => <span key={n}>{n}</span>)}</div>
+    </div>
   );
 }
 

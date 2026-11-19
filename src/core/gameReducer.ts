@@ -142,6 +142,8 @@ export type GameAction =
   | { type: 'DAY_DONE' }
   /** The player closed a news card (recognition after a rank-up). */
   | { type: 'NEWS_SEEN'; rank: Rank }
+  /** The player saw what the stall gained up to this rank. */
+  | { type: 'STALL_SEEN'; rank: Rank }
   | { type: 'VISIBILITY_HIDDEN' }
   | { type: 'RESUME' }
   | { type: 'SET_SETTINGS'; settings: Partial<SaveSettings> }
@@ -595,6 +597,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== 'day') return state;
       return nextOrderState(state);
 
+    case 'STALL_SEEN': {
+      const keys = Array.from({ length: action.rank - 1 }, (_, i) => `stall:${i + 2}`);
+      const seen = union(state.progress.seenUnlockRewards, keys);
+      if (seen.length === state.progress.seenUnlockRewards.length) return state;
+      return { ...state, progress: { ...state.progress, seenUnlockRewards: seen } };
+    }
+
     case 'NEWS_SEEN': {
       const key = `news:${action.rank}`;
       if (state.progress.seenUnlockRewards.includes(key)) return state;
@@ -792,6 +801,15 @@ export const selectors = {
   /** Golden Trophy progress, in cabinet order. */
   trophies(state: GameState): TrophyStatus[] {
     return trophyStatus(trophyInput(state.progress));
+  },
+  /**
+   * The rank whose new stall pieces haven't been pointed out yet (shown in the shop once any news
+   * card is closed), or null.
+   */
+  pendingStallNote(state: GameState): Rank | null {
+    if (state.phase !== 'shop' || state.mode !== 'order' || selectors.pendingNews(state)) return null;
+    const rank = rankOf(state.progress.rankUps);
+    return rank > 1 && !state.progress.seenUnlockRewards.includes(`stall:${rank}`) ? rank : null;
   },
   /** News cards already seen (the scrapbook), oldest first. */
   seenNews(state: GameState): NewsItem[] {

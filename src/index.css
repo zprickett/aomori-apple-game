@@ -892,6 +892,34 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 
 /* Green tick on apples already cooked with (apple picker and collection) */
 .apple-card, .coll-card { position: relative; }
-.cooked-tick { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: #5ea33d; color: #fff;
-  font-size: 0.75rem; font-weight: 900; line-height: 20px; text-align: center; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-.cooked-tick.inline { position: static; display: inline-block; vertical-align: -4px; }
+.cooked-tick { position: absolute; top: 3px; right: 6px; color: #3f9a2c; font-size: 1.15rem; font-weight: 900; line-height: 1;
+  text-shadow: 0 0 2px #fff, 0 0 3px #fff; }
+.cooked-tick.inline { position: static; display: inline; font-size: 1rem; }
+
+/* ---- First order: welcome banner, pulsing button ---- */
+.first-order { text-align: center; font-weight: 900; font-size: 1.2rem; color: var(--red); background: #fffdf7; border: 3px solid var(--wood-d);
+  border-radius: 999px; padding: 8px 14px; margin-bottom: 10px; box-shadow: 0 4px 0 rgba(104,69,46,0.25); animation: fo-bounce 1.4s ease-in-out infinite; }
+.fo-spark { display: inline-block; animation: rp-twinkle 1.1s ease-in-out infinite; }
+@keyframes fo-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.btn.pulse { animation: btn-pulse 1.4s ease-in-out infinite; }
+@keyframes btn-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,66,50,0.45); } 50% { box-shadow: 0 0 0 10px rgba(217,66,50,0); } }
+.reduced .first-order, .reduced .btn.pulse, .reduced .fo-spark { animation: none; }
+/* ---- "Your stall grew!" note ---- */
+.stall-note { background: #fffdf7; border: 3px solid var(--wood-d); border-radius: 18px; padding: 8px 12px 10px; margin-bottom: 10px;
+  box-shadow: 0 4px 0 rgba(104,69,46,0.25); text-align: center; cursor: pointer; animation: pop 0.45s 1.6s cubic-bezier(.2,1.6,.4,1) both; }
+.sn-title { font-weight: 900; font-size: 1.1rem; margin-bottom: 4px; }
+.sn-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.sn-items span { font-weight: 800; font-size: 0.82rem; background: #fdeacb; border-radius: 999px; padding: 2px 9px; }
+/* ---- First-action tip ---- */
+.coach { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.3); animation: ov-in 0.3s ease-out both; }
+.coach-card { width: min(100%, 340px); background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 16px 18px; text-align: center;
+  box-shadow: 5px 6px 0 rgba(104,69,46,0.3); display: grid; gap: 6px; justify-items: center; animation: pop 0.45s cubic-bezier(.2,1.5,.4,1) both; }
+.coach-title { font-size: 1.6rem; font-weight: 900; color: var(--red); }
+.coach-card p { margin: 0; font-weight: 800; line-height: 1.4; }
+.coach-sub { color: var(--ink-soft); font-size: 0.95rem; }
+.coach-card .btn { width: 100%; margin-top: 6px; }
+.coach-demo { width: 120px; height: 120px; }
+.cd-zone { fill: var(--gold); stroke: #d79c18; stroke-width: 3; }
+.cd-ring { fill: none; stroke: #fff; stroke-width: 6; filter: drop-shadow(0 0 2px rgba(0,0,0,0.35)); transform-origin: 60px 60px; animation: cd-close 1.6s ease-in infinite; }
+@keyframes cd-close { 0% { transform: scale(2.1); stroke: #fff; } 85% { transform: scale(1); stroke: #ffd84a; } 100% { transform: scale(1); stroke: #ffd84a; } }
+.reduced .cd-ring { animation: none; }
