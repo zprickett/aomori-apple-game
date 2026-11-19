@@ -98,6 +98,19 @@ describe('regulars, news and Ojiichan', () => {
     expect(orders([5, 15], 25)).toEqual(orders([5, 15, 25], 25));
   });
 
+  it('a note from a regular comes only after you have met them', () => {
+    // Apprentice news shows at the start of day 2 at the earliest (after order 5).
+    for (const n of NEWS) {
+      const who = REGULARS.find((r) => r.name === n.from);
+      if (!who) continue;
+      const firstNewsAfter = ([5, 15, 30, 50][n.rank - 2] ?? 0);
+      for (const seed of [1, 3, DEFAULT_SEED]) {
+        const met = orders([5, 15, 30, 50], 60, seed).find((o) => o.visit?.who === who.id);
+        expect(met!.orderNumber).toBeLessThanOrEqual(firstNewsAfter);
+      }
+    }
+  });
+
   it('news shows at the start of the day after a rank-up, once', () => {
     expect(NEWS.map((n) => n.rank)).toEqual([2, 3, 4, 5]);
     const at = (completed: number, rankUps: number[]) =>

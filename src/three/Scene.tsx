@@ -110,6 +110,9 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 // ---------------------------------------------------------------------------
 // Stall
 // ---------------------------------------------------------------------------
+/** Noren length as a share of the modelled 0.66 m: the hem clears the owner's face. */
+const NOREN_LENGTH = 0.55;
+
 function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
@@ -123,6 +126,11 @@ function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boole
     const disc = stall.getObjectByName('Ground_1');
     if (disc) disc.visible = !backdrop;
   }, [stall, backdrop]);
+  // Short noren: at full length they hide the owner's face and the backdrop at the shop camera.
+  // They hang from a pivot on the rod, so scaling shortens them from the hem up.
+  useEffect(() => {
+    for (const n of ['Noren_L', 'Noren_C', 'Noren_R']) { const o = stall.getObjectByName(n); if (o) o.scale.y = NOREN_LENGTH; }
+  }, [stall]);
   const sway = useMemo(() => ['Noren_L', 'Noren_C', 'Noren_R', 'Lantern'].map((n) => stall.getObjectByName(n)).filter(Boolean) as THREE.Object3D[], [stall]);
   useFrame(({ clock }) => {
     // cutaway: the noren would hide the owner's face from the overhead cooking camera

@@ -12,6 +12,7 @@ import {
 } from '../gameReducer.ts';
 import { createSaveStore, defaultSave, parseSave, type StorageLike } from '../persistence.ts';
 import { orderForIndex, unlocksEarnedAt } from '../progression.ts';
+import { GRADE_POINTS } from '../timing.ts';
 import { earliestRankUps } from '../ranks.ts';
 
 /** A save with `n` orders done and every rank challenge passed on time. */
@@ -159,7 +160,7 @@ describe('cook lifecycle', () => {
     expect(s.cook!.stepResults[0].grade).toBe('Perfect');
   });
 
-  it('Continue with help records Miss (normal) and advances', () => {
+  it('Continue with help records an assisted OK and advances', () => {
     let s = startCooking(pieAt(), 'a048');
     s = play(toActive(s), [{ type: 'SUBMIT', eventMs: 100 }]); // far too early → Miss
     expect(s.cook!.sub).toBe('miss');
@@ -167,7 +168,7 @@ describe('cook lifecycle', () => {
     s = gameReducer(s, { type: 'CONTINUE_WITH_HELP' });
     expect(s.cook!.sub).toBe('feedback');
     expect(s.cook!.helped).toBe(true);
-    expect(s.cook!.stepResults[0]).toMatchObject({ grade: 'Miss', assisted: true, points: 0 });
+    expect(s.cook!.stepResults[0]).toMatchObject({ grade: 'OK', assisted: true, points: GRADE_POINTS.OK });
     s = gameReducer(s, { type: 'FEEDBACK_DONE' });
     expect(s.cook).toMatchObject({ stepIndex: 1, sub: 'bridge' });
   });

@@ -57,7 +57,7 @@ describe('history and totals', () => {
     const e1 = evaluateDish({ appleId: 'a048', recipeId: o1.recipeId, results: results(o1.recipeId, 'Good'), assisted: false });
     p = commitCompletedOrder(p, o1, e1);
     expect(p.history).toHaveLength(1);
-    expect(p.history[0]).toMatchObject({ orderId: o1.orderId, points: e1.score.total, newBest: true });
+    expect(p.history[0]).toMatchObject({ orderId: o1.orderId, points: e1.score.total, newBest: false }); // first try is not a "best"
     expect(p.totalPoints).toBe(e1.score.total);
     expect(p.bestPoints[o1.recipeId]).toBe(e1.score.total);
     expect(commitCompletedOrder(p, o1, e1)).toBe(p);
@@ -65,6 +65,10 @@ describe('history and totals', () => {
     const e2 = evaluateDish({ appleId: 'a048', recipeId: o2.recipeId, results: results(o2.recipeId, 'Miss'), assisted: false });
     p = commitCompletedOrder(p, o2, e2);
     expect(p.totalPoints).toBe(e1.score.total + e2.score.total);
+    expect(p.history[1].newBest).toBe(false); // a Miss dish is never a new best
+    const e3 = evaluateDish({ appleId: 'a048', recipeId: o1.recipeId, results: results(o1.recipeId, 'Perfect'), assisted: false });
+    p = commitCompletedOrder(p, { ...orderForIndex(3), recipeId: o1.recipeId }, e3);
+    expect(p.history[2].newBest).toBe(e3.score.total > e1.score.total);
   });
 
   it('saves round-trip points and history; old saves load with empty history', () => {

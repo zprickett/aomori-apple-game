@@ -54,7 +54,7 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
   const sub = cook.sub;
   const alt = state.settings.altControls;
   const g = step.gesture;
-  // Wider windows while learning (first 3 orders) or in Helper mode; practice is never assisted.
+  // Wider windows while learning (first 3 orders) or with Easy timing on; practice is never assisted.
   const mult = state.settings.assistance || (state.mode === 'order' && state.order.orderNumber <= 3) ? 1.5 : 1;
   const juice = state.appleId ? appleInfo(state.appleId).flesh : '#FFF1C9';
   const skin = state.appleId ? appleInfo(state.appleId).skin.base : '#D94232';

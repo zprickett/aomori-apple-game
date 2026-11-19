@@ -243,7 +243,7 @@ function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef
       )}
       <label className="toggle"><input type="checkbox" checked={s.sound} onChange={(e) => set({ sound: e.target.checked })} data-testid="set-sound" /> Sound effects</label>
       <label className="toggle"><input type="checkbox" checked={s.assistance} onChange={(e) => set({ assistance: e.target.checked })} data-testid="set-assist" />
-        <span>Helper mode<small>Wider timing windows and a helper bonus (marked on results).</small></span></label>
+        <span>Easy timing<small>Wider timing windows for every action.</small></span></label>
       <label className="toggle"><input type="checkbox" checked={s.altControls} onChange={(e) => set({ altControls: e.target.checked })} data-testid="set-alt" />
         <span>Button controls<small>Use a big button (or Space) instead of swiping and circling.</small></span></label>
       <p className="muted small-print">{persistent ? 'Progress is saved on this device.' : 'Progress cannot be saved on this device.'}</p>

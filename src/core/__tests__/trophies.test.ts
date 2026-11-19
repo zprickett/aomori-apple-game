@@ -90,6 +90,28 @@ describe('trophies in play', () => {
     expect(pendingDelivery(seen, order.orderNumber, order)?.trophies ?? []).not.toContainEqual({ id: 'warren', tier: 1 });
   });
 
+  it('trophies wait while a rank-up shows, then pop up after the next order', () => {
+    const stats = { ...fresh(), rabbitPlates: 4 };
+    // Order 5 brings the Apprentice rank-up; the Hop-Hop Warren bronze earned with it waits.
+    const { order, progress } = serve(4, 'rabbit_apples', 'Good', { trophyStats: stats, rankUps: [] });
+    const withRank = { ...progress, rankUps: [5] };
+    const d = pendingDelivery(withRank, order.orderNumber, order)!;
+    expect(d.rank).toBe(2);
+    expect(d.trophies).toEqual([]);
+    const seen = { ...withRank, seenUnlockRewards: [...withRank.seenUnlockRewards, ...rewardKeys(d)] };
+    const later = pendingDelivery(seen, 6);
+    expect(later?.trophies).toContainEqual({ id: 'warren', tier: 1 });
+  });
+
+  it("trophies never interrupt Ojiichan's visit", () => {
+    const stats = { ...fresh(), rabbitPlates: 4 };
+    const { order, progress } = serve(50, 'rabbit_apples', 'Good', { trophyStats: stats, rankUps: [5, 15, 30, 50] });
+    const visit = { ...order, visit: { who: 'ojiichan', visitorName: 'Ojiichan', tagline: '', color: '', customerId: 'O' as const, step: 1, of: 1 } };
+    expect(pendingDelivery(progress, visit.orderNumber, visit)?.trophies ?? []).toEqual([]);
+    const plain = { ...order, visit: undefined }; // order 51 is Ojiichan's own order in the queue
+    expect(pendingDelivery(progress, plain.orderNumber, plain)?.trophies).toContainEqual({ id: 'warren', tier: 1 });
+  });
+
   it("serving a regular's last visit finishes their story", () => {
     const os = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 3, [5, 15, 30, 50]));
     const last = os.filter((o) => o.visit?.who === 'sota').at(-1)!;

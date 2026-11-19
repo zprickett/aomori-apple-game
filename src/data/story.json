@@ -125,15 +125,15 @@
         },
         {
           "at": 13,
-          "line": "I practised your moves at home! Swish, swish! One {dish}, please, Chef {name}!"
+          "line": "I practised your moves at home! Swish, swish! Could I have {dish}, please, Chef {name}?"
         },
         {
           "at": 24,
-          "line": "What's your best tip, Chef {name}? Mine is: always wash the apples! One {dish}, please."
+          "line": "What's your best tip, Chef {name}? Mine is: always wash the apples! {dish}, please."
         },
         {
           "at": 37,
-          "line": "I opened my own juice stand next door! It's pretend. One {dish} for my first customer: me!"
+          "line": "I opened a pretend apple stall next door! But today I'm the customer. {dish}, please!"
         }
       ]
     },
@@ -154,11 +154,11 @@
         },
         {
           "at": 29,
-          "line": "I tried something harder at home. It was... a little burnt. One {dish}, please!"
+          "line": "I tried something harder at home. It was... a little burnt. Could I have {dish}, please?"
         },
         {
           "at": 42,
-          "line": "I made jam all by myself! It's lumpy, but it's for you. And one {dish}, please!"
+          "line": "I made jam all by myself! It's lumpy, but it's for you. And {dish}, please!"
         }
       ]
     },
@@ -171,7 +171,7 @@
       "visits": [
         {
           "at": 11,
-          "line": "Good day! I'm Kiyoshi. One {dish}, please. Oh, and do you sell pie apples? No reason!"
+          "line": "Good day! I'm Kiyoshi. {dish}, please. Oh, and do you sell pie apples? No reason!"
         },
         {
           "at": 21,
@@ -179,11 +179,11 @@
         },
         {
           "at": 33,
-          "line": "All right, I'll tell you. I'm entering the town pie contest! Wish me luck. One {dish}, please."
+          "line": "All right, I'll tell you. I'm entering the town pie contest! Wish me luck. {dish}, please."
         },
         {
           "at": 45,
-          "line": "Second place in the pie contest! This ribbon is half yours, Chef {name}. One {dish} to celebrate!"
+          "line": "Second place in the pie contest! This ribbon is half yours, Chef {name}. Let's celebrate with {dish}!"
         }
       ]
     },
@@ -196,19 +196,19 @@
       "visits": [
         {
           "at": 9,
-          "line": "Hi, I'm Mei! I collect apples too. Aomori grows more apples than anywhere else in Japan! One {dish}, please."
+          "line": "Hi, I'm Mei! I collect apples too. Aomori grows more apples than anywhere else in Japan! {dish}, please."
         },
         {
           "at": 26,
-          "line": "Apple fact: the Fuji apple was first grown here in Aomori! One {dish}, please."
+          "line": "Apple fact: the Fuji apple was first grown here in Aomori! {dish}, please."
         },
         {
           "at": 40,
-          "line": "Apple fact: apples float because about a quarter of an apple is air! One {dish}, please."
+          "line": "Apple fact: apples float because about a quarter of an apple is air! {dish}, please."
         },
         {
           "at": 48,
-          "line": "This is my rarest apple, Oirase, named after a stream near Lake Towada. It's yours! One {dish}, please.",
+          "line": "This is my rarest apple, Oirase, named after a stream near Lake Towada. It's yours! And {dish}, please.",
           "giftApple": "a096"
         }
       ]
@@ -220,9 +220,9 @@
       "kind": "note",
       "icon": "💌",
       "title": "A thank-you note!",
-      "text": "Thank you for the yummiest apple treats in Aomori! You made my day.",
-      "from": "Yui",
-      "headline": "Yui pinned a note to your stall"
+      "text": "Thank you for letting me watch you cook! When I'm a chef, I want to be just like you.",
+      "from": "Sota",
+      "headline": "Sota pinned a note to your stall"
     },
     {
       "rank": 3,

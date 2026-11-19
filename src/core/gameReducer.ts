@@ -219,7 +219,9 @@ export function pendingDelivery(progress: Progress, completed: number = progress
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
   const reached = rankReachedWith(progress, completed);
   const rank = reached && !progress.seenUnlockRewards.includes(`rank:${reached}`) ? reached : null;
-  const trophies = trophyStatus(trophyInput(progress))
+  // Trophies never interrupt a rank-up or Ojiichan's visit; they stay unseen and pop up after the next order.
+  const holdTrophies = rank !== null || order?.visit?.who === 'ojiichan';
+  const trophies = holdTrophies ? [] : trophyStatus(trophyInput(progress))
     .filter((t) => t.tier > 0 && !progress.seenUnlockRewards.includes(trophyKey(t.id, t.tier)))
     .map((t) => ({ id: t.id, tier: t.tier }));
   if (!apples.length && !recipes.length && !rank && !trophies.length) return null;
@@ -253,7 +255,8 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     grades: evaluation.grades.map((g) => g.grade),
     fit: evaluation.fitStars,
     stars: evaluation.score.stars,
-    newBest: prevBest === undefined || pts > prevBest,
+    // Only a real improvement: the first dish of a recipe (or a 0-point one) is not a "best".
+    newBest: prevBest !== undefined && pts > prevBest,
   };
   // A regular's story is finished when their last visit is served.
   const v = order.visit;
@@ -523,8 +526,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'CONTINUE_WITH_HELP':
       return withCook(state, 'miss', (cook) => {
         const step = currentStepOf(state)!;
-        // Assistance mode explicitly on → an assisted 'OK'; otherwise the Miss is recorded.
-        const grade = state.settings.assistance ? ('OK' as const) : ('Miss' as const);
+        // The chef helps: an assisted 'OK' ("No apples lost!"), never a Golden Recipe.
+        const grade = 'OK' as const;
         const res: StepResult = {
           stepId: step.id,
           grade,
