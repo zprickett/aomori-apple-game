@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { apple as appleInfo, type RecipeId } from '../core/content.ts';
-import { getLib, plainMaterial, swapMaterial, tintApple } from './assetLib.ts';
+import { getLib, plainMaterial, tintApple } from './assetLib.ts';
 import { animateFx, appleScaleFor, makeFx, prepareProp } from './props.ts';
 import { Puppet } from './puppet.ts';
-import { GOLD, applyChefLook } from './chefLook.ts';
+import { applyChefLook } from './chefLook.ts';
 import { DEFAULT_LOOK, type ChefLook } from '../core/profiles.ts';
 import { COUNTER_Y, DISH_DISPLAY_SCALE, dishProp, type PropSpec, type StepStage } from '../game/stations.ts';
 import { STALL_PIECES } from '../game/stallPieces.ts';
@@ -117,14 +117,6 @@ function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boole
   // Parts of the Stall model itself that arrive with a rank (noren, lantern, chalkboard).
   const parts = useMemo(() => STALL_PIECES.filter((p) => p.inStall).map((p) => [stall.getObjectByName(p.node), p.rank] as const)
     .filter((x): x is readonly [THREE.Object3D, number] => !!x[0]), [stall]);
-  // Golden Chef: gold noren curtains.
-  useEffect(() => {
-    const gold = rank >= 5;
-    for (const n of ['Noren_L', 'Noren_C', 'Noren_R']) {
-      const o = stall.getObjectByName(n);
-      if (o) swapMaterial(o, 'M_AppleRed', plainMaterial(gold ? 'noren-gold' : 'noren-red', gold ? GOLD : '#D94232', gold, 'M_AppleRed'));
-    }
-  }, [stall, rank]);
   // Over a painted backdrop the painting's sand is the ground: hide the model's round ground patch
   // (its stepping stones and bushes stay).
   useEffect(() => {

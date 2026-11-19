@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (155 tests)
+npm test                   # vitest (154 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -62,6 +62,7 @@ $B -b --factory-startup --python scripts/icons_blender.py   # assets/icons-png/*
 The chef's customisable parts are named nodes and materials, which `chefLook.ts` relies on:
 - hair: `Chef_Hair_F1..3`, `Chef_Hair_M1..3`
 - rank pieces: `Chef_Badge`, `Chef_Scarf`, `Chef_HatStar` (the apron `Chef_Apron` turns gold at Golden Chef)
+- stall parts: `Stall_Frame`, `Stall_Roof`, `Counter_Cloth`, `Noren_L/C/R`, `Noren_Rod`, `Lantern`, `Lantern_Bracket`, `Crate`, `Chalkboard`, `Greenery`, `Ground`; extras `Upgrade_Sign`, `Upgrade_Crate2`, `Upgrade_Banner`
 - materials: `M_ChefIris`, `M_ChefButton`, `M_ChefSkirt`, `M_ChefHat`
 
 Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
@@ -75,7 +76,7 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 - Stirring is forgiving (`FREEFORM_CIRCLE` in `recognizers.ts`): two circles of any size, anywhere on screen, either way round; lifting the finger keeps the progress. The strict ring-band mode stays for its tests.
 - Apples already cooked with show a plain green ✓ in the apple picker and the collection.
 - Story characters (regulars, Ojiichan) get their own order bubble: colour, portrait, big name, tagline and story hearts. Everyday customers keep the plain bubble.
-- The stall builds up with rank (`src/game/stallPieces.ts`, one list for the stall and the "Your stall grew!" note): Helper is bare (frame, roof, counter, one crate); Apprentice noren curtains, sign, 2nd crate; Cook paper lantern, chalkboard, bunting, brick oven, bench; Head Cook lantern string, side cart, apple tree; Golden Chef trophy shelf and gold noren. Chef pieces: badge (Apprentice), neckerchief (Cook), beret star (Head Cook), gold apron (Golden Chef), in `RANK_PIECES` (chefLook.ts). Models in `stall.py` and `build_chef`.
+- The stall builds up with rank from the original stall's own parts (split in `stall.py`; list in `src/game/stallPieces.ts`), always in the same design and framing: Helper bare frame, counter and one crate; Apprentice red awning (`Stall_Roof`) and apple counter cloth; Cook noren curtains (with rod) and paper lantern (with bracket); Head Cook chalkboard, second crate, hanging sign; Golden Chef bunting (the full original stall). No extra props around the stall. Chef pieces: badge (Apprentice), neckerchief (Cook), beret star (Head Cook), gold apron (Golden Chef), in `RANK_PIECES` (chefLook.ts).
 - First order: a "Let's make your first order!" banner, and a "Time it right!" tip before the very first action.
 - Golden Trophies (`trophies.ts`): 8 trophies with bronze/silver/gold steps (Golden Peeler, Hop-Hop Warren, Golden Spoon, Perfect Streak, Rainbow Basket, Apple Encyclopedia, Big and Small, Regulars' Friend). Counters live in `trophyStats` in the save (rebuilt from history for older saves). A new step pops up after the dish; the cabinet is in My chef. World Traveller, Golden Seal Master and Collector's Crown come with Stage 2.
 - The stall tours with rank: Aomori City (Helper, Apprentice), Lake Towada (Cook), Takayama Inari (Head Cook, Golden Chef). Each backdrop's `groundTop` lines its sand up with the stall.

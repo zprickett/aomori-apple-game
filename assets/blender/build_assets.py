@@ -29,8 +29,7 @@ import props  # noqa: E402
 import dishes  # noqa: E402
 import expansion  # noqa: E402
 
-ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner',
-         'Upgrade_Oven', 'Upgrade_Bench', 'Upgrade_Lanterns', 'Upgrade_Cart', 'Upgrade_AppleTree', 'Upgrade_Trophy', 'Chef',
+ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Chef',
          'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O',
          'Apple', 'Apple_Peeled', 'Apple_Wedges', 'Rabbit_Wedges', 'Apple_Dice', 'Apple_Slices', 'Apple_Chunks',
          'CuttingBoard', 'Knife', 'Juicer', 'Pot', 'Pan', 'Spoon', 'PieTin', 'Oven', 'SyrupPan', 'CoolingTray',
@@ -41,7 +40,6 @@ ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner',
 def build_all():
     stall.build_stall()
     stall.build_upgrades()
-    stall.build_rank_upgrades()
     chars.build_chef()
     chars.build_customer_A()
     chars.build_customer_B()

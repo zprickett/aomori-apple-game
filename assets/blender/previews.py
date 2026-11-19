@@ -250,13 +250,20 @@ def render_all(prev, icons_dir, only=None, icons=True):
             _render(['Stall', 'Chef', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Customer_A'],
                     P('hero_upgrades_customer'))
     if want('ranks'):
-        ups = ['Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Upgrade_Oven', 'Upgrade_Bench', 'Upgrade_Lanterns',
-               'Upgrade_Cart', 'Upgrade_AppleTree', 'Upgrade_Trophy']
-        with Pose(loc={'Chef': (0, 0.36, 0)}):
-            R.look(cam, (0.6, -7.2, 2.2), (0.0, 0, 1.15), 34)
-            _render(['Stall', 'Chef'] + ups, P('stall_all_ranks'), (900, 700))
-        R.auto_cam(cam, ['Chef'], yaw=-20, pitch=8, fill=0.95, lens=50)
-        _render(['Chef'], P('chef_rank_pieces'), (500, 600))
+        # The stall at each rank, from the same front view (parts per src/game/stallPieces.ts).
+        base = ['Stall_Frame', 'Crate', 'Greenery', 'Ground']
+        adds = {1: [], 2: ['Stall_Roof', 'Counter_Cloth'], 3: ['Noren_L', 'Noren_C', 'Noren_R', 'Noren_Rod', 'Lantern', 'Lantern_Bracket'],
+                4: ['Chalkboard', 'Upgrade_Crate2', 'Upgrade_Sign'], 5: ['Upgrade_Banner']}
+        parts = ['Stall_Frame', 'Stall_Roof', 'Counter_Cloth', 'Noren_L', 'Noren_C', 'Noren_R', 'Noren_Rod', 'Lantern',
+                 'Lantern_Bracket', 'Crate', 'Chalkboard', 'Greenery', 'Ground']
+        shown = list(base)
+        for rank in range(1, 6):
+            shown += adds[rank]
+            hide = [p for p in parts if p not in shown]
+            with Pose(loc={'Chef': (0, 0.36, 0)}, hide=hide):
+                R.look(cam, (0.0, -7.6, 2.0), (0.0, 0, 1.2), 34)
+                extra = [u for u in ('Upgrade_Crate2', 'Upgrade_Sign', 'Upgrade_Banner') if u in shown]
+                _render(['Stall', 'Chef'] + extra, P(f'stall_rank_{rank}'), (700, 600), hide=hide)
     if want('chars'):
         with Pose(loc={'Customer_A': (-1.05, 0, 0), 'Customer_B': (-0.35, 0, 0), 'Customer_C': (0.35, 0, 0),
                        'Customer_D': (1.05, 0, 0), 'Chef': (1.8, 0, 0)}):

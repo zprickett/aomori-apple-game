@@ -117,6 +117,11 @@ def build_stall():
     # rafters (short posts from beams up to roof)
     for sx in (-1, 1):
         f.box((0.1, 0.1, 0.25), (sx * POST_X, POST_YB, BEAM_Z + 0.3), 'M_Wood')
+    frame = f.build('Stall_Frame')
+    parent(frame, root)
+
+    # ---------------- awning (its own part so the stall can earn it): roof slab, eaves, beam ends, cap
+    f = MB()
     # roof slab: tilted, front lower
     yF, yB = -0.70, 1.20
     zF, zB = 2.55, 2.74
@@ -131,13 +136,19 @@ def build_stall():
         f.box((0.22, 0.26, 0.26), (sx * 1.68, yF - 0.12, zF + 0.02), 'M_WoodDark', (ang, 0, 0), bevel=0.025)
     # ridge-ish top wooden cap at back
     f.box((3.45, 0.18, 0.12), (0, yB + 0.02, zB + 0.03), 'M_WoodDark', (ang, 0, 0), bevel=0.02)
-    # noren rod
-    f.cyl(0.018, 0.018, 2.5, 6, (0, POST_YF - 0.12, BEAM_Z - 0.01), 'M_WoodDark', (0, 90, 0))
-    # lantern bracket on left front post
-    f.box((0.05, 0.44, 0.05), (-POST_X, POST_YF - 0.22, 2.02), 'M_WoodDark', bevel=0.006)
-    f.box((0.04, 0.04, 0.18), (-POST_X, POST_YF - 0.08, 1.94), 'M_WoodDark', (-40, 0, 0))
-    frame = f.build('Stall_Frame')
-    parent(frame, root)
+    roof = f.build('Stall_Roof')
+    parent(roof, root)
+    # noren rod (arrives with the noren)
+    r = MB()
+    r.cyl(0.018, 0.018, 2.5, 6, (0, POST_YF - 0.12, BEAM_Z - 0.01), 'M_WoodDark', (0, 90, 0))
+    rod = r.build('Noren_Rod')
+    parent(rod, root)
+    # lantern bracket on left front post (arrives with the lantern)
+    k = MB()
+    k.box((0.05, 0.44, 0.05), (-POST_X, POST_YF - 0.22, 2.02), 'M_WoodDark', bevel=0.006)
+    k.box((0.04, 0.04, 0.18), (-POST_X, POST_YF - 0.08, 1.94), 'M_WoodDark', (-40, 0, 0))
+    bracket = k.build('Lantern_Bracket')
+    parent(bracket, root)
 
     # ---------------- counter cloth with emblem
     c = MB()
@@ -304,102 +315,3 @@ def build_upgrades():
         b.prism(tri, 0.008, align_z((0, -1, 0), (x, yb + 0.004, z - 0.005)), m)
     b.build('Upgrade_Banner')
 
-
-# ------------------------------------------------------------------ rank upgrades (story phase 4)
-def build_rank_upgrades():
-    """Stall pieces that appear as the player ranks up (shown by Scene.tsx):
-    Cook: Upgrade_Oven (brick oven on a stand, inside the stall, back right) + Upgrade_Bench (front left).
-    Head Cook: Upgrade_Lanterns (paper lantern string across the front), Upgrade_Cart (side cart with
-    jam and pie, right), Upgrade_AppleTree (left). Golden Chef: Upgrade_Trophy (shelf, back left, with
-    the Golden Apple and a rosette). Gold noren are a runtime material swap."""
-    # --- brick oven on its own little table, back right inside the stall (clear of the chef at x=0)
-    o = MB()
-    ox, oy = 0.84, 0.56
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            o.box((0.04, 0.04, 0.85), (ox + sx * 0.19, oy + sy * 0.13, 0.475), 'M_WoodDark', bevel=0.006)
-    o.box((0.46, 0.34, 0.04), (ox, oy, 0.92), 'M_Wood', bevel=0.008)
-    o.box((0.42, 0.3, 0.1), (ox, oy, 0.99), 'M_Brick', bevel=0.012)
-    o.lathe([(0.19, 0.0), (0.19, 0.05), (0.17, 0.13), (0.12, 0.2), (0.0, 0.23)], 10, (ox, oy, 1.04), 'M_Brick',
-            scale=(1, 0.78, 1))
-    o.box((0.14, 0.02, 0.1), (ox, oy - 0.145, 1.1), 'M_OvenWindow', bevel=0.02)  # mouth
-    o.cyl(0.035, 0.035, 0.16, 6, (ox + 0.06, oy + 0.06, 1.3), 'M_MetalDark')   # chimney
-    o.cyl(0.045, 0.045, 0.02, 6, (ox + 0.06, oy + 0.06, 1.39), 'M_MetalDark')
-    o.build('Upgrade_Oven')
-
-    # --- bench for customers, front left, long side facing the stall
-    b = MB()
-    bx, by = -0.98, -1.32
-    b.box((1.0, 0.3, 0.05), (bx, by, 0.42), 'M_WoodLight', bevel=0.012)
-    for sx in (-1, 1):
-        b.box((0.06, 0.24, 0.4), (bx + sx * 0.4, by, 0.2), 'M_Wood', bevel=0.008)
-    b.box((0.86, 0.04, 0.04), (bx, by, 0.12), 'M_WoodDark')
-    small_apple(b, (bx + 0.3, by, 0.445), 0.55)   # someone left an apple
-    b.build('Upgrade_Bench')
-
-    # --- paper lantern string across the front, under the eaves
-    l = MB()
-    x0, x1, yl, zt, sag = -1.2, 1.2, -0.62, 2.12, 0.12
-    pts = [(x0 + (x1 - x0) * i / 16, yl, zt - sag * 4 * (i / 16) * (1 - i / 16)) for i in range(17)]
-    l.tube(pts, 0.006, 4, 'M_Black')
-    for i in range(7):
-        t = (i + 0.5) / 7
-        x = x0 + (x1 - x0) * t
-        z = zt - sag * 4 * t * (1 - t) - 0.1
-        m = 'M_AppleRed' if i % 2 == 0 else 'M_Lantern'
-        l.lathe([(0.03, 0.0), (0.065, 0.025), (0.072, 0.07), (0.065, 0.115), (0.03, 0.14)], 8, (x, yl, z - 0.07), m)
-        l.cyl(0.032, 0.032, 0.02, 6, (x, yl, z - 0.075), 'M_WoodDark')
-        l.cyl(0.032, 0.032, 0.02, 6, (x, yl, z + 0.075), 'M_WoodDark')
-    l.build('Upgrade_Lanterns')
-
-    # --- second counter: a little side cart with jam jars and a pie, right (behind the chalkboard)
-    c = MB()
-    cx, cy = 1.82, 0.32
-    c.box((0.6, 0.4, 0.05), (cx, cy, 0.8), 'M_WoodLight', bevel=0.01)
-    c.box((0.56, 0.36, 0.04), (cx, cy, 0.3), 'M_Wood', bevel=0.008)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            c.box((0.04, 0.04, 0.76), (cx + sx * 0.26, cy + sy * 0.16, 0.42), 'M_WoodDark', bevel=0.005)
-    c.box((0.6, 0.04, 0.1), (cx, cy - 0.21, 0.86), 'M_AppleRed', bevel=0.01)  # red front trim
-    for i, dx in enumerate((-0.18, -0.06)):
-        c.cyl(0.045, 0.045, 0.1, 10, (cx + dx, cy, 0.875), 'M_Jam')
-        c.cyl(0.05, 0.05, 0.025, 10, (cx + dx, cy, 0.935), 'M_AppleRed' if i == 0 else 'M_Cream')
-    c.cyl(0.12, 0.12, 0.012, 14, (cx + 0.14, cy, 0.83), 'M_Plate')
-    c.cyl(0.1, 0.095, 0.05, 14, (cx + 0.14, cy, 0.86), 'M_PastryBaked')
-    c.build('Upgrade_Cart')
-
-    # --- apple tree beside the stall, left
-    t = MB()
-    rnd = random.Random(21)
-    tx, ty, th = -2.05, 0.55, 1.55
-    t.cyl(0.1, 0.075, th, 7, (tx, ty, th / 2), 'M_WoodDark')
-    t.cyl(0.04, 0.03, 0.5, 5, (tx + 0.18, ty, th - 0.1), 'M_WoodDark', (0, 40, 0))
-    t.cyl(0.04, 0.03, 0.45, 5, (tx - 0.16, ty, th - 0.05), 'M_WoodDark', (0, -38, 0))
-    for (dx, dy, dz, r, m) in ((0, 0, 0.35, 0.62, 'M_Leaf'), (0.42, 0.05, 0.1, 0.45, 'M_LeafDark'),
-                               (-0.42, -0.05, 0.15, 0.45, 'M_LeafDark'), (0.05, -0.1, 0.72, 0.4, 'M_Leaf')):
-        t.ico(r, (tx + dx, ty + dy, th + dz), m, 1, (rnd.uniform(0, 30), 0, rnd.uniform(0, 90)))
-    for i in range(11):
-        a = rnd.uniform(-2.6, -0.5)  # mostly on the front side
-        el = rnd.uniform(-0.35, 0.55)
-        rr = 0.6
-        p = (tx + rr * math.cos(a) * math.cos(el), ty + rr * math.sin(a) * math.cos(el) * 0.9, th + 0.35 + rr * math.sin(el))
-        small_apple(t, p, 0.5, 'M_AppleRed' if i % 4 else 'M_AppleYellow', leaf=False)
-    t.build('Upgrade_AppleTree')
-
-    # --- trophy shelf, back left inside the stall: the Golden Apple + Kiyoshi's rosette
-    s = MB()
-    sx, sy, sz = -0.78, 0.72, 1.4
-    s.box((0.62, 0.18, 0.035), (sx, sy, sz), 'M_WoodLight', bevel=0.008)
-    for dx in (-0.24, 0.24):
-        s.box((0.03, 0.12, 0.12), (sx + dx, sy + 0.03, sz - 0.07), 'M_WoodDark', rot=(0, 0, 0))
-    # golden apple trophy on a little stepped base
-    s.box((0.14, 0.12, 0.04), (sx - 0.1, sy, sz + 0.038), 'M_WoodDark', bevel=0.006)
-    s.box((0.1, 0.09, 0.03), (sx - 0.1, sy, sz + 0.07), 'M_Gold', bevel=0.005)
-    small_apple(s, (sx - 0.1, sy, sz + 0.085), 1.25, 'M_Gold')
-    # rosette ribbon (second place in the pie contest)
-    Mr = align_z((0, -1, 0), (sx + 0.17, sy - 0.02, sz + 0.13))
-    s.cyl(0.07, 0.07, 0.012, 12, (0, 0, 0), 'M_Cloth_LightBlue', M=Mr)
-    s.cyl(0.04, 0.04, 0.016, 12, (0, 0, 0.004), 'M_Cream', M=Mr)
-    for dx in (-0.025, 0.025):
-        s.box((0.03, 0.006, 0.11), (sx + 0.17 + dx, sy - 0.02, sz + 0.05), 'M_Cloth_LightBlue', (0, dx * 400, 0))
-    s.build('Upgrade_Trophy')
