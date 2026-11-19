@@ -3,7 +3,7 @@
  * All functions are pure; "completed" = number of completed orders.
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
-import { EARLIEST_RANK_UPS, rankInfo, recipeRank, recipeUnlockAtFor } from './ranks.ts';
+import { TYPICAL_LADDER, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel } from './ranks.ts';
 import { OJIICHAN_VISIT, REGULARS, nextDayStart } from './story.ts';
 
 /**
@@ -16,10 +16,10 @@ export const APPLE_UNLOCKS: ReadonlyArray<{ at: number; ids: readonly AppleId[] 
 );
 
 /**
- * Recipe unlocks follow the player's rank history (see ranks.ts RANK_RECIPES). Functions below take
- * `rankUps`; omitted, they assume every rank challenge was passed as early as possible.
+ * Recipe unlocks follow the player's ladder (see ranks.ts LADDER). Functions below take
+ * `ladder`; omitted, they assume a typical player's ladder (TYPICAL_LADDER).
  */
-const DEFAULT_RANK_UPS = EARLIEST_RANK_UPS;
+const DEFAULT_LADDER = TYPICAL_LADDER;
 
 /** All 100 apples collected. */
 export const COLLECTION_COMPLETE_AT = Math.max(...EXPANSION_DATA.apple_unlocks.map((u) => u.at));
@@ -34,11 +34,11 @@ export function unlockedApples(completed: number): AppleId[] {
   return APPLE_ORDER.filter((id) => set.has(id));
 }
 
-/** Unlocked recipe ids (recipe order) after `completed` orders with this rank history. */
-export function unlockedRecipes(completed: number, rankUps: readonly number[] = DEFAULT_RANK_UPS): RecipeId[] {
+/** Unlocked recipe ids (recipe order) after `completed` orders with this ladder. */
+export function unlockedRecipes(completed: number, ladder: readonly number[] = DEFAULT_LADDER): RecipeId[] {
   const c = count(completed);
   return RECIPE_ORDER.filter((id) => {
-    const at = recipeUnlockAtFor(id, rankUps);
+    const at = recipeUnlockAtFor(id, ladder);
     return at !== null && at <= c;
   });
 }
@@ -49,12 +49,12 @@ export function unlockedRecipes(completed: number, rankUps: readonly number[] = 
  */
 export function unlocksEarnedAt(
   completedCount: number,
-  rankUps: readonly number[] = DEFAULT_RANK_UPS,
+  ladder: readonly number[] = DEFAULT_LADDER,
 ): { apples: AppleId[]; recipes: RecipeId[] } {
   if (!Number.isInteger(completedCount) || completedCount < 1) return { apples: [], recipes: [] };
   return {
     apples: APPLE_UNLOCKS.filter((u) => u.at === completedCount).flatMap((u) => [...u.ids]),
-    recipes: RECIPE_ORDER.filter((id) => recipeUnlockAtFor(id, rankUps) === completedCount),
+    recipes: RECIPE_ORDER.filter((id) => recipeUnlockAtFor(id, ladder) === completedCount),
   };
 }
 
@@ -65,14 +65,15 @@ export function appleUnlockAt(appleId: string): number {
   return u.at;
 }
 /** Completed-order count at which a recipe unlocks, or null while its rank is not reached. */
-export function recipeUnlockAt(recipeId: string, rankUps: readonly number[] = DEFAULT_RANK_UPS): number | null {
-  return recipeUnlockAtFor(recipeId, rankUps);
+export function recipeUnlockAt(recipeId: string, ladder: readonly number[] = DEFAULT_LADDER): number | null {
+  return recipeUnlockAtFor(recipeId, ladder);
 }
 
-/** Child-facing lock text for a locked recipe, e.g. "After 8 orders" or "Rank: Cook". */
-export function recipeLockText(recipeId: string, rankUps: readonly number[]): string {
-  const at = recipeUnlockAtFor(recipeId, rankUps);
-  return at === null ? `Rank: ${rankInfo(recipeRank(recipeId)).name}` : `After ${at} orders`;
+/** Child-facing lock text for a locked recipe, e.g. "After 2 orders" or "At Cook ★★". */
+export function recipeLockText(recipeId: string, ladder: readonly number[]): string {
+  const at = recipeUnlockAtFor(recipeId, ladder);
+  const step = recipeStep(recipeId);
+  return at === null && step ? `At ${stepLabel(step)}` : `After ${at ?? 0} orders`;
 }
 /** Child-facing lock text for a locked card, e.g. "Arrives after 6 orders". */
 export function unlockConditionText(appleId: string): string {
@@ -127,6 +128,18 @@ export interface Order {
   };
   /** An apple the visitor gives on this order (unlocked when it is served). */
   giftAppleId?: AppleId;
+  /** The second customer of a choice (see offerFor). */
+  alt?: boolean;
+  /** This customer was not picked last turn and waited. */
+  waited?: boolean;
+}
+
+/** An everyday customer who was not picked and waits for the next turn (kept in progress). */
+export interface WaitingCustomer {
+  recipeId: RecipeId;
+  customerId: CustomerId;
+  line: string;
+  suggestedAppleId?: AppleId;
 }
 
 export const DEFAULT_SEED = 20261015;
@@ -210,13 +223,13 @@ interface QueueEntry {
 const queueCache = new Map<string, QueueEntry[]>();
 
 /** Recipe whose intro order is `num` (it unlocked at completed = num − 1), if any. */
-function introAt(num: number, rankUps: readonly number[]): RecipeId | undefined {
-  return RECIPE_ORDER.find((id) => recipeUnlockAtFor(id, rankUps) === num - 1);
+function introAt(num: number, ladder: readonly number[]): RecipeId | undefined {
+  return RECIPE_ORDER.find((id) => recipeUnlockAtFor(id, ladder) === num - 1);
 }
 
-/** Build (and memoise) recipe choices for orders 1..n for a seed and rank history. */
-function recipeQueue(seed: number, n: number, rankUps: readonly number[]): QueueEntry[] {
-  const key = `${seed}|${rankUps.join(',')}`;
+/** Build (and memoise) recipe choices for orders 1..n for a seed and ladder. */
+function recipeQueue(seed: number, n: number, ladder: readonly number[]): QueueEntry[] {
+  const key = `${seed}|${ladder.join(',')}`;
   let q = queueCache.get(key);
   if (!q) {
     q = [];
@@ -229,10 +242,10 @@ function recipeQueue(seed: number, n: number, rankUps: readonly number[]): Queue
     const done = new Set(q.filter((e) => e.demoApple).map((e) => e.demoApple));
     const demoFor = (recipeId?: RecipeId) => DEMO_ORDERS.find((d) => {
       if (done.has(d.appleId) || (recipeId && d.recipeId !== recipeId)) return false;
-      const rAt = recipeUnlockAtFor(d.recipeId, rankUps);
+      const rAt = recipeUnlockAtFor(d.recipeId, ladder);
       return rAt !== null && rAt <= num - 1 && appleUnlockAt(d.appleId) <= num - 1;
     });
-    const intro = introAt(num, rankUps);
+    const intro = introAt(num, ladder);
     if (intro) {
       // An apple already waiting for this recipe is shown off in its intro order.
       const demo = demoFor(intro);
@@ -244,8 +257,8 @@ function recipeQueue(seed: number, n: number, rankUps: readonly number[]): Queue
       q.push({ recipeId: demo.recipeId, demoApple: demo.appleId });
       continue;
     }
-    const available = unlockedRecipes(num - 1, rankUps);
-    const next = introAt(num + 1, rankUps);
+    const available = unlockedRecipes(num - 1, ladder);
+    const next = introAt(num + 1, ladder);
     let candidates = available.filter((r) => r !== prev && r !== next);
     if (!candidates.length) candidates = available.filter((r) => r !== prev);
     if (!candidates.length) candidates = available;
@@ -272,9 +285,9 @@ type StoryVisit =
 const visitCache = new Map<string, Map<number, StoryVisit>>();
 
 /** Order on which Ojiichan visits: the first order of the day after reaching Golden Chef. */
-export function ojiichanOrder(rankUps: readonly number[]): number | null {
-  const g = rankUps[3];
-  return g === undefined ? null : nextDayStart(g);
+export function ojiichanOrder(ladder: readonly number[]): number | null {
+  const g = rankReachedAt(5, ladder);
+  return g === null ? null : nextDayStart(g);
 }
 
 /**
@@ -282,16 +295,16 @@ export function ojiichanOrder(rankUps: readonly number[]): number | null {
  * to the next free order), each regular's visits stay in order, and Ojiichan's visit comes first.
  * Earlier orders never change when a later rank-up is added.
  */
-function storyVisits(seed: number, rankUps: readonly number[]): Map<number, StoryVisit> {
-  const key = `${seed}|${rankUps.join(',')}`;
+function storyVisits(seed: number, ladder: readonly number[]): Map<number, StoryVisit> {
+  const key = `${seed}|${ladder.join(',')}`;
   const hit = visitCache.get(key);
   if (hit) return hit;
   const taken = new Map<number, StoryVisit>();
   const free = (m: number) => {
-    const e = recipeQueue(seed, m, rankUps)[m - 1];
+    const e = recipeQueue(seed, m, ladder)[m - 1];
     return !e.intro && !e.demoApple && !taken.has(m);
   };
-  const oj = ojiichanOrder(rankUps);
+  const oj = ojiichanOrder(ladder);
   if (oj !== null) {
     let m = oj;
     while (!free(m)) m++;
@@ -299,11 +312,15 @@ function storyVisits(seed: number, rankUps: readonly number[]): Map<number, Stor
   }
   REGULARS.forEach((r, regularIndex) => {
     let last = 0;
-    r.visits.forEach((v, visitIndex) => {
-      let m = Math.max(v.at, last + 1);
+    r.visits.every((v, visitIndex) => {
+      // A visit is placed once its rank is reached (so earlier orders never change).
+      const base = rankReachedAt(v.rank, ladder);
+      if (base === null) return false;
+      let m = Math.max(base + v.after, last + 1);
       while (!free(m)) m++;
       taken.set(m, { kind: 'regular', regularIndex, visitIndex });
       last = m;
+      return true;
     });
   });
   if (visitCache.size > 32) visitCache.clear();
@@ -311,18 +328,24 @@ function storyVisits(seed: number, rankUps: readonly number[]): Map<number, Stor
   return taken;
 }
 
+/** Order number Ojiichan's visit actually lands on (after any intro it makes way for), or null. */
+export function ojiichanVisitAt(seed: number, ladder: readonly number[]): number | null {
+  for (const [m, v] of storyVisits(seed, ladder)) if (v.kind === 'ojiichan') return m;
+  return null;
+}
+
 /** Fill {dish}; {name} is left for the UI (the core does not know the chef's name). */
 const withDish = (line: string, recipeId: RecipeId) => line.replaceAll('{dish}', recipe(recipeId).name);
 
 /**
  * Deterministic order for a 1-based order number. Only requests recipes unlocked by
- * completed = orderNumber − 1 under `rankUps`. The first order after a recipe unlocks introduces
+ * completed = orderNumber − 1 under `ladder`. The first order after a recipe unlocks introduces
  * it; demo orders (DEMO_ORDERS) follow apple deliveries. Other orders rotate unlocked recipes
  * (seeded, least-recently-requested, never the same recipe twice in a row when avoidable).
  */
-export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, rankUps: readonly number[] = DEFAULT_RANK_UPS): Order {
+export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, ladder: readonly number[] = DEFAULT_LADDER): Order {
   if (!Number.isInteger(orderNumber) || orderNumber < 1) throw new RangeError('orderNumber must be an integer ≥ 1');
-  const entry = recipeQueue(seed, orderNumber, rankUps)[orderNumber - 1];
+  const entry = recipeQueue(seed, orderNumber, ladder)[orderNumber - 1];
   const recipeId = entry.recipeId;
   const customerId = CUSTOMERS[(orderNumber - 1 + Math.floor(rand(seed, 0, 7) * 4)) % 4];
   const order: Order = { orderId: orderIdFor(orderNumber), orderNumber, recipeId, customerId, line: '' };
@@ -337,7 +360,7 @@ export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, 
     order.line = lines[Math.floor(rand(seed, orderNumber, 2) * lines.length)];
   }
   if (entry.intro) order.intro = true;
-  const visit = storyVisits(seed, rankUps).get(orderNumber);
+  const visit = storyVisits(seed, ladder).get(orderNumber);
   if (visit?.kind === 'ojiichan') {
     order.customerId = OJIICHAN_VISIT.customer as CustomerId;
     order.line = withDish(OJIICHAN_VISIT.line, recipeId);
@@ -360,9 +383,9 @@ export function customOrder(
   orderNumber: number,
   recipeId: RecipeId,
   seed: number = DEFAULT_SEED,
-  rankUps: readonly number[] = DEFAULT_RANK_UPS,
+  ladder: readonly number[] = DEFAULT_LADDER,
 ): Order {
-  const base = orderForIndex(orderNumber, seed, rankUps);
+  const base = orderForIndex(orderNumber, seed, ladder);
   if (base.recipeId === recipeId) return base;
   return {
     orderId: base.orderId,
@@ -376,4 +399,45 @@ export function customOrder(
 /** Names for UI convenience. */
 export function describeUnlocks(u: { apples: readonly string[]; recipes: readonly string[] }): string[] {
   return [...u.apples.map((id) => apple(id).nameEn), ...u.recipes.map((id) => recipe(id).name)];
+}
+
+// ---------------------------------------------------------------------------
+// Two customers: the kid picks who to serve
+// ---------------------------------------------------------------------------
+
+/**
+ * The second customer waiting beside `main`, or null when there is no choice: a new recipe's intro
+ * and story visits must be served, and early on only one recipe exists. A customer who was not
+ * picked last turn (`waiting`) comes back first; otherwise an everyday customer asks for another
+ * unlocked recipe, preferring one the queue has not asked for lately. Deterministic.
+ */
+export function offerFor(main: Order, seed: number, ladder: readonly number[], waiting: WaitingCustomer | null): Order | null {
+  if (main.intro || main.visit) return null;
+  const unlocked = unlockedRecipes(main.orderNumber - 1, ladder);
+  const base = { orderId: main.orderId, orderNumber: main.orderNumber, alt: true as const };
+  if (waiting && waiting.customerId !== main.customerId && waiting.recipeId !== main.recipeId && unlocked.includes(waiting.recipeId)) {
+    const o: Order = { ...base, recipeId: waiting.recipeId, customerId: waiting.customerId, line: waiting.line, waited: true };
+    if (waiting.suggestedAppleId) { o.suggestedAppleId = waiting.suggestedAppleId; o.demo = true; }
+    return o;
+  }
+  const options = unlocked.filter((r) => r !== main.recipeId);
+  if (!options.length) return null;
+  const recent = recipeQueue(seed, main.orderNumber, ladder).slice(-4).map((e) => e.recipeId);
+  const fresh = options.filter((r) => !recent.includes(r));
+  const pool = fresh.length ? fresh : options;
+  const recipeId = pool[Math.floor(rand(seed, main.orderNumber, 3) * pool.length)];
+  const others = CUSTOMERS.filter((c) => c !== main.customerId);
+  const customerId = others[Math.floor(rand(seed, main.orderNumber, 4) * others.length)];
+  const lines = LINES[recipeId];
+  return { ...base, recipeId, customerId, line: lines[Math.floor(rand(seed, main.orderNumber, 5) * lines.length)] };
+}
+
+/** Who waits after a turn: the customer not picked, once (story, intro and already-waited customers never wait). */
+export function waitingAfter(main: Order, offer: Order | null, served: Order, before: WaitingCustomer | null): WaitingCustomer | null {
+  if (!offer) return before; // no choice this turn: whoever was waiting keeps waiting
+  const unpicked = served.alt ? main : offer;
+  if (unpicked.visit || unpicked.intro || unpicked.waited) return null;
+  const w: WaitingCustomer = { recipeId: unpicked.recipeId, customerId: unpicked.customerId, line: unpicked.line };
+  if (unpicked.suggestedAppleId) w.suggestedAppleId = unpicked.suggestedAppleId;
+  return w;
 }

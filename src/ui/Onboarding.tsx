@@ -1,7 +1,7 @@
 /** First-run onboarding (welcome → make your chef → Ojiichan's letter, in Notebook.tsx) and the "Who's cooking?" profile picker. */
 import { useMemo, useState } from 'react';
 import {
-  DEFAULT_LOOK, EYE_COLORS, HAIR_NAMES, MAX_PROFILES, NAME_MAX, OUTFIT_COLORS, chefLevel, cleanName, parseSave, saveKeyFor,
+  DEFAULT_LOOK, EYE_COLORS, HAIR_NAMES, MAX_PROFILES, NAME_MAX, OUTFIT_COLORS, cleanName, ladderProgress, rankInfo, parseSave, saveKeyFor,
   type ChefLook, type ChefSex, type EyeColor, type HairStyle, type OutfitColor, type Profile,
 } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
@@ -98,9 +98,9 @@ export function ChefMaker({ initial, mode, onDone, onBack }: {
 function statsFor(id: string) {
   try {
     const { data } = parseSave(localStorage.getItem(saveKeyFor(id)));
-    return { orders: data.completedOrders, level: chefLevel(data.totalPoints) };
+    return { orders: data.completedOrders, rank: rankInfo(ladderProgress(data.totalPoints, data.ladder.length).rank).name };
   } catch {
-    return { orders: 0, level: chefLevel(0) };
+    return { orders: 0, rank: rankInfo(1).name };
   }
 }
 
@@ -124,7 +124,7 @@ export function WhoIsCooking({ profiles, activeId, onPlay, onNew, onDelete }: {
             onClick={() => { tap(); setSel(x.id); setConfirm(false); }}>
             <i className="who-dot" style={{ background: OUTFIT_COLORS[x.look.outfit].hex }} />
             <span className="who-name">{x.name}</span>
-            <span className="who-meta">Lv {stats[x.id].level.level} · {stats[x.id].orders} orders</span>
+            <span className="who-meta">{stats[x.id].rank} · {stats[x.id].orders} orders</span>
           </button>
         ))}
         {profiles.length < MAX_PROFILES && (

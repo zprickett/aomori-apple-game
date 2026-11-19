@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, chefLevel, recipe, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { LadderBar } from './Ranks.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
@@ -19,6 +20,8 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
   const chef = useContext(ChefContext);
   const firstOrder = !isPractice && state.progress.completedOrders === 0;
   const tailX = head ? { ['--tail-x' as string]: `${Math.min(85, Math.max(15, (head.x / Math.max(1, w)) * 100))}%` } : undefined;
+  const offer = !isPractice ? state.choice.offer : null;
+  if (offer) return <ChoosePair state={state} dispatch={dispatch} name={chef.name} />;
   return (
     <>
       {o.visit ? (
@@ -51,6 +54,39 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
   );
 }
 
+
+/**
+ * Two customers waiting: the kid taps who to serve. The card on the left belongs to the customer
+ * standing on the left (the offer), the right one to the customer at the counter (the queue's order).
+ */
+function ChoosePair({ state, dispatch, name }: { state: GameState; dispatch: D; name: string }) {
+  const { main, offer } = state.choice;
+  const pick = (which: 'main' | 'offer') => { unlockAudio(); sfx.tap(); dispatch({ type: 'ACCEPT_ORDER', pick: which }); };
+  const card = (o: typeof main, which: 'main' | 'offer') => {
+    const r = recipe(o.recipeId);
+    return (
+      <button key={which} className={`choice-card ${which}`} data-testid={`choice-${which}`} onClick={() => pick(which)}>
+        <span className="cc-face" style={{ backgroundImage: `url(${portrait(o.customerId)})` }} aria-hidden />
+        {o.waited && <span className="cc-wait">Waiting</span>}
+        <img src={dishIcon(r.id)} alt="" className="cc-dish" />
+        <span className="cc-name">{r.name}</span>
+        <span className="cc-line">“{withName(o.line, name)}”</span>
+        {o.suggestedAppleId && state.progress.unlockedApples.includes(o.suggestedAppleId) && (
+          <span className="cc-hint"><img src={appleIcon(o.suggestedAppleId)} alt="" /> {apple(o.suggestedAppleId).nameEn}</span>
+        )}
+      </button>
+    );
+  };
+  return (
+    <>
+      <div className="choice-pair" data-testid="choice-pair">
+        <div className="cp-kicker">Order {main.orderNumber} · Who will you serve?</div>
+        <div className="cp-cards">{card(offer!, 'offer')}{card(main, 'main')}</div>
+      </div>
+      <div className="bottom-cta"><div className="cp-tip">Tap a customer to cook their dish!</div></div>
+    </>
+  );
+}
 
 function AppleHint({ state }: { state: GameState }) {
   const o = state.order;
@@ -145,7 +181,7 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
                 <div className="ad-trait">{sel.traitHint}</div>
               </div>
             </div>
-            {fit === 0 && <div className="ad-note">Not a good fit here. Try this apple in another dish!</div>}
+            <div className={`ad-why f-${fit ?? 0}`} data-testid="fit-reason"><Stars n={fit ?? 0} size={14} /> {fitReason(sel.id, r.id)}</div>
             {sizeMismatch && <div className="ad-note">This apple is big for a mini candy apple — it stays whole, but a small apple fits best.</div>}
             <button className="btn primary huge" data-testid="confirm-apple" onClick={() => { unlockAudio(); sfx.pop(); dispatch({ type: 'CONFIRM_APPLE' }); }}>
               Use {sel.nameEn.replace(' (Jonathan)', '')}
@@ -191,23 +227,6 @@ export function useCountUp(target: number, ms: number, reduced: boolean, delay =
     return () => cancelAnimationFrame(raf);
   }, [target, ms, reduced, delay]);
   return v;
-}
-
-export function LevelBar({ before, after, reduced }: { before: number; after: number; reduced: boolean }) {
-  const shown = useCountUp(after - before, 900, reduced, 700) + before;
-  const lv = chefLevel(shown);
-  const up = chefLevel(after).level > chefLevel(before).level && shown >= chefLevel(after).floor;
-  return (
-    <div className={`level-bar ${up ? 'up' : ''}`} data-testid="level-bar">
-      <div className="lv-row">
-        <span className="lv-badge">Lv {lv.level}</span>
-        <span className="lv-title">{lv.title}</span>
-        {up && <span className="lv-up">LEVEL UP!</span>}
-        <span className="lv-pts">{shown.toLocaleString()} pts</span>
-      </div>
-      <div className="lv-track"><i style={{ width: `${Math.round(lv.frac * 100)}%` }} /></div>
-    </div>
-  );
 }
 
 export function ResultCard({ state, dispatch, reduced }: { state: GameState; dispatch: D; reduced: boolean }) {
@@ -256,13 +275,16 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
         ))}
         {score && <span className={`chip apple-x f-${score.fit}`}>🍎 ×{score.appleMultiplier}</span>}
         {score && score.combo > 0 && <span className="chip combo-chip">🔥 +{score.combo}</span>}
+        {score && score.goldenBonus > 0 && <span className="chip golden-chip">🏆 +{score.goldenBonus}</span>}
       </div>
-      {score && <LevelBar before={before} after={after} reduced={reduced} />}
+      {score && <LadderBar points={after} before={before} reduced={reduced} />}
       <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
         {pr ? 'Back to the shop'
+          : state.delivery?.finale ? 'Ojiichan takes a bite…'
           : state.delivery?.rank ? 'Rank up!'
-          : state.delivery && !state.delivery.apples.length && !state.delivery.recipes.length ? '🏆 Golden Trophy!'
-          : state.delivery ? 'A delivery is here!'
+          : state.delivery && !state.delivery.apples.length && !state.delivery.recipes.length ? 'Stall upgrade!'
+          : state.delivery?.recipes.length ? 'New recipe!'
+          : state.delivery ? 'New apples!'
           : dayEnd ? 'End of the day' : 'Next customer'}
       </button>
     </div>

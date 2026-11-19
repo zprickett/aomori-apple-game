@@ -39,8 +39,11 @@ export interface Letter {
 }
 
 export interface RegularVisit {
-  /** Earliest order number for this visit (it moves later past intro/demo orders). */
-  at: number;
+  /** The rank this visit happens in, and how many orders after reaching it (it moves later past
+   *  intro/demo orders). Rank 1 counts from the start. Last visits fall in Head Cook, so every
+   *  regular's story ends before Golden Chef. */
+  rank: Rank;
+  after: number;
   /** Order line; {dish} = the dish ordered, {name} = the chef (filled in by the UI). */
   line: string;
   /** An apple the regular gives the player on this visit. */

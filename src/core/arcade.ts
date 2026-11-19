@@ -17,8 +17,8 @@ export interface BeatWindow { perfect: number; good: number; ok: number }
 
 /** Tight absolute-error windows (ms) per gesture. */
 export const ARCADE_WINDOWS: Readonly<Record<Gesture, BeatWindow>> = Object.freeze({
-  tap: { perfect: 70, good: 150, ok: 260 },
-  swipe: { perfect: 80, good: 170, ok: 290 },
+  tap: { perfect: 90, good: 160, ok: 260 },
+  swipe: { perfect: 100, good: 180, ok: 290 },
   circle: { perfect: 170, good: 350, ok: 560 },
 });
 
@@ -106,14 +106,15 @@ export function beatOpensAt(gesture: Gesture, targetMs: number, i = 0): number {
 }
 
 /**
- * Combine beats into the single step grade. Mean of beat points: ≥0.92 with no Miss → Perfect,
+ * Combine beats into the single step grade. Mean of beat points: ≥0.9 with no Miss → Perfect
+ * (so two Perfect slices and one Good still make a Perfect step),
  * ≥0.66 → Good, ≥0.3 → OK, else Miss. Missing more than half the beats is always a Miss.
  */
 export function combineBeats(beats: readonly BeatResult[]): BeatResult {
   if (!beats.length) return { grade: 'Miss', points: 0, error_ms: null };
   const mean = beats.reduce((s, b) => s + b.points, 0) / beats.length;
   const misses = beats.filter((b) => b.grade === 'Miss').length;
-  let grade: Grade = mean >= 0.92 && misses === 0 ? 'Perfect' : mean >= 0.66 ? 'Good' : mean >= 0.3 ? 'OK' : 'Miss';
+  let grade: Grade = mean >= 0.9 && misses === 0 ? 'Perfect' : mean >= 0.66 ? 'Good' : mean >= 0.3 ? 'OK' : 'Miss';
   if (misses * 2 > beats.length) grade = 'Miss';
   const errs = beats.map((b) => b.error_ms).filter((e): e is number => e !== null);
   const error_ms = errs.length ? Math.round(errs.reduce((s, e) => s + e, 0) / errs.length) : null;

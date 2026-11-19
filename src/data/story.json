@@ -120,19 +120,19 @@
       "color": "#4F9A5A",
       "visits": [
         {
-          "at": 4,
+          "rank": 1, "after": 4,
           "line": "Hi! I'm Sota. I'm going to be a chef too! Can I watch you make {dish}?"
         },
         {
-          "at": 13,
+          "rank": 2, "after": 7,
           "line": "I practised your moves at home! Swish, swish! Could I have {dish}, please, Chef {name}?"
         },
         {
-          "at": 24,
+          "rank": 3, "after": 9,
           "line": "What's your best tip, Chef {name}? Mine is: always wash the apples! {dish}, please."
         },
         {
-          "at": 37,
+          "rank": 4, "after": 6,
           "line": "I opened a pretend apple stall next door! But today I'm the customer. {dish}, please!"
         }
       ]
@@ -145,19 +145,19 @@
       "color": "#E8B230",
       "visits": [
         {
-          "at": 7,
+          "rank": 2, "after": 2,
           "line": "Hello! I'm Yui. I'm learning to cook for my little brother. Is {dish} hard to make?"
         },
         {
-          "at": 18,
+          "rank": 3, "after": 2,
           "line": "My brother loved the last one! Could I have {dish}? I'll watch how you do it."
         },
         {
-          "at": 29,
+          "rank": 3, "after": 11,
           "line": "I tried something harder at home. It was... a little burnt. Could I have {dish}, please?"
         },
         {
-          "at": 42,
+          "rank": 4, "after": 8,
           "line": "I made jam all by myself! It's lumpy, but it's for you. And {dish}, please!"
         }
       ]
@@ -170,19 +170,19 @@
       "color": "#8A5A3B",
       "visits": [
         {
-          "at": 11,
+          "rank": 2, "after": 5,
           "line": "Good day! I'm Kiyoshi. {dish}, please. Oh, and do you sell pie apples? No reason!"
         },
         {
-          "at": 21,
+          "rank": 3, "after": 5,
           "line": "{dish}, please. And six more pie apples... still no reason!"
         },
         {
-          "at": 33,
+          "rank": 4, "after": 2,
           "line": "All right, I'll tell you. I'm entering the town pie contest! Wish me luck. {dish}, please."
         },
         {
-          "at": 45,
+          "rank": 4, "after": 10,
           "line": "Second place in the pie contest! This ribbon is half yours, Chef {name}. Let's celebrate with {dish}!"
         }
       ]
@@ -195,19 +195,19 @@
       "color": "#4A90C2",
       "visits": [
         {
-          "at": 9,
+          "rank": 2, "after": 3,
           "line": "Hi, I'm Mei! I collect apples too. Aomori grows more apples than anywhere else in Japan! {dish}, please."
         },
         {
-          "at": 26,
+          "rank": 3, "after": 7,
           "line": "Apple fact: the Fuji apple was first grown here in Aomori! {dish}, please."
         },
         {
-          "at": 40,
+          "rank": 4, "after": 4,
           "line": "Apple fact: apples float because about a quarter of an apple is air! {dish}, please."
         },
         {
-          "at": 48,
+          "rank": 4, "after": 12,
           "line": "This is my rarest apple, Oirase, named after a stream near Lake Towada. It's yours! And {dish}, please.",
           "giftApple": "a096"
         }

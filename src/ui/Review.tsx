@@ -149,6 +149,7 @@ function RecipesTab() {
               <GameScene
                 view={f.view}
                 customerId="A"
+                steps={10}
                 orderKey="review"
                 props={f.props}
                 appleId={appleId}

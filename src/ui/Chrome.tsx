@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  APPLES, GOLDEN_LABEL, RECIPES, apple, chefLevel, fitStars, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
+  APPLES, GOLDEN_LABEL, RECIPES, apple, fitStars, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -31,7 +31,7 @@ export function TopBar({ state, onOpen, onExitPractice }: { state: GameState; on
             {!inShop && <span className="pill" aria-label={`${state.progress.unlockedApples.length} of ${APPLES.length} apples`}>🍎 {state.progress.unlockedApples.length}/{APPLES.length}</span>}
             {inShop && (
               <button className="pill pill-btn rank-pill" data-testid="open-player"
-                aria-label={`My chef: level ${chefLevel(state.progress.totalPoints).level}, ${rankInfo(selectors.rank(state)).name}`}
+                aria-label={`My chef: ${rankInfo(selectors.rank(state)).name}, ${state.progress.totalPoints.toLocaleString()} points`}
                 onClick={() => { unlockAudio(); onOpen('player'); }}>
                 <RankBadge rank={selectors.rank(state)} size={22} />
               </button>
@@ -145,7 +145,7 @@ function Collection({ state }: { state: GameState }) {
           return (
             <div key={r.id} className={`fit-row ${unlocked ? '' : 'locked'}`}>
               <img src={dishIcon(r.id)} alt="" /><span>{r.name}<small> · {r.steps.length} {r.steps.length === 1 ? 'action' : 'actions'}</small></span>
-              <span className="best">{unlocked ? (best !== undefined ? `Best ${best.toLocaleString()} pts` : 'Not cooked yet') : recipeLockText(r.id, state.progress.rankUps)}</span>
+              <span className="best">{unlocked ? (best !== undefined ? `Best ${best.toLocaleString()} pts` : 'Not cooked yet') : recipeLockText(r.id, state.progress.ladder)}</span>
             </div>
           );
         })}
@@ -216,7 +216,7 @@ function Practice({ state, dispatch, onClose }: { state: GameState; dispatch: D;
             <button key={r.id} className="practice-item" disabled={!unlocked} data-testid={`practice-${r.id}`}
               onClick={() => { sfx.tap(); dispatch({ type: 'START_PRACTICE', recipeId: r.id }); onClose(); }}>
               <img src={dishIcon(r.id)} alt="" />
-              <span>{r.name}<small>{unlocked ? `${r.steps.length} ${r.steps.length === 1 ? 'action' : 'actions'}` : recipeLockText(r.id, state.progress.rankUps)}</small></span>
+              <span>{r.name}<small>{unlocked ? `${r.steps.length} ${r.steps.length === 1 ? 'action' : 'actions'}` : recipeLockText(r.id, state.progress.ladder)}</small></span>
             </button>
           );
         })}

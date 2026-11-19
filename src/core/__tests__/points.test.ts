@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { APPLE_ORDER, RECIPE_ORDER, fitStars, recipe } from '../content.ts';
-import { chefLevel, dishStars, maxDishPoints, recipeDifficulty, scoreDish } from '../points.ts';
+import { dishStars, maxDishPoints, recipeDifficulty, scoreDish } from '../points.ts';
 import { initialState, gameReducer, commitCompletedOrder } from '../gameReducer.ts';
 import { evaluateDish, type StepResult } from '../scoring.ts';
 import { orderForIndex } from '../progression.ts';
@@ -39,12 +39,6 @@ describe('points scoring', () => {
     expect(miss.golden).toBe(false);
   });
 
-  it('chef level grows with lifetime points', () => {
-    expect(chefLevel(0)).toMatchObject({ level: 1, title: 'Apple Sprout', floor: 0 });
-    expect(chefLevel(400).level).toBe(2);
-    expect(chefLevel(399).frac).toBeCloseTo(399 / 400);
-    expect(chefLevel(42000).level).toBe(12);
-  });
 });
 
 describe('history and totals', () => {

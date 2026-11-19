@@ -629,3 +629,45 @@ export function bestApplesFor(recipeId: string, pool: readonly string[] = APPLE_
     .sort((x, y) => y.f - x.f || x.i - y.i)
     .map((x) => x.a);
 }
+
+// ---------------------------------------------------------------------------
+// Why an apple fits a dish (apple picker)
+// ---------------------------------------------------------------------------
+
+/** What each dish wants most from an apple, most important first. */
+const DISH_WANTS: Readonly<Record<string, readonly StatKey[]>> = Object.freeze({
+  fresh_juice: ['juiciness', 'sweetness'],
+  rabbit_apples: ['raw_firmness', 'sweetness'],
+  apple_jam: ['tartness', 'aroma'],
+  ringo_ame: ['raw_firmness', 'tartness'],
+  hirosaki_pie: ['tartness', 'raw_firmness'],
+  jam_toast: ['tartness', 'sweetness'],
+  yogurt_parfait: ['raw_firmness', 'sweetness'],
+  baked_apple: ['tartness', 'raw_firmness'],
+  apple_compote: ['raw_firmness', 'tartness'],
+});
+const STRONG: Readonly<Record<StatKey, string>> = { sweetness: 'sweet', tartness: 'tangy', juiciness: 'juicy', raw_firmness: 'crunchy', aroma: 'smells lovely' };
+const WEAK: Readonly<Record<StatKey, string>> = { sweetness: 'not very sweet', tartness: 'not very tangy', juiciness: 'not very juicy', raw_firmness: 'a bit soft', aroma: 'light on smell' };
+const SHORT_DISH: Readonly<Record<string, string>> = {
+  fresh_juice: 'juice', rabbit_apples: 'rabbit wedges', apple_jam: 'jam', ringo_ame: 'a candy apple', hirosaki_pie: 'pie',
+  jam_toast: 'jam toast', yogurt_parfait: 'a parfait', baked_apple: 'baking', apple_compote: 'compote',
+};
+
+/**
+ * One short, kid-friendly line on why this apple suits (or doesn't suit) a dish, from the apple's
+ * taste stats and what the dish wants. Agrees with the fit stars; never invents numbers.
+ */
+export function fitReason(appleId: string, recipeId: string): string {
+  const a = apple(appleId);
+  const fit = fitStars(appleId, recipeId);
+  const wants = DISH_WANTS[recipeId] ?? [];
+  const dish = SHORT_DISH[recipeId] ?? recipe(recipeId).name;
+  const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+  if (recipeId === 'ringo_ame' && a.sizeClass === 'mini') return 'Tiny enough for a candy apple stick!';
+  const strong = wants.filter((k) => a.stats[k] >= 4);
+  const weak = wants.filter((k) => a.stats[k] <= 2);
+  if (fit >= 3) return strong.length ? `${cap(strong.map((k) => STRONG[k]).join(' and '))}: perfect for ${dish}!` : `A great pick for ${dish}!`;
+  if (fit === 2) return strong.length ? `Nice and ${STRONG[strong[0]]}. Good for ${dish}.` : `Good for ${dish}.`;
+  if (fit === 1) return weak.length ? `${cap(WEAK[weak[0]])} for ${dish}. It works!` : `It works for ${dish}.`;
+  return weak.length ? `${cap(WEAK[weak[0]])} for ${dish}. Try another apple!` : `Not great for ${dish}. Try another apple!`;
+}

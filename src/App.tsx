@@ -1,6 +1,6 @@
 import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
+import { LADDER, createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
 import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
 import { GrandpaLetter, NewsCard } from './ui/Notebook.tsx';
@@ -136,6 +136,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
   // The stall moves and upgrades after the rank-up and its notebook page have been shown.
   const pendingRank = (state.phase === 'result' || state.phase === 'delivery') ? state.delivery?.rank ?? null : null;
   const shownRank: Rank = pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state);
+  const shownSteps = pendingRank ? LADDER.findIndex((st) => st.rank === pendingRank) : selectors.steps(state);
   const backdrop = backgroundFor(shownRank);
   const news = selectors.pendingNews(state);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
@@ -169,10 +170,13 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               chefBase={cook?.sub === 'bridge' ? 'work' : 'lean'}
               recipeId={recipeId}
               rank={shownRank}
+              steps={shownSteps}
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
               backdrop
               hideCustomer={news !== null}
+              sideCustomerId={state.mode === 'order' ? selectors.sideCustomer(state) : null}
+              helper={selectors.ojiichanHelps(state)}
             />
           </Suspense>
         </Canvas>

@@ -1,6 +1,8 @@
 /** Story ranks UI: rank badge, next-rank goals, the rank-up intro and the end-of-day recap. */
 import { useContext, useEffect } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, MAX_RANK, nextRankGoals, type RankGoal, rankInfo, recipe, selectors, type GameAction, type GameState, type Rank } from '../core/index.ts';
+import { DAY_LENGTH, MAX_RANK, ladderProgress, rankInfo, recipe, selectors, stepsForPoints, trophy, type GameAction, type GameState, type LadderStep, type Rank } from '../core/index.ts';
+import { piecesAtStep } from '../game/stallPieces.ts';
+import { useCountUp } from './Screens.tsx';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { dishIcon, Stars } from './icons.tsx';
@@ -24,35 +26,45 @@ export function RankBadge({ rank, size = 28 }: { rank: Rank; size?: number }) {
   );
 }
 
-/** A goal's label; Golden Recipes get the same gold trophy look as the result card badge. */
-function GoalLabel({ goal }: { goal: RankGoal }) {
-  if (goal.id !== 'golden') return <span className="rg-label">{goal.label}</span>;
+/** What reaching a ladder step brings, for "next" lines. */
+export function stepReward(step: LadderStep): { icon: string | null; text: string } {
+  if (step.star === 0) return { icon: null, text: step.rank === MAX_RANK ? 'Golden Chef!' : `Rank up: ${rankInfo(step.rank).name}` };
+  if (step.recipes.length) return { icon: dishIcon(step.recipes[0]), text: recipe(step.recipes[0]).name };
+  const piece = piecesAtStep(step.index).find((x) => x.label);
+  return { icon: null, text: piece?.label ?? 'Stall upgrade' };
+}
+
+/**
+ * The one progress bar (points → the chef's ladder): rank badge, rank and ★ steps, points, and the
+ * next reward. On the result card it counts up from `before`.
+ */
+export function LadderBar({ points, before, reduced = false, testId = 'ladder-bar' }: { points: number; before?: number; reduced?: boolean; testId?: string }) {
+  const from = before ?? points;
+  const shown = useCountUp(points - from, 900, reduced || before === undefined, 700) + from;
+  const lp = ladderProgress(shown);
+  const stepUp = before !== undefined && stepsForPoints(shown) > stepsForPoints(from);
+  const reward = lp.next ? stepReward(lp.next) : null;
   return (
-    <span className="rg-label">
-      <span className="golden-goal"><span aria-hidden>🏆</span> {goal.need} {GOLDEN_LABEL}s<i aria-hidden /></span>
-    </span>
+    <div className={`ladder-bar ${stepUp ? 'up' : ''}`} data-testid={testId}>
+      <div className="lb-row">
+        <RankBadge rank={lp.rank} size={26} />
+        <span className="lb-name">{rankInfo(lp.rank).name}{lp.stars > 0 && <span className="lb-stars"> {'★'.repeat(lp.stars)}</span>}</span>
+        {stepUp && <span className="lb-up">{lp.stars === 0 ? 'RANK UP!' : 'STEP UP!'}</span>}
+        <span className="lb-pts">{shown.toLocaleString()} pts</span>
+      </div>
+      <div className="lb-track"><i style={{ width: `${Math.round(lp.frac * 100)}%` }} /></div>
+      {reward ? (
+        <div className="lb-next">
+          <b>{lp.toGo.toLocaleString()}</b> pts to {reward.icon && <img src={reward.icon} alt="" />}<span>{reward.text}</span>
+        </div>
+      ) : <div className="lb-next">Top rank reached!</div>}
+    </div>
   );
 }
 
+/** The ladder bar for the current state (no count-up). */
 export function RankGoals({ state }: { state: GameState }) {
-  const goals = nextRankGoals(state.progress);
-  const rank = selectors.rank(state);
-  if (!goals.length) return <div className="rank-goals done">Top rank reached!</div>;
-  const next = rankInfo(rank + 1);
-  return (
-    <div className="rank-goals" data-testid="rank-goals">
-      <div className="rg-head"><RankBadge rank={next.rank} size={24} /> Next rank: <b>{next.name}</b></div>
-      <ul>
-        {goals.map((g) => (
-          <li key={g.id} className={`${g.done ? 'done' : ''} ${g.id === 'golden' ? 'golden-row' : ''}`}>
-            <span className="rg-check" aria-hidden>{g.done ? '✓' : ''}</span>
-            <GoalLabel goal={g} />
-            {g.need > 1 && <span className="rg-count">{g.have}/{g.need}</span>}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  return <LadderBar points={state.progress.totalPoints} testId="rank-goals" />;
 }
 
 /** Jagged manga shout balloon (a starburst polygon). */
@@ -84,7 +96,6 @@ const CONFETTI = Array.from({ length: 18 }, (_, i) => ({
 export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; state: GameState; reduced: boolean; onDone: () => void }) {
   const r = rankInfo(rank);
   const chef = useContext(ChefContext);
-  const goals = nextRankGoals(state.progress);
   const next = rank < MAX_RANK ? rankInfo(rank + 1) : null;
   useEffect(() => { emitCue({ type: 'chef', anim: 'cheer' }); }, []);
   return (
@@ -118,20 +129,12 @@ export function RankUpIntro({ rank, state, reduced, onDone }: { rank: Rank; stat
         {next ? (
           <div className="rp-goals" data-testid="rank-goals">
             <div className="rp-next">Next rank <RankBadge rank={next.rank} size={26} /> <b>{next.name}</b></div>
-            <ul>
-              {goals.map((g) => (
-                <li key={g.id} className={`${g.done ? 'done' : ''} ${g.id === 'golden' ? 'golden-row' : ''}`}>
-                  <span className="rg-check" aria-hidden>{g.done ? '✓' : ''}</span>
-                  <GoalLabel goal={g} />
-                  {g.need > 1 && <span className="rg-count">{g.have}/{g.need}</span>}
-                </li>
-              ))}
-            </ul>
+            <LadderBar points={state.progress.totalPoints} />
           </div>
         ) : (
           <div className="rp-final">
             <span className="rp-final-kick">TOP RANK!</span>
-            <span>Every recipe, mastered.</span>
+            <span>The best apple chef in Aomori!</span>
           </div>
         )}
       </div>
@@ -170,10 +173,36 @@ export function DayRecap({ state, dispatch, reduced }: { state: GameState; dispa
           </div>
         ))}
       </div>
+      <DayTrophies state={state} />
       <RankGoals state={state} />
       <button className="btn primary huge" data-testid="day-next" onClick={() => { sfx.tap(); dispatch({ type: 'DAY_DONE' }); }}>
         Next day
       </button>
+    </div>
+  );
+}
+
+const TIER_NAME = ['', 'Bronze', 'Silver', 'Gold'];
+
+/** Golden Trophy steps reached today: shown once, in the recap, instead of pop-ups after dishes. */
+function DayTrophies({ state }: { state: GameState }) {
+  const list = selectors.newTrophies(state);
+  if (!list.length) return null;
+  return (
+    <div className="dr-trophies" data-testid="day-trophies">
+      <div className="dr-tr-head">🏆 New trophies today!</div>
+      <div className="dr-tr-list">
+        {list.map((t) => {
+          const def = trophy(t.id);
+          return (
+            <div key={t.id} className={`dr-tr tier-${t.tier}`}>
+              <span className="dr-tr-medal" aria-hidden>{def.icon}</span>
+              <span className="dr-tr-name">{def.name}</span>
+              <span className="dr-tr-tier">{TIER_NAME[t.tier]}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

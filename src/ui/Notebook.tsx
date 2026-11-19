@@ -3,7 +3,7 @@
  * recipes (locked ones show as silhouettes), a doodle, a postcard from his travels and where the
  * stall sets up next.
  */
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
   type GameState, type NewsItem, type NotebookPage, type Rank,
@@ -12,6 +12,8 @@ import { sfx, unlockAudio } from '../game/audio.ts';
 import { BACKGROUNDS } from '../game/backgrounds.ts';
 import { dishIcon, portrait } from './icons.tsx';
 import { RankBadge } from './Ranks.tsx';
+import { PhotoCard } from './Finale.tsx';
+import { ChefContext } from '../game/chef.ts';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
 
@@ -181,9 +183,12 @@ export function NewsCard({ item, name, onDone }: { item: NewsItem; name: string;
 /** Scrapbook in My chef: every news card seen so far. */
 export function Scrapbook({ state, name }: { state: GameState; name: string }) {
   const items = selectors.seenNews(state);
+  const chef = useContext(ChefContext);
+  const photo = state.progress.seenUnlockRewards.includes('finale');
   if (!items.length) return null;
   return (
     <div className="scrapbook" data-testid="scrapbook">
+      {photo && <PhotoCard name={name} look={chef.look} reduced small />}
       {items.map((n) => (
         <div key={n.rank} className={`scrap n-${n.kind}`}>
           <span className="scrap-icon" aria-hidden>{n.icon}</span>

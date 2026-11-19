@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { APPLES, recipe } from '../content.ts';
-import { commitCompletedOrder, initialStateFromSave, pendingDelivery, rewardKeys, selectors } from '../gameReducer.ts';
+import { commitCompletedOrder, gameReducer, initialStateFromSave, pendingDelivery, selectors } from '../gameReducer.ts';
 import { defaultSave, parseSave } from '../persistence.ts';
 import { orderForIndex } from '../progression.ts';
 import { evaluateDish, type StepResult } from '../scoring.ts';
@@ -74,49 +74,29 @@ describe('trophies', () => {
 describe('trophies in play', () => {
   const serve = (completed: number, recipeId: string, grade: Grade, extra: object = {}) => {
     const s = initialStateFromSave({ ...defaultSave(), completedOrders: completed, completedOrderIds: [], ...extra });
-    const order = { ...orderForIndex(completed + 1, s.progress.seed, s.progress.rankUps), recipeId: recipeId as 'fresh_juice' };
+    const order = { ...orderForIndex(completed + 1, s.progress.seed, s.progress.ladder), recipeId: recipeId as 'fresh_juice' };
     const results: StepResult[] = recipe(recipeId).steps.map((st) => ({ stepId: st.id, grade, error_ms: 0, attemptId: 'x', assisted: false, points: 100 }));
     const ev = evaluateDish({ appleId: 'a048', recipeId, results, assisted: false });
     return { s, order, progress: commitCompletedOrder(s.progress, order, ev) };
   };
 
-  it('a trophy step shows once as a delivery, then never again', () => {
+  it('a trophy step waits for the day recap, shows once, and never as a pop-up after a dish', () => {
     const stats = { ...fresh(), rabbitPlates: 4 };
-    const { order, progress } = serve(10, 'rabbit_apples', 'Good', { trophyStats: stats, rankUps: [5] });
+    const { s, order, progress } = serve(10, 'rabbit_apples', 'Good', { trophyStats: stats, ladder: [5, 9] });
     expect(progress.trophyStats.rabbitPlates).toBe(5);
-    const d = pendingDelivery(progress, order.orderNumber, order)!;
-    expect(d.trophies).toContainEqual({ id: 'warren', tier: 1 });
-    const seen = { ...progress, seenUnlockRewards: [...progress.seenUnlockRewards, ...rewardKeys(d)] };
-    expect(pendingDelivery(seen, order.orderNumber, order)?.trophies ?? []).not.toContainEqual({ id: 'warren', tier: 1 });
-  });
-
-  it('trophies wait while a rank-up shows, then pop up after the next order', () => {
-    const stats = { ...fresh(), rabbitPlates: 4 };
-    // Order 5 brings the Apprentice rank-up; the Hop-Hop Warren bronze earned with it waits.
-    const { order, progress } = serve(4, 'rabbit_apples', 'Good', { trophyStats: stats, rankUps: [] });
-    const withRank = { ...progress, rankUps: [5] };
-    const d = pendingDelivery(withRank, order.orderNumber, order)!;
-    expect(d.rank).toBe(2);
-    expect(d.trophies).toEqual([]);
-    const seen = { ...withRank, seenUnlockRewards: [...withRank.seenUnlockRewards, ...rewardKeys(d)] };
-    const later = pendingDelivery(seen, 6);
-    expect(later?.trophies).toContainEqual({ id: 'warren', tier: 1 });
-  });
-
-  it("trophies never interrupt Ojiichan's visit", () => {
-    const stats = { ...fresh(), rabbitPlates: 4 };
-    const { order, progress } = serve(50, 'rabbit_apples', 'Good', { trophyStats: stats, rankUps: [5, 15, 30, 50] });
-    const visit = { ...order, visit: { who: 'ojiichan', visitorName: 'Ojiichan', tagline: '', color: '', customerId: 'O' as const, step: 1, of: 1 } };
-    expect(pendingDelivery(progress, visit.orderNumber, visit)?.trophies ?? []).toEqual([]);
-    const plain = { ...order, visit: undefined }; // order 51 is Ojiichan's own order in the queue
-    expect(pendingDelivery(progress, plain.orderNumber, plain)?.trophies).toContainEqual({ id: 'warren', tier: 1 });
+    expect(pendingDelivery(progress, order.orderNumber, order)?.steps ?? []).toEqual([]);
+    const day = { ...s, progress, phase: 'day' as const, order };
+    expect(selectors.newTrophies(day)).toContainEqual({ id: 'warren', tier: 1 });
+    const after = gameReducer(day, { type: 'DAY_DONE' });
+    expect(selectors.newTrophies(after)).toEqual([]);
   });
 
   it("serving a regular's last visit finishes their story", () => {
-    const os = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 3, [5, 15, 30, 50]));
+    const L = [5, 9, 14, 18, 21, 26, 32, 37, 42];
+    const os = Array.from({ length: 60 }, (_, i) => orderForIndex(i + 1, 3, L));
     const last = os.filter((o) => o.visit?.who === 'sota').at(-1)!;
     expect(last.visit).toMatchObject({ step: 4, of: 4 });
-    const s = initialStateFromSave({ ...defaultSave(3), completedOrders: last.orderNumber - 1, completedOrderIds: [], rankUps: [5, 15, 30] });
+    const s = initialStateFromSave({ ...defaultSave(3), completedOrders: last.orderNumber - 1, completedOrderIds: [], ladder: L, totalPoints: 44000 });
     const results: StepResult[] = recipe(last.recipeId).steps.map((st) => ({ stepId: st.id, grade: 'Good', error_ms: 0, attemptId: 'x', assisted: false, points: 70 }));
     const ev = evaluateDish({ appleId: 'a048', recipeId: last.recipeId, results, assisted: false });
     const p = commitCompletedOrder(s.progress, s.order, ev);

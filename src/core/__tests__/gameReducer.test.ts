@@ -11,12 +11,12 @@ import {
   type GameState,
 } from '../gameReducer.ts';
 import { createSaveStore, defaultSave, parseSave, type StorageLike } from '../persistence.ts';
-import { orderForIndex, unlocksEarnedAt } from '../progression.ts';
+import { orderForIndex, unlockedApples } from '../progression.ts';
 import { GRADE_POINTS } from '../timing.ts';
-import { earliestRankUps } from '../ranks.ts';
+import { LADDER, rankOf, stepsForPoints, typicalLadder, typicalPoints } from '../ranks.ts';
 
 /** A save with `n` orders done and every rank challenge passed on time. */
-const at = (n: number) => ({ ...defaultSave(), completedOrders: n, completedOrderIds: [], rankUps: earliestRankUps(n) });
+const at = (n: number) => ({ ...defaultSave(), completedOrders: n, completedOrderIds: [], ladder: typicalLadder(n), totalPoints: typicalPoints(n) });
 
 class FakeStorage implements StorageLike {
   map = new Map<string, string>();
@@ -63,7 +63,8 @@ describe('full order loop', () => {
     for (let n = 1; n <= 15; n++) {
       expect(state.phase).toBe('shop');
       expect(state.order.orderNumber).toBe(n);
-      expect(state.order).toEqual(orderForIndex(n, state.progress.seed, state.progress.rankUps));
+      expect(state.order).toEqual(orderForIndex(n, state.progress.seed, state.progress.ladder));
+      expect(state.choice.main).toEqual(state.order);
       expect(state.progress.unlockedRecipes).toContain(state.order.recipeId);
       dispatch({ type: 'ACCEPT_ORDER' });
       const firstPick = { ...state, phase: 'choose' as const };
@@ -90,7 +91,8 @@ describe('full order loop', () => {
       dispatch({ type: 'RESULT_DONE' });
       if (state.phase === 'delivery') {
         const d = state.delivery!;
-        // Trophy-only deliveries are checked in trophies.test.ts.
+        // Trophies wait for the day recap (trophies.test.ts); ★ stall steps may come alone.
+        if (d.rank) expect(d.apples).toEqual([]); // a rank-up keeps its apples for the next order
         if (d.apples.length || d.recipes.length || d.rank) deliveries[n] = { apples: d.apples, recipes: d.recipes, rank: d.rank };
         expect(state.delivery!.collectionComplete).toBe(false);
         dispatch({ type: 'DELIVERY_DONE' });
@@ -101,27 +103,21 @@ describe('full order loop', () => {
         dispatch({ type: 'DAY_DONE' });
       }
     }
-    // Best-fit apples and Perfect timing earn 3 stars, so Apprentice (5) and Cook (15) arrive on time.
-    expect(state.progress.rankUps).toEqual([5, 15]);
-    const expected: Record<number, { apples: string[]; recipes: string[]; rank: number | null }> = {};
-    for (let n = 1; n <= 15; n++) {
-      const e = { ...unlocksEarnedAt(n, [5, 15]), rank: n === 5 ? 2 : n === 15 ? 3 : null };
-      if (e.apples.length || e.recipes.length || e.rank) expected[n] = e;
-    }
-    expect(deliveries).toEqual(expected);
+    // Points alone decide the ladder; every unlock is celebrated exactly once.
+    expect(state.progress.ladder.length).toBe(stepsForPoints(state.progress.totalPoints));
+    expect(rankOf(state.progress.ladder)).toBeGreaterThanOrEqual(3);
+    const shownApples = Object.values(deliveries).flatMap((d) => d.apples);
+    expect([...shownApples].sort()).toEqual(state.progress.unlockedApples.filter((a) => !unlockedApples(0).includes(a)).sort());
+    const shownRecipes = Object.values(deliveries).flatMap((d) => d.recipes);
+    expect([...shownRecipes].sort()).toEqual(state.progress.unlockedRecipes.filter((r) => r !== 'fresh_juice').sort());
     expect(deliveries[2].recipes).toEqual(['rabbit_apples']);
-    expect(deliveries[3].apples).toEqual(['a045', 'a020', 'a094']);
-    expect(deliveries[5]).toMatchObject({ recipes: ['apple_jam'], rank: 2 });
-    expect(deliveries[8].recipes).toEqual(['ringo_ame']);
-    expect(deliveries[15]).toMatchObject({ recipes: ['hirosaki_pie'], rank: 3 });
+    expect(Object.values(deliveries).map((d) => d.rank).filter(Boolean)).toEqual([2, 3].slice(0, rankOf(state.progress.ladder) - 1));
     expect(state.progress.completedOrders).toBe(15);
     expect(state.progress.unlockedApples).toHaveLength(14);
-    expect(state.progress.unlockedRecipes).toHaveLength(5);
-    expect(selectors.rank(state)).toBe(3);
+    expect(state.progress.unlockedRecipes.length).toBeGreaterThanOrEqual(5);
     expect(selectors.collectionComplete(state)).toBe(false);
     expect(selectors.stallLevel(state)).toBe(3);
-    expect(Object.keys(state.progress.bestScores).sort()).toEqual(['apple_jam', 'fresh_juice', 'rabbit_apples', 'ringo_ame']);
-    expect(state.progress.discoveredPairings['a091:ringo_ame']).toEqual({ bestStars: 3, fit: 3 });
+    expect(Object.keys(state.progress.bestScores)).toEqual(expect.arrayContaining(['apple_jam', 'fresh_juice', 'rabbit_apples']));
     // Free play continues.
     expect(state.phase).toBe('shop');
     expect(state.order.orderNumber).toBe(16);
@@ -129,8 +125,8 @@ describe('full order loop', () => {
 });
 
 describe('cook lifecycle', () => {
-  /** Order 16 is the Hirosaki pie intro (Cook rank reached at 15). */
-  const pieAt = () => initialStateFromSave(at(15));
+  /** Order 19 is the Hirosaki pie intro (a typical Cook at 18). */
+  const pieAt = () => initialStateFromSave(at(18));
 
   it('Miss → Retry replaces only that step’s result', () => {
     let s = startCooking(initialState(), 'a048'); // order 1 juice
@@ -305,8 +301,8 @@ describe('settings and reset', () => {
   });
 
   it('selectors expose unlocked apple cards (best fit first) plus the next locked one', () => {
-    const s = play(initialStateFromSave(at(10)), [{ type: 'ACCEPT_ORDER' }]);
-    expect(s.order).toMatchObject({ recipeId: 'ringo_ame', suggestedAppleId: 'a091' }); // Alps Otome demo
+    const s = play(initialStateFromSave(at(14)), [{ type: 'ACCEPT_ORDER' }]);
+    expect(s.order).toMatchObject({ recipeId: 'ringo_ame', suggestedAppleId: 'a091' }); // candy apple intro with the Alps Otome demo
     const cards = selectors.appleCards(s);
     expect(cards).toHaveLength(12);
     expect(cards[0]).toMatchObject({ unlocked: true, fitStars: 3 });
@@ -314,5 +310,57 @@ describe('settings and reset', () => {
     expect(cards.filter((c) => !c.unlocked)).toHaveLength(1);
     expect(cards[11]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 15 orders' });
     expect(selectors.bridgeText(startCooking(initialState(), 'a048'))).toMatch(/Chef washes/);
+  });
+});
+
+describe('two customers, the finale and pop-up limits', () => {
+  const cookAll = (s: GameState) => {
+    let st = play(s, [{ type: 'PREVIEW_APPLE', appleId: s.progress.unlockedApples[0] }, { type: 'CONFIRM_APPLE' }]);
+    for (const step of recipe(st.order.recipeId).steps) {
+      st = play(st, [...toActiveActions(), { type: 'SUBMIT', eventMs: step.timing.target_ms }, { type: 'FEEDBACK_DONE' }]);
+    }
+    return gameReducer(st, { type: 'SERVE_DONE' });
+  };
+  const choiceTurn = () => {
+    for (let n = 5; n < 40; n++) { const s = initialStateFromSave(at(n)); if (s.choice.offer) return s; }
+    throw new Error('no choice turn');
+  };
+
+  it('picking the second customer cooks their dish, survives a reload, and leaves the other waiting', () => {
+    const s0 = choiceTurn();
+    const offer = s0.choice.offer!;
+    const s1 = gameReducer(s0, { type: 'ACCEPT_ORDER', pick: 'offer' });
+    expect(s1.order).toEqual(offer);
+    // Reload in the apple picker: still the second customer's order.
+    const back = initialStateFromSave(toSaveData(s1));
+    expect(back.order).toMatchObject({ recipeId: offer.recipeId, customerId: offer.customerId, alt: true });
+    // Back to the shop restores both customers.
+    expect(gameReducer(s1, { type: 'BACK' }).order).toEqual(s0.choice.main);
+    const done = cookAll(s1);
+    expect(done.progress.history.at(-1)!.recipeId).toBe(offer.recipeId);
+    expect(done.progress.waiting).toMatchObject({ recipeId: s0.choice.main.recipeId, customerId: s0.choice.main.customerId });
+    expect(selectors.sideCustomer(done)).toBe(s0.choice.main.customerId);
+  });
+
+  it('a rank-up order keeps its apples for the next order', () => {
+    // Apprentice reached at order 3 (the first apple batch).
+    const save = { ...defaultSave(), completedOrders: 2, completedOrderIds: [], ladder: [], totalPoints: LADDER[0].points - 10 };
+    const done = cookAll(play(initialStateFromSave(save), [{ type: 'ACCEPT_ORDER' }]));
+    expect(done.delivery).toMatchObject({ rank: 2, apples: [] });
+    const next = cookAll(play(gameReducer(gameReducer(done, { type: 'RESULT_DONE' }), { type: 'DELIVERY_DONE' }), [{ type: 'ACCEPT_ORDER' }]));
+    expect(next.delivery?.apples).toEqual(['a045', 'a020', 'a094']);
+  });
+
+  it("Ojiichan's order brings the tasting and photo, then he helps at the stall", () => {
+    const L = typicalLadder(60);
+    const oj = Array.from({ length: 10 }, (_, i) => 52 + i).find((n) => orderForIndex(n, defaultSave().seed, L).visit?.who === 'ojiichan')!;
+    const save = { ...defaultSave(), completedOrders: oj - 1, completedOrderIds: [], ladder: L, totalPoints: typicalPoints(oj - 1) };
+    const s = initialStateFromSave(save);
+    expect(s.choice.offer).toBeNull(); // story visits are served, not chosen
+    const done = cookAll(play(s, [{ type: 'ACCEPT_ORDER' }]));
+    expect(done.delivery).toMatchObject({ finale: true, apples: [] });
+    const after = gameReducer(gameReducer(done, { type: 'RESULT_DONE' }), { type: 'DELIVERY_DONE' });
+    expect(after.progress.seenUnlockRewards).toContain('finale');
+    expect(selectors.ojiichanHelps(after)).toBe(true);
   });
 });

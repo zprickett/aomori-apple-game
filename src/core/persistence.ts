@@ -4,15 +4,15 @@
  * Never stores live gesture coordinates or renderer state.
  */
 import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './content.ts';
-import { DEFAULT_SEED, unlockedApples, unlockedRecipes } from './progression.ts';
-import { cleanRankUps } from './ranks.ts';
+import { CUSTOMERS, DEFAULT_SEED, unlockedApples, unlockedRecipes, type WaitingCustomer } from './progression.ts';
+import { advanceLadder, cleanLadder, ladderFromRankUps } from './ranks.ts';
 import { EMPTY_STATS, sanitizeStats, type TrophyStats } from './trophies.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
 
 export const SAVE_KEY = 'aomori-kitchen-save';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 export const ACTION_SYSTEM_VERSION = '2.0';
 
 export const NOTICE_NO_STORAGE = 'Progress cannot be saved on this device';
@@ -47,17 +47,21 @@ export interface CurrentOrderSave {
   cueTime?: number;
   /** Result shown on the result/delivery screen (already committed). */
   pendingResult?: DishEvaluation | null;
+  /** The kid picked the second customer (progression.ts offerFor). */
+  pick?: 'offer';
 }
 
 export interface SaveData {
-  version: 3;
+  version: 4;
   actionSystemVersion: '2.0';
   seed: number;
   completedOrders: number;
   /** Ids of committed orders (idempotency; together with the completedOrders high-water mark). */
   completedOrderIds: string[];
-  /** Completed-order count when each rank 2..5 was reached (v3; v2 saves get the earliest schedule). */
-  rankUps: number[];
+  /** Completed-order count when each ladder step was reached (v4; older saves are migrated). */
+  ladder: number[];
+  /** The everyday customer not picked last turn. */
+  waiting: WaitingCustomer | null;
   unlockedApples: string[];
   unlockedRecipes: string[];
   bestScores: Record<string, number>;
@@ -88,12 +92,13 @@ export const DEFAULT_SETTINGS: Readonly<SaveSettings> = Object.freeze({
 
 export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings = DEFAULT_SETTINGS): SaveData {
   return {
-    version: 3,
+    version: 4,
     actionSystemVersion: '2.0',
     seed,
     completedOrders: 0,
     completedOrderIds: [],
-    rankUps: [],
+    ladder: [],
+    waiting: null,
     unlockedApples: unlockedApples(0),
     unlockedRecipes: unlockedRecipes(0),
     bestScores: {},
@@ -224,6 +229,7 @@ function sanitizeCurrent(
     attemptId: typeof v.attemptId === 'string' ? v.attemptId : `${v.orderId}-restored`,
   };
   if (typeof v.cueTime === 'number' && Number.isFinite(v.cueTime)) current.cueTime = v.cueTime;
+  if (v.pick === 'offer') current.pick = 'offer';
   if (pendingResult) current.pendingResult = pendingResult;
   return { current, notice };
 }
@@ -237,9 +243,13 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
   const completedOrders = nonNegInt(v.completedOrders, 0);
   const seed = typeof v.seed === 'number' && Number.isInteger(v.seed) ? v.seed : DEFAULT_SEED;
   const completedOrderIds = uniq(strArr(v.completedOrderIds));
-  const rankUps = cleanRankUps(v.rankUps, completedOrders);
+  const totalPoints = nonNegInt(v.totalPoints, 0);
+  // v4 keeps its ladder; v3 rank goals (and v2's earliest schedule) move onto the points ladder.
+  const ladder = Array.isArray(v.ladder)
+    ? advanceLadder(cleanLadder(v.ladder, completedOrders), totalPoints, completedOrders)
+    : ladderFromRankUps(Array.isArray(v.rankUps) ? v.rankUps : [5, 15, 30, 50].filter((x) => x <= completedOrders), completedOrders, totalPoints);
   const apples = uniq([...strArr(v.unlockedApples).filter(isAppleId), ...unlockedApples(completedOrders)]);
-  const recipes = uniq([...strArr(v.unlockedRecipes).filter(isRecipeId), ...unlockedRecipes(completedOrders, rankUps)]);
+  const recipes = uniq([...strArr(v.unlockedRecipes).filter(isRecipeId), ...unlockedRecipes(completedOrders, ladder)]);
   const bestScores: Record<string, number> = {};
   if (isObj(v.bestScores))
     for (const [k, s] of Object.entries(v.bestScores))
@@ -259,17 +269,18 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     for (const [k, s] of Object.entries(v.bestPoints)) if (isRecipeId(k)) { const n = nonNegInt(s, -1); if (n >= 0) bestPoints[k] = n; }
   const history = (Array.isArray(v.history) ? v.history : []).map(sanitizeRecord).filter((r): r is OrderRecord => r !== null).slice(-HISTORY_LIMIT);
   const data: SaveData = {
-    version: 3,
+    version: 4,
     actionSystemVersion: '2.0',
     seed,
     completedOrders,
     completedOrderIds,
-    rankUps,
+    ladder,
+    waiting: sanitizeWaiting(v.waiting),
     unlockedApples: orderLike(apples, unlockedApples(99)),
     unlockedRecipes: orderLike(recipes, [...RECIPE_ORDER]),
     bestScores,
     discoveredPairings,
-    totalPoints: nonNegInt(v.totalPoints, 0),
+    totalPoints,
     bestPoints,
     history,
     trophyStats: sanitizeStats(v.trophyStats, history),
@@ -367,7 +378,7 @@ export function parseSave(text: string | null): { data: SaveData; notice: string
     const m = migrateV1(raw);
     return { ...m, future: false };
   }
-  if (raw.version === 2 || raw.version === 3) return { ...sanitizeSave(raw), future: false };
+  if (raw.version >= 2 && raw.version <= 4) return { ...sanitizeSave(raw), future: false };
   return { data: defaultSave(), notice: NOTICE_CORRUPT, future: false };
 }
 
@@ -469,4 +480,11 @@ export function createSaveStore(storage?: StorageLike | null, key: string = SAVE
 /** In-memory store (tests / when the caller knows storage is unavailable). */
 export function createMemoryStore(): SaveStore {
   return createSaveStore(null);
+}
+
+function sanitizeWaiting(v: unknown): WaitingCustomer | null {
+  if (!isObj(v) || !isRecipeId(v.recipeId) || typeof v.line !== 'string' || !(CUSTOMERS as readonly unknown[]).includes(v.customerId)) return null;
+  const w: WaitingCustomer = { recipeId: v.recipeId as RecipeId, customerId: v.customerId as WaitingCustomer['customerId'], line: v.line };
+  if (isAppleId(v.suggestedAppleId)) w.suggestedAppleId = v.suggestedAppleId;
+  return w;
 }

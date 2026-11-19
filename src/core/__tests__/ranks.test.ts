@@ -5,91 +5,124 @@ import { defaultSave } from '../persistence.ts';
 import { orderForIndex } from '../progression.ts';
 import { evaluateDish } from '../scoring.ts';
 import {
-  EARLIEST_RANK_UPS,
+  LADDER,
   RANKS,
-  advanceRank,
-  cleanRankUps,
-  nextRankGoals,
+  TYPICAL_LADDER,
+  advanceLadder,
+  cleanLadder,
+  ladderFromRankUps,
+  ladderProgress,
   rankOf,
+  rankReachedAt,
+  rankUpsOf,
   recipeRank,
-  type RankProgressInput,
+  recipeUnlockAtFor,
+  stepLabel,
+  stepsForPoints,
+  typicalPoints,
 } from '../ranks.ts';
 
-const base = (over: Partial<RankProgressInput> = {}): RankProgressInput => ({
-  completedOrders: 0,
-  rankUps: [],
-  bestScores: {},
-  discoveredPairings: {},
-  history: [],
-  ...over,
-});
-
-describe('ranks', () => {
-  it('five ranks, every playable recipe belongs to exactly one', () => {
+describe('the ladder', () => {
+  it('five ranks; ten steps (a rank, then two ★ steps); every recipe on it once', () => {
     expect(RANKS.map((r) => r.name)).toEqual(['Helper', 'Apprentice', 'Cook', 'Head Cook', 'Golden Chef']);
-    expect(EARLIEST_RANK_UPS).toEqual([5, 15, 30, 50]);
-    expect(RECIPE_ORDER.map(recipeRank).sort()).toEqual([1, 1, 2, 2, 3, 3, 4, 4, 4]);
-    expect(rankOf([])).toBe(1);
-    expect(rankOf([5, 15, 30, 50])).toBe(5);
-  });
-
-  it('Apprentice needs 5 orders only', () => {
-    expect(nextRankGoals(base({ completedOrders: 4 })).map((g) => g.done)).toEqual([false]);
-    expect(advanceRank(base({ completedOrders: 4 }))).toEqual([]);
-    expect(advanceRank(base({ completedOrders: 5 }))).toEqual([5]);
-  });
-
-  it('Cook needs 15 orders and 3 stars on juice and rabbit wedges', () => {
-    const p = base({ completedOrders: 15, rankUps: [5], bestScores: { fresh_juice: 3, rabbit_apples: 2 } });
-    expect(nextRankGoals(p).map((g) => [g.id, g.done])).toEqual([
-      ['orders', true], ['stars:fresh_juice', true], ['stars:rabbit_apples', false],
+    expect(LADDER.map(stepLabel)).toEqual([
+      'Apprentice', 'Apprentice ★', 'Apprentice ★★', 'Cook', 'Cook ★', 'Cook ★★',
+      'Head Cook', 'Head Cook ★', 'Head Cook ★★', 'Golden Chef',
     ]);
-    expect(advanceRank(p)).toEqual([5]);
-    // Passing later records the later count.
-    expect(advanceRank({ ...p, completedOrders: 19, bestScores: { fresh_juice: 3, rabbit_apples: 3 } })).toEqual([5, 19]);
+    for (let i = 1; i < LADDER.length; i++) expect(LADDER[i].points).toBeGreaterThan(LADDER[i - 1].points);
+    expect(RECIPE_ORDER.map(recipeRank).sort()).toEqual([1, 1, 2, 2, 3, 3, 4, 4, 4]);
+    expect(TYPICAL_LADDER).toHaveLength(LADDER.length);
   });
 
-  it('Head Cook counts Golden Recipes earned since reaching Cook', () => {
-    const golden = (orderNumber: number) => ({ orderNumber, golden: true });
-    const p = base({ completedOrders: 30, rankUps: [5, 15], history: [golden(3), golden(10), golden(16), golden(20), golden(25), golden(29)] });
-    const g = nextRankGoals(p).find((x) => x.id === 'golden')!;
-    expect([g.have, g.need, g.done]).toEqual([4, 5, false]);
-    expect(advanceRank({ ...p, history: [...p.history, golden(30)] })).toEqual([5, 15, 30]);
+  it('points alone move the chef up; every passed step is recorded at that order', () => {
+    expect(advanceLadder([], LADDER[0].points - 1, 4)).toEqual([]);
+    expect(advanceLadder([], LADDER[0].points, 4)).toEqual([4]);
+    expect(advanceLadder([4], LADDER[2].points, 9)).toEqual([4, 9, 9]);
+    expect(advanceLadder(TYPICAL_LADDER, 10 ** 9, 99)).toEqual(TYPICAL_LADDER);
+    expect(stepsForPoints(0)).toBe(0);
+    expect(stepsForPoints(LADDER[9].points)).toBe(10);
   });
 
-  it('Golden Chef needs 3 stars on every recipe and 30 different apples', () => {
-    const allStars = Object.fromEntries(RECIPE_ORDER.map((id) => [id, 3]));
-    const pairs = Object.fromEntries(Array.from({ length: 30 }, (_, i) => [`a${String(i + 1).padStart(3, '0')}:fresh_juice`, {}]));
-    const p = base({ completedOrders: 50, rankUps: [5, 15, 30], bestScores: allStars, discoveredPairings: pairs });
-    expect(advanceRank(p)).toEqual([5, 15, 30, 50]);
-    expect(advanceRank({ ...p, bestScores: { ...allStars, apple_compote: 2 } })).toEqual([5, 15, 30]);
-    // Several recipes with one apple count once.
-    const one = { 'a001:fresh_juice': {}, 'a001:apple_jam': {} };
-    expect(nextRankGoals({ ...p, discoveredPairings: one }).find((g) => g.id === 'apples')!.have).toBe(1);
-    expect(nextRankGoals({ ...p, rankUps: [5, 15, 30, 50] })).toEqual([]);
+  it('ranks come from the ladder', () => {
+    expect(rankOf([])).toBe(1);
+    expect(rankOf([5, 9])).toBe(2);
+    expect(rankOf(TYPICAL_LADDER.slice(0, 4))).toBe(3);
+    expect(rankOf(TYPICAL_LADDER)).toBe(5);
+    expect(rankUpsOf(TYPICAL_LADDER)).toEqual([5, 18, 32, 51]);
+    expect(rankReachedAt(1, [])).toBe(0);
+    expect(rankReachedAt(3, [5, 9])).toBeNull();
   });
 
-  it('cleanRankUps defaults missing history to the earliest schedule', () => {
-    expect(cleanRankUps(undefined, 16)).toEqual([5, 15]);
-    expect(cleanRankUps([7], 16)).toEqual([7]);
+  it('recipes unlock with their step; Helper has juice from the start and rabbit wedges after 2 orders', () => {
+    expect(recipeUnlockAtFor('fresh_juice', [])).toBe(0);
+    expect(recipeUnlockAtFor('rabbit_apples', [])).toBe(2);
+    expect(recipeUnlockAtFor('apple_jam', [])).toBeNull();
+    expect(recipeUnlockAtFor('apple_jam', [6])).toBe(6);
+    expect(recipeUnlockAtFor('ringo_ame', [6, 10, 13])).toBe(13);
+    expect(recipeUnlockAtFor('apple_compote', TYPICAL_LADDER)).toBe(42);
+  });
+
+  it('progress shows rank, ★ steps, points to go and the bar fill', () => {
+    const p = ladderProgress(LADDER[4].points + 100);
+    expect([p.rank, p.stars, p.next?.index]).toEqual([3, 1, 5]);
+    expect(p.toGo).toBe(LADDER[5].points - LADDER[4].points - 100);
+    expect(p.frac).toBeGreaterThan(0);
+    const top = ladderProgress(LADDER[9].points + 5000);
+    expect([top.rank, top.next, top.frac]).toEqual([5, null, 1]);
+    expect(ladderProgress(0)).toMatchObject({ rank: 1, stars: 0, from: 0, toGo: LADDER[0].points });
+  });
+
+  it('cleanLadder keeps a valid, non-decreasing history only', () => {
+    expect(cleanLadder(undefined, 10)).toEqual([]);
+    expect(cleanLadder([5, 9, 9, 12], 10)).toEqual([5, 9, 9]);
+    expect(cleanLadder([5, 3], 10)).toEqual([5]);
+    expect(cleanLadder([5, 'x'], 10)).toEqual([5]);
+  });
+
+  it('v3 rank histories move onto the ladder without losing rank or recipes', () => {
+    // Cook at 15 (from v3 goals) with only a few points: still Cook, recipes keep their old counts.
+    const l = ladderFromRankUps([5, 15], 22, 3000);
+    expect(rankOf(l)).toBe(3);
+    expect(recipeUnlockAtFor('apple_jam', l)).toBe(5);
+    expect(recipeUnlockAtFor('ringo_ame', l)).toBe(8);
+    expect(recipeUnlockAtFor('hirosaki_pie', l)).toBe(15);
+    expect(recipeUnlockAtFor('jam_toast', l)).toBe(21);
+    // Many points push them further up.
+    expect(ladderFromRankUps([5], 30, LADDER[6].points).length).toBe(7);
+    expect(ladderFromRankUps([], 0, 0)).toEqual([]);
+  });
+
+  it('typical points follow the typical ladder (dev skip)', () => {
+    expect(typicalPoints(0)).toBe(0);
+    for (let i = 0; i < LADDER.length; i++) expect(typicalPoints(TYPICAL_LADDER[i])).toBe(LADDER[i].points);
   });
 });
 
-describe('rank-up on commit', () => {
-  it('a 3-star rabbit plate at order 16 brings Cook and the pie together', () => {
-    const save = { ...defaultSave(), completedOrders: 15, completedOrderIds: [], rankUps: [5], bestScores: { fresh_juice: 3, rabbit_apples: 2 } };
+describe('ladder on commit', () => {
+  it('the points that pass Cook bring the pie at that same order', () => {
+    const save = { ...defaultSave(), completedOrders: 15, completedOrderIds: [], ladder: [5, 9, 13], totalPoints: LADDER[3].points - 50 };
     const state = initialStateFromSave(save);
     expect(state.progress.unlockedRecipes).not.toContain('hirosaki_pie');
-    const order = { ...orderForIndex(16, save.seed, [5]), recipeId: 'rabbit_apples' as const };
+    const order = { ...orderForIndex(16, save.seed, [5, 9, 13]), recipeId: 'rabbit_apples' as const };
     const appleId = APPLE_ORDER.find((id) => fitStars(id, 'rabbit_apples') === 3)!;
     const results = recipe('rabbit_apples').steps.map((s) => ({
       stepId: s.id, grade: 'Perfect' as const, error_ms: 0, attemptId: 'x', assisted: false, points: 100,
     }));
     const evaluation = evaluateDish({ appleId, recipeId: 'rabbit_apples', results, assisted: false });
-    expect(evaluation.finishedStars).toBe(3);
     const p = commitCompletedOrder(state.progress, order, evaluation);
-    expect(p.rankUps).toEqual([5, 16]);
+    expect(p.ladder).toEqual([5, 9, 13, 16]);
+    expect(rankOf(p.ladder)).toBe(3);
     expect(p.unlockedRecipes).toContain('hirosaki_pie');
-    expect(p.history.at(-1)!.stars).toBe(3);
+  });
+
+  it('a Golden Recipe earns 25% more points; stars ignore the bonus', () => {
+    const appleId = APPLE_ORDER.find((id) => fitStars(id, 'fresh_juice') === 3)!;
+    const res = (grade: 'Perfect' | 'Good') => [{ stepId: recipe('fresh_juice').steps[0].id, grade, error_ms: 0, attemptId: 'x', assisted: false, points: 1 }];
+    const gold = evaluateDish({ appleId, recipeId: 'fresh_juice', results: res('Perfect'), assisted: false }).score;
+    expect(gold.golden).toBe(true);
+    expect(gold.total).toBe(250);
+    expect(gold.goldenBonus).toBe(50);
+    expect(gold.stars).toBe(3);
+    expect(evaluateDish({ appleId, recipeId: 'fresh_juice', results: res('Good'), assisted: false }).score.goldenBonus).toBe(0);
   });
 });

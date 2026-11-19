@@ -27,8 +27,10 @@ export interface SceneProps {
   cue: StepStage['cue'] | null;
   chefBase: 'idle' | 'lean' | 'work';
   recipeId: RecipeId;
-  /** Story rank shown on the stall and chef (upgrades and outfit pieces). */
+  /** Story rank shown on the chef (outfit pieces). */
   rank: number;
+  /** Ladder steps shown on the stall (stall pieces). */
+  steps: number;
   deliveryAppleId: string | null;
   reducedMotion: boolean;
   /** A painted backdrop shows through a transparent canvas: no sky colour, fog or visible ground
@@ -36,6 +38,10 @@ export interface SceneProps {
   backdrop?: boolean;
   /** No customer yet (a news card is showing); they walk in once it closes. */
   hideCustomer?: boolean;
+  /** The second customer on the left (a choice, or someone waiting), or null. */
+  sideCustomerId?: string | null;
+  /** Ojiichan stays at the stall after his visit. */
+  helper?: boolean;
 }
 
 const BG = '#FCF8F0';
@@ -113,12 +119,12 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 /** Noren length as a share of the modelled 0.66 m: the hem clears the owner's face. */
 const NOREN_LENGTH = 0.55;
 
-function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
+function Stall({ steps, reduced, view, backdrop }: { steps: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
-  const upgrades = useMemo(() => STALL_PIECES.filter((p) => !p.inStall).map((p) => [lib.clone(p.node), p.rank] as const), [lib]);
+  const upgrades = useMemo(() => STALL_PIECES.filter((p) => !p.inStall).map((p) => [lib.clone(p.node), p.step] as const), [lib]);
   // Parts of the Stall model itself that arrive with a rank (noren, lantern, chalkboard).
-  const parts = useMemo(() => STALL_PIECES.filter((p) => p.inStall).map((p) => [stall.getObjectByName(p.node), p.rank] as const)
+  const parts = useMemo(() => STALL_PIECES.filter((p) => p.inStall).map((p) => [stall.getObjectByName(p.node), p.step] as const)
     .filter((x): x is readonly [THREE.Object3D, number] => !!x[0]), [stall]);
   // Over a painted backdrop the painting's sand is the ground: hide the model's round ground patch
   // (its stepping stones and bushes stay).
@@ -134,7 +140,7 @@ function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boole
   const sway = useMemo(() => ['Noren_L', 'Noren_C', 'Noren_R', 'Lantern'].map((n) => stall.getObjectByName(n)).filter(Boolean) as THREE.Object3D[], [stall]);
   useFrame(({ clock }) => {
     // cutaway: the noren would hide the owner's face from the overhead cooking camera
-    for (const [o, at] of parts) o.visible = rank >= at && !(o.name.startsWith('Noren') && view === 'cook');
+    for (const [o, at] of parts) o.visible = steps > at && !(o.name.startsWith('Noren') && view === 'cook');
     if (reduced) return;
     const t = clock.elapsedTime;
     sway.forEach((o, i) => { o.rotation.x = 0.035 * Math.sin(t * 1.1 + i * 0.9); });
@@ -142,7 +148,7 @@ function Stall({ rank, reduced, view, backdrop }: { rank: number; reduced: boole
   return (
     <group>
       <primitive object={stall} />
-      {upgrades.map(([o, at]) => <primitive key={o.name} object={o} visible={rank >= at} />)}
+      {upgrades.map(([o, at]) => <primitive key={o.name} object={o} visible={steps > at} />)}
     </group>
   );
 }
@@ -176,27 +182,49 @@ function Chef({ base, view, reduced, look, rank }: { base: 'idle' | 'lean' | 'wo
 // ---------------------------------------------------------------------------
 const CHEF_COOK_X = -0.44;
 const CUSTOMER_SPOT = new THREE.Vector3(0.95, 0, 1.6);
-function Customer({ id, orderKey, view, reduced }: { id: string; orderKey: string; view: ViewMode; reduced: boolean }) {
+/** The second customer (a choice, or someone waiting) stands on the left. */
+const SIDE_SPOT = new THREE.Vector3(-1.1, 0, 1.75);
+/** Ojiichan after his visit: behind the counter, beside the chef. */
+const HELPER_SPOT = new THREE.Vector3(-0.82, 0, -0.42);
+function Customer({ id, orderKey, view, reduced, side = false }: { id: string; orderKey: string; view: ViewMode; reduced: boolean; side?: boolean }) {
   const lib = getLib();
+  const spot = side ? SIDE_SPOT : CUSTOMER_SPOT;
   const obj = useMemo(() => lib.clone(`Customer_${id}`), [lib, id]);
   const puppet = useMemo(() => new Puppet(obj, `Customer_${id}`), [obj, id]);
   const walk = useRef({ start: -1, from: 3.2 });
-  useEffect(() => { walk.current = { start: -1, from: reduced ? CUSTOMER_SPOT.x : 3.4 }; }, [orderKey, id, reduced]);
+  useEffect(() => { walk.current = { start: -1, from: reduced ? spot.x : side ? -3.4 : 3.4 }; }, [orderKey, id, reduced, side, spot]);
   useEffect(() => onCue((c) => {
-    if (c.type === 'customer') puppet.play(c.anim, c.anim === 'joy' ? 2.2 : 1.6);
-  }), [puppet]);
+    if (c.type === 'customer' && !side) puppet.play(c.anim, c.anim === 'joy' ? 2.2 : 1.6);
+  }), [puppet, side]);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (walk.current.start < 0) walk.current.start = t;
     const k = Math.min(1, (t - walk.current.start) / 1.6);
     const e = 1 - Math.pow(1 - k, 2);
-    obj.position.set(THREE.MathUtils.lerp(walk.current.from, CUSTOMER_SPOT.x, e), 0, CUSTOMER_SPOT.z);
-    obj.rotation.y = k < 1 ? -1.25 : THREE.MathUtils.lerp(obj.rotation.y, -0.42, 0.12);
+    obj.position.set(THREE.MathUtils.lerp(walk.current.from, spot.x, e), 0, spot.z);
+    const dir = side ? -1 : 1;
+    obj.rotation.y = k < 1 ? -1.25 * dir : THREE.MathUtils.lerp(obj.rotation.y, -0.42 * dir, 0.12);
     puppet.base = k < 1 ? 'walk' : 'stand';
     puppet.reduced = reduced;
     puppet.update(t);
   });
   return <primitive object={obj} scale={1.22} visible={view !== 'cook'} />;
+}
+
+/** Ojiichan helping at the stall after his visit (waves when customers cheer). */
+function Helper({ view, reduced }: { view: ViewMode; reduced: boolean }) {
+  const lib = getLib();
+  const obj = useMemo(() => lib.clone('Customer_O'), [lib]);
+  const puppet = useMemo(() => new Puppet(obj, 'Customer_O'), [obj]);
+  useEffect(() => onCue((c) => { if (c.type === 'customer' && c.anim === 'joy') puppet.play('happy', 1.6); }), [puppet]);
+  useFrame(({ clock }) => {
+    obj.position.copy(HELPER_SPOT);
+    obj.rotation.y = 0.35;
+    puppet.base = 'stand';
+    puppet.reduced = reduced;
+    puppet.update(clock.elapsedTime);
+  });
+  return <primitive object={obj} scale={1.18} visible={view !== 'cook'} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -411,6 +439,7 @@ function AnchorPublisher({ anchor, view }: { anchor: StepStage['anchor'] | null;
       if (anchor) a.target = proj(anchor.x, anchor.y, anchor.z, anchor.r);
     } else {
       a.customerHead = proj(CUSTOMER_SPOT.x, 1.35, CUSTOMER_SPOT.z);
+      a.sideHead = proj(SIDE_SPOT.x, 1.35, SIDE_SPOT.z);
       a.chefHead = proj(0, 1.95, -0.36);
       a.dish = proj(0, COUNTER_Y + 0.35, 0.4, 0.2);
       a.counter = proj(0, COUNTER_Y, 0.55);
@@ -446,9 +475,13 @@ export function GameScene(p: SceneProps) {
         <circleGeometry args={[p.backdrop ? 3.6 : 60, 32]} />
         {p.backdrop ? <shadowMaterial opacity={0.16} color="#6b4a2c" /> : <meshLambertMaterial color="#F3EBDC" />}
       </mesh>
-      <Stall rank={p.rank} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
+      <Stall steps={p.steps} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
       <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} rank={p.rank} />
       {!p.hideCustomer && <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />}
+      {!p.hideCustomer && p.sideCustomerId && p.sideCustomerId !== p.customerId && (
+        <Customer key={`side-${p.sideCustomerId}`} id={p.sideCustomerId} orderKey={`${p.orderKey}-side`} view={p.view} reduced={p.reducedMotion} side />
+      )}
+      {p.helper && <Helper view={p.view} reduced={p.reducedMotion} />}
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
       {p.view === 'cook' && <Tool tool={p.tool} live={p.toolLive} anchor={p.anchor} />}
       {showDish && <DishDisplay recipeId={p.recipeId} appleId={p.appleId} visible reduced={p.reducedMotion} />}

@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
-import { RECIPES, apple, fitStars, recipe, type GameAction, type GameState } from '../core/index.ts';
+import { LADDER, RECIPES, apple, fitStars, recipe, stepLabel, type GameAction, type GameState } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
 import { dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
-import { TrophyReveal } from './Trophies.tsx';
+import { GroupPhoto, OjiichanTasting } from './Finale.tsx';
+import { piecesAtStep } from '../game/stallPieces.ts';
 import { ChefContext } from '../game/chef.ts';
 
 type D = (a: GameAction) => void;
@@ -22,16 +23,22 @@ const shortName = (n: string) => n.replace(' (Jonathan)', '');
  */
 export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; dispatch: D; reduced: boolean }) {
   const d = state.delivery!;
+  // A recipe that comes with a rank is shown by its notebook page (max two pop-ups).
   const items: ShowcaseItem[] = [
     ...d.apples.map((id) => ({ kind: 'apple' as const, id })),
-    ...d.recipes.map((id) => ({ kind: 'recipe' as const, id })),
+    ...(d.rank !== null ? [] : d.recipes.map((id) => ({ kind: 'recipe' as const, id }))),
   ];
   const [i, setI] = useState(0);
   const [stage, setStage] = useState<'intro' | 'overview'>('intro');
-  /** Before the unlocks: the rank-up page and its notebook page, then any Golden Trophy pop-ups. */
-  const pre: Array<{ kind: 'rank' } | { kind: 'page' } | { kind: 'trophy'; id: string; tier: number }> = [
+  /**
+   * Before the unlocks: Ojiichan's tasting and the group photo, or the rank-up page and its
+   * notebook page, or a "Stall upgrade!" card for a ★ step that brings no recipe.
+   */
+  const upgrade = d.rank === null && !d.recipes.length ? d.steps.find((st) => piecesAtStep(st).some((x) => x.label)) : undefined;
+  const pre: Array<{ kind: 'taste' } | { kind: 'photo' } | { kind: 'rank' } | { kind: 'page' } | { kind: 'upgrade'; step: number }> = [
+    ...(d.finale ? [{ kind: 'taste' as const }, { kind: 'photo' as const }] : []),
     ...(d.rank !== null ? [{ kind: 'rank' as const }, { kind: 'page' as const }] : []),
-    ...(d.trophies ?? []).map((t) => ({ kind: 'trophy' as const, ...t })),
+    ...(upgrade !== undefined ? [{ kind: 'upgrade' as const, step: upgrade }] : []),
   ];
   const [preIdx, setPreIdx] = useState(0);
   const preStep = pre[preIdx] ?? null;
@@ -64,9 +71,9 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
     return <RankUpIntro rank={d.rank!} state={state} reduced={reduced} onDone={() => { sfx.tap(); nextPre(); }} />;
   }
   if (preStep?.kind === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={nextPre} />;
-  if (preStep?.kind === 'trophy') {
-    return <TrophyReveal key={preStep.id} state={state} id={preStep.id} tier={preStep.tier} reduced={reduced} onDone={nextPre} />;
-  }
+  if (preStep?.kind === 'taste') return <OjiichanTasting state={state} reduced={reduced} onDone={nextPre} />;
+  if (preStep?.kind === 'photo') return <GroupPhoto reduced={reduced} onDone={nextPre} />;
+  if (preStep?.kind === 'upgrade') return <StallUpgrade step={preStep.step} onDone={() => { sfx.tap(); nextPre(); }} />;
   if (!item) return null;
   const next = () => {
     sfx.tap();
@@ -187,5 +194,19 @@ function RecipeOverview({ id }: { id: string }) {
         ))}
       </ol>
     </>
+  );
+}
+
+/** A ★ step's stall piece: a small card over the stall (the piece is already standing there). */
+function StallUpgrade({ step, onDone }: { step: number; onDone: () => void }) {
+  const piece = piecesAtStep(step).find((x) => x.label)!;
+  useEffect(() => { sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, []);
+  return (
+    <div className="sheet-card result stall-upgrade" role="dialog" aria-label="Stall upgrade" data-testid="stall-upgrade">
+      <div className="su-kick">Stall upgrade!</div>
+      <div className="su-name">{piece.label}</div>
+      <div className="su-step">{stepLabel(LADDER[step])}</div>
+      <button className="btn primary huge" data-testid="delivery-done" onClick={onDone}>Back to the shop</button>
+    </div>
   );
 }

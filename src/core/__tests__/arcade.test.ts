@@ -51,12 +51,14 @@ describe('beat grading', () => {
   it('combines beats into one step grade', () => {
     const P = gradeBeat('swipe', 0, 0), G = gradeBeat('swipe', 0, 120), O = gradeBeat('swipe', 0, 250), M = gradeBeat('swipe', 0, null);
     expect(combineBeats([P, P, P]).grade).toBe('Perfect');
-    expect(combineBeats([P, P, G]).grade).toBe('Good');
+    expect(combineBeats([P, P, G]).grade).toBe('Perfect'); // two Perfect slices and one Good still count
+    expect(combineBeats([P, G, G]).grade).toBe('Good');
     expect(combineBeats([P, P, M]).grade).toBe('Good'); // one miss caps Perfect
     expect(combineBeats([O, O, O]).grade).toBe('OK');
     expect(combineBeats([P, M, M]).grade).toBe('Miss'); // most beats missed
     expect(combineBeats([M]).grade).toBe('Miss');
     expect(combineBeats([P, G]).error_ms).toBe(60);
+    expect([ARCADE_WINDOWS.tap.perfect, ARCADE_WINDOWS.swipe.perfect]).toEqual([90, 100]);
   });
 });
 

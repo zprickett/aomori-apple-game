@@ -1,44 +1,34 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
-  createMemoryStore, createSaveStore, defaultSave, earliestRankUps, gameReducer, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
+  createMemoryStore, createSaveStore, defaultSave, LADDER, gameReducer, ojiichanVisitAt, rankUpsOf, typicalLadder, typicalPoints, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
   type GameAction, type GameState, type SaveStore,
 } from '../core/index.ts';
-import { APPLE_ORDER, APPLES_FOR_GOLDEN_CHEF, GOLDEN_RECIPES_FOR_HEAD_COOK, RECIPE_ORDER, fitStars, type SaveData } from '../core/index.ts';
 import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
 
 interface Boot { store: SaveStore; state: GameState; persistent: boolean }
 
 /**
- * DEV only: `?skip=N` starts a fresh save with N orders done (all unlocks up to N already seen,
- * every rank challenge passed as early as possible). Add `&ready` to also meet every skill goal
- * (3 stars on every recipe, 30 apples cooked, 5 Golden Recipes since Cook), so the next rank-up
- * happens as soon as its order count is reached. The parameters are then removed so reloads keep
- * playing normally. Never active in production builds.
+ * DEV only: `?skip=N` starts a fresh save with N orders done, on a typical 10-year-old's ladder
+ * (TYPICAL_LADDER and typicalPoints), with every unlock up to N already seen. Add `&ready` to put
+ * the points just below the next ladder step, so the next dish reaches it. The parameters are then
+ * removed so reloads keep playing normally. Never active in production builds.
  */
 function saveAfter(n: number, ready = false) {
   const s = defaultSave();
   s.completedOrders = n;
   s.completedOrderIds = Array.from({ length: n }, (_, i) => orderIdFor(i + 1));
-  s.rankUps = earliestRankUps(n);
+  s.ladder = typicalLadder(n);
+  s.totalPoints = typicalPoints(n);
+  const ups = rankUpsOf(s.ladder);
   for (let k = 1; k <= n; k++) {
-    const i = s.rankUps.indexOf(k);
-    const rank = i < 0 ? null : i + 2;
-    s.seenUnlockRewards.push(...rewardKeys({ ...unlocksEarnedAt(k, s.rankUps), rank }));
+    const i = ups.indexOf(k);
+    const steps = s.ladder.flatMap((at, j) => (at === k && LADDER[j].star > 0 ? [j] : []));
+    s.seenUnlockRewards.push(...rewardKeys({ ...unlocksEarnedAt(k, s.ladder), rank: i < 0 ? null : i + 2, steps }));
   }
-  if (ready) meetRankGoals(s);
+  const oj = ojiichanVisitAt(s.seed, s.ladder);
+  if (oj !== null && oj <= n) s.seenUnlockRewards.push('finale');
+  if (ready && s.ladder.length < LADDER.length) s.totalPoints = LADDER[s.ladder.length].points - 1;
   return s;
-}
-
-/** Fill in stars, cooked apples and Golden Recipes so every rank skill goal is met. */
-function meetRankGoals(s: SaveData) {
-  for (const id of RECIPE_ORDER) s.bestScores[id] = 3;
-  for (const a of APPLE_ORDER.slice(0, APPLES_FOR_GOLDEN_CHEF)) s.discoveredPairings[`${a}:fresh_juice`] = { bestStars: 3, fit: fitStars(a, 'fresh_juice') };
-  // Golden Recipes on the latest orders (they count once they come after reaching Cook).
-  const golden = Array.from({ length: Math.min(GOLDEN_RECIPES_FOR_HEAD_COOK, s.completedOrders) }, (_, i) => s.completedOrders - i).reverse();
-  s.history = golden.map((orderNumber) => ({
-    orderId: orderIdFor(orderNumber), orderNumber, recipeId: 'fresh_juice', appleId: APPLE_ORDER[0],
-    points: 200, golden: true, grades: ['Perfect'], fit: 3, stars: 3, newBest: false,
-  }));
 }
 
 function devSkip(store: SaveStore) {

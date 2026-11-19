@@ -13,6 +13,7 @@ import {
 import { gameReducer, initialStateFromSave, toSaveData, type GameAction, type GameState } from '../gameReducer.ts';
 import { recipe } from '../content.ts';
 import { unlockedApples } from '../progression.ts';
+import { LADDER, rankOf, rankUpsOf, recipeUnlockAtFor } from '../ranks.ts';
 
 class FakeStorage implements StorageLike {
   map = new Map<string, string>();
@@ -69,7 +70,7 @@ describe('save store', () => {
     data.unlockedApples = unlockedApples(4);
     data.unlockedRecipes = ['fresh_juice', 'rabbit_apples', 'apple_jam'];
     expect(store.save(data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(3);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(4);
     const again = createSaveStore(storage).load();
     expect(again.data).toEqual(data);
     expect(again.persistent).toBe(true);
@@ -83,7 +84,7 @@ describe('save store', () => {
     expect(r.data).toEqual(defaultSave());
     expect(r.notice).toBe(NOTICE_CORRUPT);
     expect(store.save(r.data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(3);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(4);
     storage.setItem(SAVE_KEY, '"just a string"');
     expect(createSaveStore(storage).load().notice).toBe(NOTICE_CORRUPT);
   });
@@ -98,8 +99,9 @@ describe('save store', () => {
     expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094']));
     expect(data.unlockedApples).not.toContain('a091'); // arrives after order 9
     expect(data.unlockedApples).toHaveLength(8);
-    // A v2 save gets the earliest rank history: Apprentice at 5 (jam), candy apple not until 8.
-    expect(data.rankUps).toEqual([5]);
+    // A v2 save gets the old earliest rank history on the ladder: Apprentice at 5 (jam), candy apple not until 8.
+    expect(data.ladder).toEqual([5]);
+    expect(data.waiting).toBeNull();
     expect(data.unlockedRecipes).toEqual(['fresh_juice', 'rabbit_apples', 'apple_jam']);
     expect(data.bestScores).toEqual({});
     expect(data.current).toBeNull();
@@ -111,22 +113,35 @@ describe('save store', () => {
     const old = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie', 'jam_toast', 'yogurt_parfait'];
     storage.setItem(SAVE_KEY, JSON.stringify({ version: 2, completedOrders: 20, unlockedRecipes: old }));
     const { data } = createSaveStore(storage).load();
-    expect(data.rankUps).toEqual([5, 15]);
+    expect(rankOf(data.ladder)).toBe(3);
     expect([...data.unlockedRecipes].sort()).toEqual([...old].sort());
   });
 
-  it('v3 rank history is kept when valid and trimmed when not', () => {
-    const load = (rankUps: unknown, completedOrders = 40) => {
+  it('v3 rank history moves onto the ladder; nobody moves down', () => {
+    const load = (rankUps: unknown, completedOrders = 40, totalPoints = 0) => {
       const storage = new FakeStorage();
-      storage.setItem(SAVE_KEY, JSON.stringify({ version: 3, completedOrders, rankUps }));
-      return createSaveStore(storage).load().data.rankUps;
+      storage.setItem(SAVE_KEY, JSON.stringify({ version: 3, completedOrders, rankUps, totalPoints }));
+      return createSaveStore(storage).load().data.ladder;
     };
-    expect(load([6, 22])).toEqual([6, 22]);
+    expect(rankUpsOf(load([6, 22]))).toEqual([6, 22]);
+    expect(recipeUnlockAtFor('jam_toast', load([6, 22]))).toBe(28); // old v3 schedule kept
     expect(load([])).toEqual([]);
-    expect(load([4, 20])).toEqual([]); // before the Apprentice minimum
-    expect(load([6, 22, 21])).toEqual([6, 22]); // not increasing
-    expect(load([6, 22], 10)).toEqual([6]); // after the completed count
-    expect(load('nope')).toEqual([5, 15, 30]);
+    expect(load([], 40, LADDER[1].points)).toEqual([40, 40]); // points alone
+    expect(load('nope').length).toBe(8); // v2's earliest schedule: Head Cook at 30, baked apple already at 36
+    expect(rankOf(load([6, 22], 40, 999999))).toBe(5); // many points: straight to the top
+  });
+
+  it('v4 ladders and the waiting customer load back', () => {
+    const storage = new FakeStorage();
+    const waiting = { recipeId: 'apple_jam', customerId: 'B', line: 'Jam, please!' };
+    storage.setItem(SAVE_KEY, JSON.stringify({ version: 4, completedOrders: 12, ladder: [5, 9, 30], totalPoints: 5000, waiting }));
+    const { data } = createSaveStore(storage).load();
+    expect(data.ladder).toEqual([5, 9]); // 30 > completed is dropped
+    expect(data.waiting).toEqual(waiting);
+    storage.setItem(SAVE_KEY, JSON.stringify({ version: 4, completedOrders: 12, ladder: [5], totalPoints: 5000, waiting: { recipeId: 'curry' } }));
+    const again = createSaveStore(storage).load().data;
+    expect(again.ladder).toEqual([5, 12]); // points already past Apprentice ★
+    expect(again.waiting).toBeNull();
   });
 
   it('drops unknown apple/recipe ids and invalid values', () => {
@@ -157,7 +172,7 @@ describe('save store', () => {
 
   it('future versions are not overwritten; runs in memory with a notice', () => {
     const storage = new FakeStorage();
-    const future = JSON.stringify({ version: 4, completedOrders: 9, newThing: true });
+    const future = JSON.stringify({ version: 5, completedOrders: 9, newThing: true });
     storage.setItem(SAVE_KEY, future);
     const store = createSaveStore(storage);
     const r = store.load();
@@ -217,7 +232,7 @@ describe('legacy v1 migration', () => {
     );
     const { data, notice } = createSaveStore(storage).load();
     expect(notice).toBe(NOTICE_MIGRATED);
-    expect(data.version).toBe(3);
+    expect(data.version).toBe(4);
     expect(data.completedOrders).toBe(8);
     expect(data.unlockedApples).not.toContain('aXXX');
     expect(data.unlockedApples).toContain('a091');
