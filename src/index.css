@@ -911,7 +911,7 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 .sn-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
 .sn-items span { font-weight: 800; font-size: 0.82rem; background: #fdeacb; border-radius: 999px; padding: 2px 9px; }
 /* ---- First-action tip ---- */
-.coach { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.3); animation: ov-in 0.3s ease-out both; }
+.coach { pointer-events: auto; /* the gesture layer it sits in ignores touches outside 'active' */ position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.3); animation: ov-in 0.3s ease-out both; }
 .coach-card { width: min(100%, 340px); background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 16px 18px; text-align: center;
   box-shadow: 5px 6px 0 rgba(104,69,46,0.3); display: grid; gap: 6px; justify-items: center; animation: pop 0.45s cubic-bezier(.2,1.5,.4,1) both; }
 .coach-title { font-size: 1.6rem; font-weight: 900; color: var(--red); }
@@ -923,3 +923,11 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 .cd-ring { fill: none; stroke: #fff; stroke-width: 6; filter: drop-shadow(0 0 2px rgba(0,0,0,0.35)); transform-origin: 60px 60px; animation: cd-close 1.6s ease-in infinite; }
 @keyframes cd-close { 0% { transform: scale(2.1); stroke: #fff; } 85% { transform: scale(1); stroke: #ffd84a; } 100% { transform: scale(1); stroke: #ffd84a; } }
 .reduced .cd-ring { animation: none; }
+
+.coach-gold { font-size: 1.15rem; padding: 4px 14px; }
+/* "Day 1" title above Ojiichan's letter */
+.lt-day { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; margin-top: calc(env(safe-area-inset-top, 0px) + 4vh);
+  animation: pop 0.45s cubic-bezier(.2,1.5,.4,1) both; }
+.lt-day-n { font-weight: 900; font-size: 0.95rem; color: #fff; background: var(--red); border-radius: 999px; padding: 2px 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+.lt-day-t { font-weight: 900; font-size: 1.55rem; margin-top: 6px; text-align: center; line-height: 1.15; }
+.lt-day + .lt-paper { margin-top: 18px; }

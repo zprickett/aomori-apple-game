@@ -74,6 +74,12 @@ export function GrandpaLetter({ name, onDone }: { name: string; onDone: () => vo
   return (
     <div className="onb letter-screen" data-testid="grandpa-letter">
       <div className="onb-sky" />
+      {step === 'letter' && (
+        <div className="lt-day" data-testid="letter-day">
+          <span className="lt-day-n">Day 1</span>
+          <span className="lt-day-t">Welcome to your apple stall!</span>
+        </div>
+      )}
       {step === 'letter' ? (
         <div className="lt-paper" key="letter">
           <div className="lt-stamp" aria-hidden>🍎</div>

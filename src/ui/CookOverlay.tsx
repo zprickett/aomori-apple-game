@@ -393,8 +393,9 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
                 <circle cx="60" cy="60" r="26" className="cd-zone" />
                 <circle cx="60" cy="60" r="26" className="cd-ring" />
               </svg>
-              <p>When the ring shrinks onto the <b>gold circle</b>, do the action.</p>
-              <p className="coach-sub">Perfect timing scores the most. Every action Perfect makes a <span className="golden-goal">🏆 Golden Recipe<i aria-hidden /></span></p>
+              <p>Hit the golden circle to score the most!</p>
+              <p className="coach-sub">Every Perfect recipe makes a</p>
+              <span className="golden-goal coach-gold">🏆 Golden Recipe<i aria-hidden /></span>
               <button className="btn primary big" data-testid="coach-done" onClick={() => { unlockAudio(); sfx.tap(); setCoachDone(true); }}>Got it!</button>
             </div>
           </div>
