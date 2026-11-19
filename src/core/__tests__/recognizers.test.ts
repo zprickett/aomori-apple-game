@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CircleRecognizer,
+  FREEFORM_CIRCLE,
   SwipeRecognizer,
   TapRecognizer,
   createRecognizer,
@@ -396,5 +397,47 @@ describe('helpers', () => {
     expect(createRecognizer({ gesture: 'circle', cx: 0.5, cy: 0.5 }).kind).toBe('circle');
     const s = sampleFromPointer({ clientX: 150, clientY: 250, timeStamp: 5000, pointerId: 3 }, { left: 50, top: 50, width: 400, height: 400 }, 1500);
     expect(s).toEqual({ x: 0.25, y: 0.5, t: 3500, pointerId: 3 });
+  });
+});
+
+describe('CircleRecognizer freeform (game stirring)', () => {
+  /** Points around (ox, oy) with radius r, `turns` turns over `ms`, every 16 ms. */
+  const loop = (ox: number, oy: number, r: number, turns: number, ms: number, t0 = 0, dir = 1) =>
+    Array.from({ length: Math.round(ms / 16) + 1 }, (_, i) => {
+      const a = dir * (i / Math.round(ms / 16)) * turns * 2 * Math.PI;
+      return { x: ox + r * Math.cos(a), y: oy + r * Math.sin(a), t: t0 + i * 16, pointerId: 1 };
+    });
+  const run = (rec: CircleRecognizer, pts: { x: number; y: number; t: number; pointerId: number }[], lift = true) => {
+    rec.down(pts[0]);
+    for (const p of pts.slice(1)) rec.move(p);
+    if (lift) rec.up(pts[pts.length - 1]);
+  };
+
+  it('counts two circles drawn anywhere, at any size, either way round', () => {
+    for (const [ox, oy, r, dir] of [[0.8, 0.1, 0.06, 1], [0.2, 0.9, 0.35, -1], [0.5, 0.5, 0.15, 1]] as const) {
+      const rec = new CircleRecognizer({ cx: 0.5, cy: 0.5, ...FREEFORM_CIRCLE });
+      run(rec, loop(ox, oy, r, 2.3, 1600, 0, dir));
+      expect(rec.result?.kind).toBe('circle');
+      expect(rec.result!.eventMs).toBeGreaterThan(1200);
+      expect(rec.result!.eventMs).toBeLessThan(1600);
+    }
+  });
+
+  it('keeps the turns when the finger lifts between strokes', () => {
+    const rec = new CircleRecognizer({ cx: 0.5, cy: 0.5, ...FREEFORM_CIRCLE });
+    run(rec, loop(0.5, 0.5, 0.15, 1.2, 900));
+    expect(rec.result).toBeNull();
+    expect(rec.progress).toBeGreaterThan(0.5);
+    run(rec, loop(0.3, 0.6, 0.12, 1.2, 900, 1000));
+    expect(rec.result?.kind).toBe('circle');
+  });
+
+  it('a straight line or a back-and-forth scribble is not stirring', () => {
+    const line = new CircleRecognizer({ cx: 0.5, cy: 0.5, ...FREEFORM_CIRCLE });
+    run(line, Array.from({ length: 80 }, (_, i) => ({ x: 0.1 + i * 0.01, y: 0.5, t: i * 16, pointerId: 1 })));
+    expect(line.result).toBeNull();
+    const zig = new CircleRecognizer({ cx: 0.5, cy: 0.5, ...FREEFORM_CIRCLE });
+    run(zig, Array.from({ length: 120 }, (_, i) => ({ x: 0.5 + (i % 2 ? 0.05 : -0.05), y: 0.5, t: i * 16, pointerId: 1 })));
+    expect(zig.result).toBeNull();
   });
 });

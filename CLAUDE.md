@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (151 tests)
+npm test                   # vitest (154 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -72,6 +72,8 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 - Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
 - Customers: A Sota, B Yui, C Grandpa Kiyoshi, D Mei (the four regulars, also everyday customers); O Ojiichan (chef whites, only on his visit the day after Golden Chef). Each regular has 4 story visits (`story.json` `regulars`), laid over the order queue in `progression.ts` without replacing recipe intros or apple demos. Mei's last visit gives the Oirase apple early.
 - News cards (thank-you note, Aomori Daily, festival invite, Golden Apple award) show at the start of the day after each rank-up, say why they came and who sent them, have their own entrance per kind, and are kept in the My chef scrapbook. Customers stay hidden while one shows.
+- Stirring is forgiving (`FREEFORM_CIRCLE` in `recognizers.ts`): two circles of any size, anywhere on screen, either way round; lifting the finger keeps the progress. The strict ring-band mode stays for its tests.
+- Apples already cooked with show a green tick in the apple picker and the collection.
 - Story characters (regulars, Ojiichan) get their own order bubble: colour, portrait, big name, tagline and story hearts. Everyday customers keep the plain bubble.
 - Rank upgrades (shown from the rank, after its reveal): Apprentice sign + 2nd crate, chef apple badge; Cook bunting, brick oven, bench, neckerchief; Head Cook lantern string, side cart, apple tree, gold beret star; Golden Chef trophy shelf, gold noren, gold apron. Lists live in `STALL_UPGRADES` (Scene.tsx) and `RANK_PIECES` (chefLook.ts); models in `stall.py build_rank_upgrades` and `build_chef`.
 - Golden Trophies (`trophies.ts`): 8 trophies with bronze/silver/gold steps (Golden Peeler, Hop-Hop Warren, Golden Spoon, Perfect Streak, Rainbow Basket, Apple Encyclopedia, Big and Small, Regulars' Friend). Counters live in `trophyStats` in the save (rebuilt from history for older saves). A new step pops up after the dish; the cabinet is in My chef. World Traveller, Golden Seal Master and Collector's Crown come with Stage 2.

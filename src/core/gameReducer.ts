@@ -785,6 +785,10 @@ export const selectors = {
     }
     return null;
   },
+  /** Apple ids the player has cooked with at least once. */
+  cookedApples(state: GameState): Set<string> {
+    return new Set(Object.keys(state.progress.discoveredPairings).map((k) => k.split(':')[0]));
+  },
   /** Golden Trophy progress, in cabinet order. */
   trophies(state: GameState): TrophyStatus[] {
     return trophyStatus(trophyInput(state.progress));

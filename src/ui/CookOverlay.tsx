@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ChefContext } from '../game/chef.ts';
 import {
-  CircleRecognizer, SliceRecognizer, TapRecognizer, PACE, ARCADE_WINDOWS, beatLead, nextBeatTarget,
+  CircleRecognizer, FREEFORM_CIRCLE, SliceRecognizer, TapRecognizer, PACE, ARCADE_WINDOWS, beatLead, nextBeatTarget,
   beatExpiresAt, beatOpensAt, beatTargets, combineBeats, gradeBeat, selectors, apple as appleInfo,
   type BeatResult, type GameAction, type GameState, type Gesture, type StepDef,
 } from '../core/index.ts';
@@ -164,7 +164,8 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
     const cx = (geo.target.x - geo.left) / geo.W, cy = (geo.target.y - geo.top) / geo.W;
     const slicer = g === 'swipe' ? new SliceRecognizer({ cx, cy, r: R / geo.W }) : null;
     const tapper = g === 'tap' ? new TapRecognizer({ x: cx, y: cy, radius: R / geo.W }) : null;
-    const circler = g === 'circle' ? new CircleRecognizer({ cx, cy }) : null;
+    // Forgiving stir: any circular motion anywhere on screen counts, and lifting the finger keeps progress.
+    const circler = g === 'circle' ? new CircleRecognizer({ cx, cy, ...FREEFORM_CIRCLE }) : null;
 
     // pointer handling
     const el = layerRef.current!;
@@ -234,7 +235,7 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
       activeId = null; pointer.active = false;
       window.setTimeout(() => trailRef.current?.setAttribute('points', ''), 90);
       handleCuts();
-      if (circler && !circler.result && circler.feedback && hintRef.current) hintRef.current.textContent = circler.feedback === 'outside_ring' ? 'Stay on the ring!' : 'Keep stirring — two whole circles!';
+      if (circler && !circler.result && circler.feedback && hintRef.current) hintRef.current.textContent = 'Keep stirring — two whole circles!';
     };
     const cancel = (e: PointerEvent) => {
       if (e.pointerId !== activeId) return;

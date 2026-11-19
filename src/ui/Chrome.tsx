@@ -93,14 +93,16 @@ const STAT_LABEL: Record<string, string> = { sweetness: 'Sweet', tartness: 'Tart
 function Collection({ state }: { state: GameState }) {
   const [open, setOpen] = useState<string | null>(null);
   const disc = state.progress.discoveredPairings;
+  const cooked = selectors.cookedApples(state);
   return (
     <>
-      <div className="coll-count">{state.progress.unlockedApples.length} of {APPLES.length} apples collected</div>
+      <div className="coll-count">{state.progress.unlockedApples.length} of {APPLES.length} apples collected · <span className="cooked-tick inline" aria-hidden>✓</span> {cooked.size} cooked</div>
       <div className="coll-grid">
         {APPLES.map((a) => {
           const unlocked = state.progress.unlockedApples.includes(a.id);
           return (
             <button key={a.id} className={`coll-card ${unlocked ? '' : 'locked'} ${open === a.id ? 'sel' : ''}`} disabled={!unlocked} onClick={() => setOpen(open === a.id ? null : a.id)}>
+              {unlocked && cooked.has(a.id) && <span className="cooked-tick" aria-label="Cooked before">✓</span>}
               <img src={appleIcon(a.id)} alt="" className={unlocked ? '' : 'sil'} />
               <span className="nm">{unlocked ? a.nameEn.replace(' (Jonathan)', '') : '???'}</span>
               {!unlocked && <span className="lock">{unlockConditionText(a.id)}</span>}

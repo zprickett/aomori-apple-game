@@ -87,6 +87,7 @@ function StoryBubble({ state, tailX, name }: { state: GameState; tailX?: React.C
 // ---------------------------------------------------------------------------
 export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D }) {
   const cards = selectors.appleCards(state);
+  const cooked = selectors.cookedApples(state);
   const r = selectors.activeRecipe(state);
   const sel = state.previewAppleId ? apple(state.previewAppleId) : null;
   const fit = selectors.previewFit(state);
@@ -110,9 +111,10 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
             disabled={!c.unlocked}
             onClick={() => { sfx.tap(); dispatch({ type: 'PREVIEW_APPLE', appleId: c.apple.id }); }}
             aria-pressed={state.previewAppleId === c.apple.id}
-            aria-label={c.unlocked ? `${c.apple.nameEn}, ${FIT_WORD[c.fitStars ?? 0]} for ${r.name}` : `Locked apple. ${c.unlockText}`}
+            aria-label={c.unlocked ? `${c.apple.nameEn}, ${FIT_WORD[c.fitStars ?? 0]} for ${r.name}${cooked.has(c.apple.id) ? ', cooked before' : ''}` : `Locked apple. ${c.unlockText}`}
             data-testid={`apple-${c.apple.id}`}
           >
+            {c.unlocked && cooked.has(c.apple.id) && <span className="cooked-tick" aria-hidden>✓</span>}
             <img src={appleIcon(c.apple.id)} alt="" className={c.unlocked ? '' : 'sil'} />
             {c.unlocked ? (
               <>

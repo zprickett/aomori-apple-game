@@ -369,7 +369,24 @@ export interface CircleConfig {
   maxAngularSpeed?: number;
   teleportDist?: number;
   directionLockRad?: number;
+  /**
+   * Forgiving mode for the game: count how much the finger's path turns, anywhere on screen
+   * (any size, any centre), instead of the angle around (cx, cy) inside the ring band. Lifting the
+   * finger keeps the progress; the next stroke carries on.
+   */
+  freeform?: boolean;
+  /** Freeform: ignore moves shorter than this (units) when reading the path's heading. */
+  minStep?: number;
 }
+
+/** Forgiving stir used in the game (see CircleConfig.freeform). */
+export const FREEFORM_CIRCLE = Object.freeze({
+  freeform: true,
+  minSamples: 8,
+  minTrackedMs: 900,
+  maxAngularSpeed: 8 * Math.PI,
+  minStep: 0.012,
+});
 
 export const CIRCLE_DEFAULTS = Object.freeze({
   radius: 0.2,
@@ -381,6 +398,8 @@ export const CIRCLE_DEFAULTS = Object.freeze({
   maxAngularSpeed: 4 * Math.PI, // rad/s
   teleportDist: 0.2,
   directionLockRad: 0.35,
+  freeform: false,
+  minStep: 0.012,
 });
 
 /**
@@ -410,6 +429,8 @@ export class CircleRecognizer extends BaseRecognizer {
   private firstValidT: number | null = null;
   private lastValidT: number | null = null;
   private reachedEarly = false;
+  /** Freeform: last point and heading of the current stroke. */
+  private last: { x: number; y: number; t: number; heading: number | null } | null = null;
 
   constructor(config: CircleConfig) {
     super();
@@ -438,10 +459,12 @@ export class CircleRecognizer extends BaseRecognizer {
     this.firstValidT = null;
     this.lastValidT = null;
     this.reachedEarly = false;
+    this.last = null;
   }
 
   protected onDown(s: PointerSample): void {
-    this.clearAttempt();
+    if (this.config.freeform) this.last = null;
+    else this.clearAttempt();
     this.sample(s);
   }
   protected onMove(s: PointerSample): void {
@@ -449,6 +472,12 @@ export class CircleRecognizer extends BaseRecognizer {
   }
   protected onUp(s: PointerSample): void {
     this.sample(s);
+    if (this.config.freeform) {
+      // Lifting the finger keeps the turns so far; the next stroke starts a fresh heading.
+      this.last = null;
+      if (!this._result) this._feedback = this.reachedEarly ? 'too_fast' : 'incomplete';
+      return;
+    }
     if (!this._result) {
       this._feedback = this.reachedEarly ? 'too_fast' : 'incomplete';
       this.clearAttempt();
@@ -471,8 +500,64 @@ export class CircleRecognizer extends BaseRecognizer {
     );
   }
 
+  /** Freeform: add how much the path turned since the last step (any position, any size). */
+  private sampleFreeform(s: PointerSample): void {
+    const { minStep, maxAngularSpeed } = this.config;
+    const l = this.last;
+    if (!l) {
+      this.last = { x: s.x, y: s.y, t: s.t, heading: null };
+      this.countSample(s.t);
+      return;
+    }
+    if (s.t < l.t) return;
+    const dx = s.x - l.x, dy = s.y - l.y;
+    if (Math.hypot(dx, dy) < minStep) return; // too small to read a direction
+    this.countSample(s.t);
+    const heading = Math.atan2(dy, dx);
+    let d = 0;
+    if (l.heading !== null) {
+      d = heading - l.heading;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d <= -Math.PI) d += 2 * Math.PI;
+      // A sudden U-turn is a scribble, not stirring: ignore it.
+      if (Math.abs(d) > (2 * Math.PI) / 3) d = 0;
+      const maxD = (maxAngularSpeed * Math.max(1, s.t - l.t)) / 1000;
+      d = Math.max(-maxD, Math.min(maxD, d));
+    }
+    this.last = { x: s.x, y: s.y, t: s.t, heading };
+    this.addTurn(d, l.t, s.t);
+  }
+
+  private countSample(t: number): void {
+    this.validSamples += 1;
+    if (this.firstValidT === null) this.firstValidT = t;
+    this.lastValidT = t;
+  }
+
+  /** Add signed turn d (rad) over [t0, t1] and submit when two turns are done. */
+  private addTurn(d: number, t0: number, t1: number): void {
+    const { requiredRad, directionLockRad } = this.config;
+    const before = this.net;
+    this.net += d;
+    if (this.dir === 0 && Math.abs(this.net) >= directionLockRad) this.dir = this.net > 0 ? 1 : -1;
+    if (this.dir === 0) return;
+    const signedBefore = before * this.dir;
+    const signedNow = this.net * this.dir;
+    if (signedNow < requiredRad) { this.reachedEarly = false; return; }
+    if (signedBefore < requiredRad) {
+      const f = (requiredRad - signedBefore) / (signedNow - signedBefore);
+      const tReach = t0 + (t1 - t0) * f;
+      if (this.requirementsMet(tReach, t1) || this.requirementsMet(t1)) return this.submit(this.requirementsMet(tReach, t1) ? tReach : t1);
+      this.reachedEarly = true;
+      this._feedback = 'too_fast';
+      return;
+    }
+    if (this.requirementsMet(t1)) this.submit(t1);
+  }
+
   private sample(s: PointerSample): void {
     if (this._result) return;
+    if (this.config.freeform) return this.sampleFreeform(s);
     const { cx, cy, inner, outer, teleportDist, maxAngularSpeed, requiredRad, directionLockRad } = this.config;
     const r = Math.hypot(s.x - cx, s.y - cy);
     if (r < inner || r > outer) {

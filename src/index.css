@@ -889,3 +889,9 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 .cab-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f4c954, #e8a92a); }
 .cab-num { font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 .trophy-pop .tp-skip { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); }
+
+/* Green tick on apples already cooked with (apple picker and collection) */
+.apple-card, .coll-card { position: relative; }
+.cooked-tick { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: #5ea33d; color: #fff;
+  font-size: 0.75rem; font-weight: 900; line-height: 20px; text-align: center; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.cooked-tick.inline { position: static; display: inline-block; vertical-align: -4px; }
