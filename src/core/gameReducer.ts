@@ -287,6 +287,9 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
     // Only a real improvement: the first dish of a recipe (or a 0-point one) is not a "best".
     newBest: prevBest !== undefined && pts > prevBest,
   };
+  // The chef's high score: beats every dish ever served (not the very first dish).
+  const prevHigh = Math.max(0, ...Object.values(progress.bestPoints));
+  if (progress.completedOrders > 0 && prevHigh > 0 && pts > prevHigh) record.newHigh = true;
   // A regular's story is finished when their last visit is served.
   const v = order.visit;
   const storyDone = v && v.who !== 'ojiichan' && v.step === v.of ? v.who : undefined;
@@ -866,6 +869,17 @@ export const selectors = {
   /** Apple ids the player has cooked with at least once. */
   cookedApples(state: GameState): Set<string> {
     return new Set(Object.keys(state.progress.discoveredPairings).map((k) => k.split(':')[0]));
+  },
+  /** The chef's records: best dish ever, total points, Golden Recipes, longest Perfect run. */
+  records(state: GameState): { high: { recipeId: string; points: number } | null; total: number; golden: number; streak: number } {
+    const p = state.progress;
+    const best = Object.entries(p.bestPoints).sort((a, b) => b[1] - a[1])[0];
+    return {
+      high: best && best[1] > 0 ? { recipeId: best[0], points: best[1] } : null,
+      total: p.totalPoints,
+      golden: p.history.filter((h) => h.golden).length,
+      streak: p.trophyStats.bestStreak,
+    };
   },
   /** Golden Trophy progress, in cabinet order. */
   trophies(state: GameState): TrophyStatus[] {

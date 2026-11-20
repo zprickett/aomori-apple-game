@@ -80,6 +80,8 @@ export interface TrophyStep {
 
 export interface TrophyDef {
   id: string;
+  /** What counts, in one kid-friendly line (shown when the trophy is tapped). */
+  about?: string;
   name: string;
   icon: string;
   /** The three steps (bronze, silver, gold) with progress. */
@@ -149,6 +151,19 @@ export const TROPHIES: readonly TrophyDef[] = Object.freeze([
   },
   counter('friends', "Regulars' Friend", '💛', (p) => p.stats.storiesDone.length, [1, 2, 4], (n) => (n === 1 ? "Finish a regular's story" : n === 4 ? "Finish all 4 regulars' stories" : `Finish ${n} regulars' stories`)),
 ]);
+
+/** What each trophy counts (shown when a kid taps it). */
+const ABOUT: Readonly<Record<string, string>> = {
+  peeler: 'Every apple you slice counts, in any recipe.',
+  warren: 'Every plate of Rabbit Apple Wedges you serve counts.',
+  spoon: 'Every stir that lands on Perfect counts.',
+  streak: 'Perfect actions in a row, even across different dishes. One miss starts it again!',
+  rainbow: 'Cook with apples of every colour: red, yellow, green, and the rare pink-inside ones.',
+  encyclopedia: 'Every new apple that arrives at your stall counts.',
+  sizes: 'Cook with small, medium and large apples. Can you find the tiniest and the biggest?',
+  friends: "Serve each regular's last story visit to finish their story.",
+};
+for (const t of TROPHIES as TrophyDef[]) t.about = ABOUT[t.id];
 
 export function trophy(id: string): TrophyDef {
   const t = TROPHIES.find((x) => x.id === id);

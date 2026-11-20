@@ -308,6 +308,7 @@ function sanitizeRecord(v: unknown): OrderRecord | null {
     grades,
     fit: nonNegInt(v.fit, 0),
     newBest: v.newBest === true,
+    ...(v.newHigh === true ? { newHigh: true } : {}),
   };
 }
 

@@ -3,7 +3,8 @@
  * the ladder bar. Later sections (Golden Trophies and so on) go below the rank.
  */
 import { useContext, useState } from 'react';
-import { rankInfo, selectors, type GameState } from '../core/index.ts';
+import { rankInfo, recipe, selectors, type GameState } from '../core/index.ts';
+import { dishIcon } from './icons.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
 import { RankBadge, RankGoals } from './Ranks.tsx';
@@ -39,6 +40,8 @@ export function PlayerSheet({ state, reduced = false }: { state: GameState; redu
         </div>
       </div>
       <RankGoals state={state} />
+      <h3>Records</h3>
+      <Records state={state} />
       <h3>Golden Trophies</h3>
       <TrophyCabinet state={state} />
       {selectors.seenNews(state).length > 0 && (<>
@@ -48,6 +51,23 @@ export function PlayerSheet({ state, reduced = false }: { state: GameState; redu
       <button className="btn big nb-open" data-testid="open-notebook" onClick={() => { sfx.tap(); setBook(true); }}>
         📖 {GRANDPA.name}’s notebook
       </button>
+    </div>
+  );
+}
+
+/** The chef's records: high score (and which dish), total points, Golden Recipes, Perfect streak. */
+function Records({ state }: { state: GameState }) {
+  const r = selectors.records(state);
+  return (
+    <div className="records" data-testid="records">
+      <div className="rec high">
+        <span className="rec-label">🏆 High score</span>
+        <b>{r.high ? r.high.points.toLocaleString() : '—'}</b>
+        {r.high && <span className="rec-sub"><img src={dishIcon(r.high.recipeId)} alt="" />{recipe(r.high.recipeId).name}</span>}
+      </div>
+      <div className="rec"><span className="rec-label">Total points</span><b>{r.total.toLocaleString()}</b></div>
+      <div className="rec"><span className="rec-label">✨ Golden Recipes</span><b>{r.golden}</b></div>
+      <div className="rec"><span className="rec-label">🔥 Longest Perfect streak</span><b>{r.streak}</b></div>
     </div>
   );
 }

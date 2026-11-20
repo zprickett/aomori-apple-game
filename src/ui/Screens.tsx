@@ -246,12 +246,20 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
     emitCue({ type: 'customer', anim: n >= 3 || score.golden ? 'joy' : n >= 1 ? 'happy' : 'think' });
     if (n >= 3 || score.golden) emitCue({ type: 'chef', anim: 'cheer' });
     for (let i = 0; i < n; i++) window.setTimeout(() => sfx.star(i), 350 + i * 260);
-    if (n >= 3 || score.golden || record?.newBest) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
-  }, [score, stars, record?.newBest]);
+    if (n >= 3 || score.golden || record?.newBest || record?.newHigh) window.setTimeout(() => sfx.fanfare(), 350 + 3 * 260);
+    if (record?.newHigh) { emitCue({ type: 'chef', anim: 'cheer' }); window.setTimeout(() => sfx.fanfare(), 1900); }
+  }, [score, stars, record?.newBest, record?.newHigh]);
+  const [info, setInfo] = useState<string | null>(null);
+  const fitWord = ['a poor fit', 'an OK fit', 'a good fit', 'the best fit'];
   const done = state.progress.completedOrders;
   const dayEnd = !pr && done > 0 && done % DAY_LENGTH === 0;
   return (
     <div className="sheet-card result" role="dialog" aria-label="Dish result" data-testid="result-card">
+      {record?.newHigh && score && (
+        <div className="high-burst" data-testid="new-high" aria-label={`New high score: ${score.total}`}>
+          <span className="hb-kick">NEW HIGH SCORE!</span>
+        </div>
+      )}
       <div className="res-head">
         <img src={dishIcon(r.id)} alt="" />
         <div className="res-main">
@@ -260,7 +268,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
             <>
               <div className="res-stars" data-testid="dish-stars"><Stars n={stars} size={30} label={`${stars} of 3 stars`} /></div>
               <div className="res-points" data-testid="points"><b>{shown.toLocaleString()}</b> pts
-                {record?.newBest && <span className="new-best">NEW BEST!</span>}
+                {record?.newBest && !record.newHigh && <span className="new-best">NEW BEST!</span>}
               </div>
               {score.golden && <div className="golden-badge" data-testid="golden">🏆 {GOLDEN_LABEL}</div>}
             </>
@@ -271,12 +279,24 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
       </div>
       <div className="res-grades">
         {(res?.grades ?? pr?.grades ?? []).map((g, i) => (
-          <span key={g.stepId} className={`chip ${GRADE_CLASS[g.grade]}`}>{i + 1}. {g.grade}</span>
+          <button key={g.stepId} type="button" className={`chip ${GRADE_CLASS[g.grade]} ${info === `g${i}` ? 'on' : ''}`}
+            onClick={() => setInfo(info === `g${i}` ? null : `g${i}`)}>{i + 1}. {g.grade}</button>
         ))}
-        {score && <span className={`chip apple-x f-${score.fit}`}>🍎 ×{score.appleMultiplier}</span>}
-        {score && score.combo > 0 && <span className="chip combo-chip">🔥 +{score.combo}</span>}
-        {score && score.goldenBonus > 0 && <span className="chip golden-chip">🏆 +{score.goldenBonus}</span>}
+        {score && <button type="button" className={`chip apple-x f-${score.fit} ${info === 'apple' ? 'on' : ''}`} onClick={() => setInfo(info === 'apple' ? null : 'apple')}>🍎 ×{score.appleMultiplier}</button>}
+        {score && score.combo > 0 && <button type="button" className={`chip combo-chip ${info === 'combo' ? 'on' : ''}`} onClick={() => setInfo(info === 'combo' ? null : 'combo')}>🔥 +{score.combo}</button>}
+        {score && score.goldenBonus > 0 && <button type="button" className={`chip golden-chip ${info === 'golden' ? 'on' : ''}`} onClick={() => setInfo(info === 'golden' ? null : 'golden')}>🏆 +{score.goldenBonus}</button>}
       </div>
+      {info && (
+        <div className="chip-info" role="status" data-testid="chip-info" onClick={() => setInfo(null)}>
+          {info.startsWith('g') && (() => {
+            const g = (res?.grades ?? pr?.grades ?? [])[Number(info.slice(1))];
+            return <><b>Action {Number(info.slice(1)) + 1}: {g?.grade}</b> Perfect scores 100, Good 70, OK 40. Bigger recipes multiply them.</>;
+          })()}
+          {info === 'apple' && score && <><b>Apple bonus ×{score.appleMultiplier}</b> {a?.nameEn.replace(' (Jonathan)', '')} is {fitWord[score.fit]} for {r.name}. The best apples double your points!</>}
+          {info === 'combo' && score && <><b>🔥 Combo +{score.combo}</b> Perfect actions in a row add bonus points.</>}
+          {info === 'golden' && score && <><b>🏆 Golden Recipe +{score.goldenBonus}</b> Every action Perfect adds a 25% bonus.</>}
+        </div>
+      )}
       {score && <LadderBar points={after} before={before} reduced={reduced} />}
       <button className="btn primary huge" data-testid="result-next" onClick={() => { sfx.tap(); dispatch({ type: 'RESULT_DONE' }); }}>
         {pr ? 'Back to the shop'

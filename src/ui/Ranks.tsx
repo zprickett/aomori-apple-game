@@ -1,6 +1,6 @@
 /** Story ranks UI: rank badge, next-rank goals, the rank-up intro and the end-of-day recap. */
-import { useContext, useEffect } from 'react';
-import { DAY_LENGTH, MAX_RANK, ladderProgress, rankInfo, recipe, selectors, stepsForPoints, trophy, type GameAction, type GameState, type LadderStep, type Rank } from '../core/index.ts';
+import { useContext, useEffect, useState } from 'react';
+import { DAY_LENGTH, MAX_RANK, TIER_NAMES, ladderProgress, rankInfo, recipe, selectors, stepsForPoints, trophy, type GameAction, type GameState, type LadderStep, type Rank } from '../core/index.ts';
 import { piecesAtStep } from '../game/stallPieces.ts';
 import { useCountUp } from './Screens.tsx';
 import { emitCue } from '../game/bus.ts';
@@ -8,6 +8,7 @@ import { sfx } from '../game/audio.ts';
 import { dishIcon, Stars } from './icons.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
+import { TrophyInfo } from './Trophies.tsx';
 
 type D = (a: GameAction) => void;
 
@@ -156,15 +157,37 @@ export function DayRecap({ state, dispatch, reduced }: { state: GameState; dispa
   const records = selectors.dayRecords(state);
   const stars = records.reduce((n, h) => n + (h.stars ?? 0), 0);
   const points = records.reduce((n, h) => n + h.points, 0);
+  const [trophyOpen, setTrophyOpen] = useState<string | null>(null);
   useEffect(() => {
     if (!reduced) sfx.fanfare();
   }, [reduced]);
+  // The fun bits first: high score, new bests, Golden Recipes, the day's best dish.
+  const high = records.find((h) => h.newHigh);
+  const bests = records.filter((h) => h.newBest && !h.newHigh);
+  const golden = records.filter((h) => h.golden).length;
+  const top = [...records].sort((x, y) => y.points - x.points)[0];
+  const highlights: { key: string; icon: string; text: string; big?: boolean }[] = [
+    ...(high ? [{ key: 'high', icon: '🏆', text: `New high score! ${recipe(high.recipeId).name}: ${high.points.toLocaleString()} pts`, big: true }] : []),
+    ...bests.map((h) => ({ key: `best-${h.orderId}`, icon: '⭐', text: `New best for ${recipe(h.recipeId).name}: ${h.points.toLocaleString()} pts` })),
+    ...(golden ? [{ key: 'golden', icon: '✨', text: golden === 1 ? '1 Golden Recipe!' : `${golden} Golden Recipes!` }] : []),
+    ...(top && !high && top.points > 0 ? [{ key: 'top', icon: '🥇', text: `Best dish today: ${recipe(top.recipeId).name}, ${top.points.toLocaleString()} pts` }] : []),
+  ];
   return (
     <div className="sheet-card result day-recap" role="dialog" aria-label={`Day ${selectors.day(state)} recap`} data-testid="day-recap">
       <div className="dr-head">
         <h2>Day {selectors.day(state)}</h2>
         <div className="dr-total"><Stars n={1} max={1} size={22} label="Stars today" /> {stars}/{DAY_LENGTH * 3} · <b>{points.toLocaleString()}</b> pts</div>
       </div>
+      {highlights.length > 0 && (
+        <ul className="dr-highlights" data-testid="day-highlights">
+          {highlights.map((h, k) => (
+            <li key={h.key} className={h.big ? 'big' : ''} style={{ animationDelay: `${0.2 + k * 0.15}s` }}>
+              <span aria-hidden>{h.icon}</span> {h.text}
+            </li>
+          ))}
+        </ul>
+      )}
+      <DayTrophies state={state} onOpen={setTrophyOpen} />
       <div className="dr-dishes">
         {records.map((h) => (
           <div key={h.orderId} className={`dr-dish ${h.golden ? 'golden' : ''}`}>
@@ -173,33 +196,30 @@ export function DayRecap({ state, dispatch, reduced }: { state: GameState; dispa
           </div>
         ))}
       </div>
-      <DayTrophies state={state} />
       <RankGoals state={state} />
       <button className="btn primary huge" data-testid="day-next" onClick={() => { sfx.tap(); dispatch({ type: 'DAY_DONE' }); }}>
         Next day
       </button>
+      {trophyOpen && <TrophyInfo state={state} id={trophyOpen} onClose={() => setTrophyOpen(null)} />}
     </div>
   );
 }
 
-const TIER_NAME = ['', 'Bronze', 'Silver', 'Gold'];
-
-/** Golden Trophy steps reached today: shown once, in the recap, instead of pop-ups after dishes. */
-function DayTrophies({ state }: { state: GameState }) {
+function DayTrophies({ state, onOpen }: { state: GameState; onOpen: (id: string) => void }) {
   const list = selectors.newTrophies(state);
   if (!list.length) return null;
   return (
     <div className="dr-trophies" data-testid="day-trophies">
-      <div className="dr-tr-head">🏆 New trophies today!</div>
+      <div className="dr-tr-head">🏆 New trophies today! <span className="dr-tr-hint">Tap one to see it</span></div>
       <div className="dr-tr-list">
         {list.map((t) => {
           const def = trophy(t.id);
           return (
-            <div key={t.id} className={`dr-tr tier-${t.tier}`}>
+            <button type="button" key={t.id} className={`dr-tr tier-${t.tier}`} onClick={() => { sfx.tap(); onOpen(t.id); }}>
               <span className="dr-tr-medal" aria-hidden>{def.icon}</span>
               <span className="dr-tr-name">{def.name}</span>
-              <span className="dr-tr-tier">{TIER_NAME[t.tier]}</span>
-            </div>
+              <span className="dr-tr-tier">{TIER_NAMES[t.tier]}</span>
+            </button>
           );
         })}
       </div>

@@ -1031,3 +1031,52 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 @keyframes sm-slam { from { transform: rotate(-6deg) scale(2.4); opacity: 0; } to { transform: rotate(-6deg) scale(1); opacity: 1; } }
 .stall-moment.still, .stall-moment.still * { animation: none !important; }
 .scene-bg.view-upgrade { transform: none; }
+
+/* ---- Tappable score chips and their info bubble ---- */
+button.chip { font: inherit; cursor: pointer; border: 2px solid transparent; }
+button.chip.on { border-color: var(--wood-d); transform: translateY(-1px); }
+.chip-info { background: #fffaf0; border: 2px solid var(--wood-d); border-radius: 14px; padding: 8px 12px; margin: -4px 0 10px; font-weight: 700;
+  font-size: 0.92rem; line-height: 1.35; position: relative; animation: pop 0.25s cubic-bezier(.2,1.5,.4,1) both; cursor: pointer; }
+.chip-info b { display: block; font-weight: 900; }
+/* ---- New high score: a manga burst above the result card ---- */
+.high-burst { display: flex; flex-direction: column; align-items: center; width: fit-content; margin: 0 auto 10px; transform: rotate(-3deg);
+  background: radial-gradient(circle at 50% 40%, #fff6cf, #f4c954 70%); border: 3px solid var(--wood-d); border-radius: 18px; padding: 6px 18px 8px;
+  box-shadow: 4px 5px 0 var(--wood-d); animation: hb-slam 0.6s 0.9s cubic-bezier(.2,1.6,.4,1) both; white-space: nowrap; }
+.hb-kick { font-size: 1.6rem; font-weight: 900; font-style: italic; color: var(--red); -webkit-text-stroke: 1px var(--wood-d); }
+.hb-pts { font-size: 1.9rem; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+@keyframes hb-slam { from { transform: rotate(-3deg) scale(3); opacity: 0; } to { transform: rotate(-3deg) scale(1); opacity: 1; } }
+.reduced .high-burst { animation: none; }
+
+/* ---- Day recap highlights, tappable trophies, trophy info card ---- */
+.dr-highlights { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+.dr-highlights li { background: #fffaf0; border: 2px solid #ecd9b5; border-radius: 14px; padding: 7px 12px; font-weight: 800; line-height: 1.3;
+  animation: mg-up 0.4s cubic-bezier(.2,1.3,.4,1) both; }
+.dr-highlights li.big { background: radial-gradient(circle at 20% 30%, #fff6cf, #f4c954 80%); border-color: var(--wood-d); font-size: 1.08rem; font-weight: 900;
+  box-shadow: 3px 4px 0 rgba(74,51,38,0.3); }
+button.dr-tr { font: inherit; color: inherit; background: #fffdf2; border: 2px solid #f0d98c; border-radius: 12px; padding: 5px 8px; text-align: left; cursor: pointer; }
+.dr-tr-hint { font-weight: 700; font-size: 0.78rem; color: var(--ink-soft); }
+button.cab-card { font: inherit; color: inherit; cursor: pointer; }
+.trophy-info-back { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.35); animation: ov-in 0.25s both; }
+.trophy-info { width: min(100%, 340px); background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 16px; display: grid; gap: 8px;
+  justify-items: center; text-align: center; box-shadow: 5px 6px 0 rgba(74,51,38,0.3); animation: pop 0.35s cubic-bezier(.2,1.5,.4,1) both; }
+.ti-name { font-size: 1.4rem; font-weight: 900; }
+.ti-about { margin: 0; font-weight: 700; line-height: 1.4; color: var(--ink-soft); }
+.ti-steps { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 6px; }
+.ti-steps li { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; background: #fff; border: 2px solid #e6d6bb; border-radius: 12px; padding: 6px 8px; text-align: left; }
+.ti-steps li.done { background: #f3f9ec; border-color: #9fd18b; }
+.ti-tier { font-size: 0.72rem; font-weight: 900; color: #fff; border-radius: 999px; padding: 1px 8px; background: #c9874f; }
+.ti-steps li.t-silver .ti-tier { background: #9aa3ad; } .ti-steps li.t-gold .ti-tier { background: #e0a91b; }
+.ti-goal { font-weight: 800; font-size: 0.88rem; line-height: 1.25; }
+.ti-have { font-weight: 900; font-size: 0.85rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.ti-steps li.done .ti-have { color: #3f9a2c; font-size: 1.1rem; }
+.trophy-info .btn { width: 100%; }
+
+/* ---- Records in My chef ---- */
+.records { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rec { background: #fff; border: 2px solid #e6d6bb; border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.rec.high { grid-column: 1 / -1; background: radial-gradient(circle at 15% 20%, #fff6cf, #fdeaa8 80%); border-color: var(--gold); }
+.rec-label { font-size: 0.8rem; font-weight: 800; color: var(--ink-soft); }
+.rec b { font-size: 1.4rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.rec.high b { font-size: 2rem; }
+.rec-sub { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.9rem; }
+.rec-sub img { width: 28px; height: 28px; }

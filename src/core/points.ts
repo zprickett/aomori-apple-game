@@ -110,6 +110,8 @@ export interface OrderRecord {
   stars?: number;
   /** Beat (or set) the best points for this recipe. */
   newBest: boolean;
+  /** Beat the best score of any dish ever (the chef's high score). */
+  newHigh?: boolean;
 }
 
 export const HISTORY_LIMIT = 300;
