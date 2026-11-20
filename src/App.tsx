@@ -14,6 +14,7 @@ import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens
 import { UnlockReveal } from './ui/Reveal.tsx';
 import { DayRecap } from './ui/Ranks.tsx';
 import { backdropFit, backgroundFor } from './game/backgrounds.ts';
+import { upgradeStepOf } from './game/stallPieces.ts';
 import { Review } from './ui/Review.tsx';
 import { TopBar, Sheet, Notice, type SheetKind } from './ui/Chrome.tsx';
 import { sfx } from './game/audio.ts';
@@ -123,7 +124,10 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     return stage.ready;
   }, [state.phase, cook, stage, bridgeFrame]);
 
-  const view: ViewMode = state.phase === 'day' ? 'result' : state.phase;
+  /** The stall-upgrade moment playing in the reveal: its ladder step, or null. */
+  const [stallMoment, setStallMoment] = useState<number | null>(null);
+  useEffect(() => { if (state.phase !== 'delivery') setStallMoment(null); }, [state.phase]);
+  const view: ViewMode = stallMoment !== null ? 'upgrade' : state.phase === 'day' ? 'result' : state.phase;
 
   // Chef greets each new customer.
   useEffect(() => {
@@ -136,7 +140,12 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
   // The stall moves and upgrades after the rank-up and its notebook page have been shown.
   const pendingRank = (state.phase === 'result' || state.phase === 'delivery') ? state.delivery?.rank ?? null : null;
   const shownRank: Rank = pendingRank ? (pendingRank - 1) as Rank : selectors.rank(state);
-  const shownSteps = pendingRank ? LADDER.findIndex((st) => st.rank === pendingRank) : selectors.steps(state);
+  // A piece shown off by the stall-upgrade moment stays hidden until that moment drops it in.
+  const showOff = (state.phase === 'result' || state.phase === 'delivery') && state.delivery
+    ? upgradeStepOf(state.delivery, pendingRank ? LADDER.findIndex((st) => st.rank === pendingRank) : null) : undefined;
+  const shownSteps = stallMoment !== null ? stallMoment + 1
+    : showOff !== undefined ? showOff
+    : pendingRank ? LADDER.findIndex((st) => st.rank === pendingRank) : selectors.steps(state);
   const backdrop = backgroundFor(shownRank);
   const news = selectors.pendingNews(state);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
@@ -174,9 +183,10 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
               backdrop
-              hideCustomer={news !== null}
-              sideCustomerId={state.mode === 'order' ? selectors.sideCustomer(state) : null}
-              helper={selectors.ojiichanHelps(state)}
+              hideCustomer={news !== null || stallMoment !== null}
+              sideCustomerId={state.mode === 'order' && stallMoment === null ? selectors.sideCustomer(state) : null}
+              helper={selectors.ojiichanHelps(state) && stallMoment === null}
+              popStep={stallMoment}
             />
           </Suspense>
         </Canvas>
@@ -194,7 +204,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
       {state.phase === 'serve' && <ServeOverlay state={state} dispatch={dispatch} reduced={reducedMotion} />}
       {state.phase === 'result' && <ResultCard state={state} dispatch={dispatch} reduced={reducedMotion} />}
       {state.phase === 'day' && <DayRecap state={state} dispatch={dispatch} reduced={reducedMotion} />}
-      {state.phase === 'delivery' && <UnlockReveal key={state.order.orderId} state={state} dispatch={dispatch} reduced={reducedMotion} />}
+      {state.phase === 'delivery' && <UnlockReveal key={state.order.orderId} state={state} dispatch={dispatch} reduced={reducedMotion} onStallMoment={setStallMoment} />}
 
       <Notice text={state.notice} onClose={() => dispatch({ type: 'DISMISS_NOTICE' })} />
       {!persistent && <div className="save-warn" role="status">Progress cannot be saved on this device</div>}

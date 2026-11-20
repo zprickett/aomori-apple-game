@@ -11,7 +11,8 @@ import { COUNTER_Y, DISH_DISPLAY_SCALE, dishProp, type PropSpec, type StepStage 
 import { STALL_PIECES } from '../game/stallPieces.ts';
 import { mixing, onCue, pointer, publishAnchors, stepClock, type AnchorMap } from '../game/bus.ts';
 
-export type ViewMode = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery';
+/** 'upgrade': a wide shot of the whole stall while a new piece drops in. */
+export type ViewMode = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'upgrade';
 
 export interface SceneProps {
   /** The player's chef look (defaults to the original Chef Hana). */
@@ -37,6 +38,8 @@ export interface SceneProps {
    *  (the ground only catches shadows). The Canvas needs `gl={{ alpha: true }}`. */
   backdrop?: boolean;
   /** No customer yet (a news card is showing); they walk in once it closes. */
+  /** Stall-upgrade moment: this ladder step's pieces drop in. */
+  popStep?: number | null;
   hideCustomer?: boolean;
   /** The second customer on the left (a choice, or someone waiting), or null. */
   sideCustomerId?: string | null;
@@ -62,7 +65,14 @@ function poseFor(view: ViewMode, aspect: number): Pose {
     return { pos: new THREE.Vector3(0, target.y + d * Math.sin(el), target.z + d * Math.cos(el)), look: target, fov };
   }
   const near = view === 'serve' || view === 'result' || view === 'delivery';
-  const halfW = near ? 1.15 : 1.72;
+  if (view === 'upgrade') {
+    // Wide and centred on the whole stall, awning to deck, so the new piece is in frame.
+    const d = 2.25 / tanH;
+    const look = new THREE.Vector3(0, 1.25, 0.3);
+    return { pos: new THREE.Vector3(0, look.y + d * 0.12, look.z + d), look, fov };
+  }
+  // The shop view is a touch wider than it was so the whole stall reads at a glance.
+  const halfW = near ? 1.15 : 1.9;
   const d = halfW / tanH;
   const look = view === 'choose'
     ? new THREE.Vector3(0, -0.15, 0.4)
@@ -119,7 +129,8 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 /** Noren length as a share of the modelled 0.66 m: the hem clears the owner's face. */
 const NOREN_LENGTH = 0.55;
 
-function Stall({ steps, reduced, view, backdrop }: { steps: number; reduced: boolean; view: ViewMode; backdrop: boolean }) {
+/** `pop`: the ladder step whose pieces drop in now (stall-upgrade moment), or null. */
+function Stall({ steps, reduced, view, backdrop, pop }: { steps: number; reduced: boolean; view: ViewMode; backdrop: boolean; pop: number | null }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
   const upgrades = useMemo(() => STALL_PIECES.filter((p) => !p.inStall).map((p) => [lib.clone(p.node), p.step] as const), [lib]);
@@ -138,17 +149,37 @@ function Stall({ steps, reduced, view, backdrop }: { steps: number; reduced: boo
     for (const n of ['Noren_L', 'Noren_C', 'Noren_R']) { const o = stall.getObjectByName(n); if (o) o.scale.y = NOREN_LENGTH; }
   }, [stall]);
   const sway = useMemo(() => ['Noren_L', 'Noren_C', 'Noren_R', 'Lantern'].map((n) => stall.getObjectByName(n)).filter(Boolean) as THREE.Object3D[], [stall]);
+  // Stall-upgrade moment: the step's pieces drop in from above with a bounce and a little squash.
+  const rest = useMemo(() => new Map<THREE.Object3D, number>([...parts, ...upgrades].map(([o]) => [o, o.position.y])), [parts, upgrades]);
+  const popStart = useRef<number | null>(null);
+  useEffect(() => { popStart.current = null; }, [pop]);
   useFrame(({ clock }) => {
-    // cutaway: the noren would hide the owner's face from the overhead cooking camera
-    for (const [o, at] of parts) o.visible = steps > at && !(o.name.startsWith('Noren') && view === 'cook');
-    if (reduced) return;
     const t = clock.elapsedTime;
+    if (pop !== null && popStart.current === null) popStart.current = t;
+    const age = pop !== null && popStart.current !== null ? t - popStart.current - 0.45 : Infinity;
+    for (const [o, at] of [...parts, ...upgrades]) {
+      const dropping = at === pop && !reduced && age < 1.2;
+      if (dropping) {
+        o.visible = age >= 0;
+        const k = Math.max(0, Math.min(1, age / 0.55));
+        const fall = 1.8 * Math.pow(1 - k, 2);
+        const bounce = k >= 1 ? 0.12 * Math.exp(-(age - 0.55) * 7) * Math.abs(Math.sin((age - 0.55) * 14)) : 0;
+        o.position.y = (rest.get(o) ?? 0) + fall + bounce;
+        const squash = k >= 1 ? 1 - 0.12 * Math.exp(-(age - 0.55) * 9) : 1;
+        o.scale.set(1, squash * (o.name.startsWith('Noren_') && o.name !== 'Noren_Rod' ? NOREN_LENGTH : 1), 1);
+      } else {
+        o.position.y = rest.get(o) ?? o.position.y;
+        // cutaway: the noren would hide the owner's face from the overhead cooking camera
+        o.visible = steps > at && !(o.name.startsWith('Noren') && view === 'cook');
+      }
+    }
+    if (reduced) return;
     sway.forEach((o, i) => { o.rotation.x = 0.035 * Math.sin(t * 1.1 + i * 0.9); });
   });
   return (
     <group>
       <primitive object={stall} />
-      {upgrades.map(([o, at]) => <primitive key={o.name} object={o} visible={steps > at} />)}
+      {upgrades.map(([o]) => <primitive key={o.name} object={o} />)}
     </group>
   );
 }
@@ -475,7 +506,7 @@ export function GameScene(p: SceneProps) {
         <circleGeometry args={[p.backdrop ? 3.6 : 60, 32]} />
         {p.backdrop ? <shadowMaterial opacity={0.16} color="#6b4a2c" /> : <meshLambertMaterial color="#F3EBDC" />}
       </mesh>
-      <Stall steps={p.steps} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} />
+      <Stall steps={p.steps} reduced={p.reducedMotion} view={p.view} backdrop={!!p.backdrop} pop={p.popStep ?? null} />
       <Chef base={p.chefBase} view={p.view} reduced={p.reducedMotion} look={p.chefLook ?? DEFAULT_LOOK} rank={p.rank} />
       {!p.hideCustomer && <Customer id={p.customerId} orderKey={p.orderKey} view={p.view} reduced={p.reducedMotion} />}
       {!p.hideCustomer && p.sideCustomerId && p.sideCustomerId !== p.customerId && (

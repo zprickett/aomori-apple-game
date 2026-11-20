@@ -7,7 +7,7 @@ import { dishIcon, GestureIcon } from './icons.tsx';
 import { RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
 import { GroupPhoto, OjiichanTasting } from './Finale.tsx';
-import { piecesAtStep } from '../game/stallPieces.ts';
+import { stepPieceLabel, upgradeStepOf } from '../game/stallPieces.ts';
 import { ChefContext } from '../game/chef.ts';
 
 type D = (a: GameAction) => void;
@@ -21,7 +21,7 @@ const shortName = (n: string) => n.replace(' (Jonathan)', '');
  * or dish zooming in) followed by a full-screen overview card. One pass per unlocked item, except
  * that a batch of apples shares one intro ("3 NEW APPLES!") and then shows each apple's card.
  */
-export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; dispatch: D; reduced: boolean }) {
+export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { state: GameState; dispatch: D; reduced: boolean; onStallMoment?: (step: number | null) => void }) {
   const d = state.delivery!;
   // A recipe that comes with a rank is shown by its notebook page (max two pop-ups).
   const items: ShowcaseItem[] = [
@@ -34,7 +34,7 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
    * Before the unlocks: Ojiichan's tasting and the group photo, or the rank-up page and its
    * notebook page, or a "Stall upgrade!" card for a ★ step that brings no recipe.
    */
-  const upgrade = d.rank === null && !d.recipes.length ? d.steps.find((st) => piecesAtStep(st).some((x) => x.label)) : undefined;
+  const upgrade = upgradeStepOf(d, d.rank !== null ? LADDER.findIndex((st) => st.rank === d.rank) : null);
   const pre: Array<{ kind: 'taste' } | { kind: 'photo' } | { kind: 'rank' } | { kind: 'page' } | { kind: 'upgrade'; step: number }> = [
     ...(d.finale ? [{ kind: 'taste' as const }, { kind: 'photo' as const }] : []),
     ...(d.rank !== null ? [{ kind: 'rank' as const }, { kind: 'page' as const }] : []),
@@ -73,7 +73,7 @@ export function UnlockReveal({ state, dispatch, reduced }: { state: GameState; d
   if (preStep?.kind === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={nextPre} />;
   if (preStep?.kind === 'taste') return <OjiichanTasting state={state} reduced={reduced} onDone={nextPre} />;
   if (preStep?.kind === 'photo') return <GroupPhoto reduced={reduced} onDone={nextPre} />;
-  if (preStep?.kind === 'upgrade') return <StallUpgrade step={preStep.step} onDone={() => { sfx.tap(); nextPre(); }} />;
+  if (preStep?.kind === 'upgrade') return <StallUpgrade step={preStep.step} reduced={reduced} onMoment={onStallMoment} onDone={() => { sfx.tap(); onStallMoment?.(null); nextPre(); }} />;
   if (!item) return null;
   const next = () => {
     sfx.tap();
@@ -197,16 +197,31 @@ function RecipeOverview({ id }: { id: string }) {
   );
 }
 
-/** A ★ step's stall piece: a small card over the stall (the piece is already standing there). */
-function StallUpgrade({ step, onDone }: { step: number; onDone: () => void }) {
-  const piece = piecesAtStep(step).find((x) => x.label)!;
-  useEffect(() => { sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, []);
+/**
+ * Stall-upgrade moment: the scene clears to a wide shot of the whole stall, the new piece drops in
+ * with a bounce, and a manga frame shouts STALL UPGRADE! (the centre stays clear to see it).
+ */
+function StallUpgrade({ step, reduced, onMoment, onDone }: { step: number; reduced: boolean; onMoment?: (s: number | null) => void; onDone: () => void }) {
+  const label = stepPieceLabel(step);
+  useEffect(() => {
+    onMoment?.(step);
+    sfx.swish();
+    const t = window.setTimeout(() => { sfx.chop(); sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, reduced ? 0 : 900);
+    return () => window.clearTimeout(t);
+  }, [step, reduced, onMoment]);
   return (
-    <div className="sheet-card result stall-upgrade" role="dialog" aria-label="Stall upgrade" data-testid="stall-upgrade">
-      <div className="su-kick">Stall upgrade!</div>
-      <div className="su-name">{piece.label}</div>
-      <div className="su-step">{stepLabel(LADDER[step])}</div>
-      <button className="btn primary huge" data-testid="delivery-done" onClick={onDone}>Back to the shop</button>
+    <div className={`stall-moment ${reduced ? 'still' : ''}`} role="dialog" aria-label={`Stall upgrade: ${label}`} data-testid="stall-upgrade" onClick={onDone}>
+      <div className="sm-lines" aria-hidden />
+      <div className="sm-top">
+        <span className="sm-kick">STALL UPGRADE!</span>
+        <span className="sm-kick-ja" lang="ja" aria-hidden>屋台パワーアップ！</span>
+      </div>
+      <div className="sm-bottom">
+        <div className="sm-new">NEW</div>
+        <div className="sm-name">{label}</div>
+        <div className="sm-step">{stepLabel(LADDER[step])}</div>
+        <div className="sm-tap">Tap to continue</div>
+      </div>
     </div>
   );
 }

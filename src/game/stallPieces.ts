@@ -36,3 +36,17 @@ export const STALL_PIECES: readonly StallPiece[] = Object.freeze([
 export function piecesAtStep(step: number): StallPiece[] {
   return STALL_PIECES.filter((p) => p.step === step);
 }
+
+/**
+ * The ladder step whose stall piece this delivery shows off (rank step first, then ★ steps), or
+ * undefined. Until its moment plays, the stall is shown without that piece.
+ */
+export function upgradeStepOf(d: { rank: number | null; steps: readonly number[] }, rankStep: number | null): number | undefined {
+  const candidates = [...(rankStep !== null ? [rankStep] : []), ...d.steps];
+  return candidates.find((st) => piecesAtStep(st).some((x) => x.label));
+}
+
+/** The kid-facing name of what a step adds to the stall. */
+export function stepPieceLabel(step: number): string {
+  return piecesAtStep(step).find((x) => x.label)?.label ?? '';
+}
