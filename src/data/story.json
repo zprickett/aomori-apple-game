@@ -8,10 +8,9 @@
   "letter": {
     "greeting": "Dear {name},",
     "body": [
-      "I'm off to see the world, so our apple stall is yours now!",
-      "I didn't leave you a cookbook. I left you my notebook of riddles instead.",
-      "Every time you grow as a chef, a new page will open. Solve its riddle and a new dish is yours.",
-      "Be kind to every customer, pick your apples well, and I'll see you soon!"
+      "Our apple stall is yours now! I'm off to see the world.",
+      "Instead of a cookbook, I left you my notebook of riddles. Each new page brings a new dish.",
+      "Be kind to every customer and pick your apples well. See you soon!"
     ],
     "signoff": "Love,",
     "signature": "Ojiichan (your Grandpa)"
@@ -120,19 +119,23 @@
       "color": "#4F9A5A",
       "visits": [
         {
-          "rank": 1, "after": 4,
+          "rank": 1,
+          "after": 4,
           "line": "Hi! I'm Sota. I'm going to be a chef too! Can I watch you make {dish}?"
         },
         {
-          "rank": 2, "after": 7,
+          "rank": 2,
+          "after": 7,
           "line": "I practised your moves at home! Swish, swish! Could I have {dish}, please, Chef {name}?"
         },
         {
-          "rank": 3, "after": 9,
+          "rank": 3,
+          "after": 9,
           "line": "What's your best tip, Chef {name}? Mine is: always wash the apples! {dish}, please."
         },
         {
-          "rank": 4, "after": 6,
+          "rank": 4,
+          "after": 6,
           "line": "I opened a pretend apple stall next door! But today I'm the customer. {dish}, please!"
         }
       ]
@@ -145,19 +148,23 @@
       "color": "#E8B230",
       "visits": [
         {
-          "rank": 2, "after": 2,
+          "rank": 2,
+          "after": 2,
           "line": "Hello! I'm Yui. I'm learning to cook for my little brother. Is {dish} hard to make?"
         },
         {
-          "rank": 3, "after": 2,
+          "rank": 3,
+          "after": 2,
           "line": "My brother loved the last one! Could I have {dish}? I'll watch how you do it."
         },
         {
-          "rank": 3, "after": 11,
+          "rank": 3,
+          "after": 11,
           "line": "I tried something harder at home. It was... a little burnt. Could I have {dish}, please?"
         },
         {
-          "rank": 4, "after": 8,
+          "rank": 4,
+          "after": 8,
           "line": "I made jam all by myself! It's lumpy, but it's for you. And {dish}, please!"
         }
       ]
@@ -170,19 +177,23 @@
       "color": "#8A5A3B",
       "visits": [
         {
-          "rank": 2, "after": 5,
+          "rank": 2,
+          "after": 5,
           "line": "Good day! I'm Kiyoshi. {dish}, please. Oh, and do you sell pie apples? No reason!"
         },
         {
-          "rank": 3, "after": 5,
+          "rank": 3,
+          "after": 5,
           "line": "{dish}, please. And six more pie apples... still no reason!"
         },
         {
-          "rank": 4, "after": 2,
+          "rank": 4,
+          "after": 2,
           "line": "All right, I'll tell you. I'm entering the town pie contest! Wish me luck. {dish}, please."
         },
         {
-          "rank": 4, "after": 10,
+          "rank": 4,
+          "after": 10,
           "line": "Second place in the pie contest! This ribbon is half yours, Chef {name}. Let's celebrate with {dish}!"
         }
       ]
@@ -195,19 +206,23 @@
       "color": "#4A90C2",
       "visits": [
         {
-          "rank": 2, "after": 3,
+          "rank": 2,
+          "after": 3,
           "line": "Hi, I'm Mei! I collect apples too. Aomori grows more apples than anywhere else in Japan! {dish}, please."
         },
         {
-          "rank": 3, "after": 7,
+          "rank": 3,
+          "after": 7,
           "line": "Apple fact: the Fuji apple was first grown here in Aomori! {dish}, please."
         },
         {
-          "rank": 4, "after": 4,
+          "rank": 4,
+          "after": 4,
           "line": "Apple fact: apples float because about a quarter of an apple is air! {dish}, please."
         },
         {
-          "rank": 4, "after": 12,
+          "rank": 4,
+          "after": 12,
           "line": "This is my rarest apple, Oirase, named after a stream near Lake Towada. It's yours! And {dish}, please.",
           "giftApple": "a096"
         }
@@ -219,8 +234,8 @@
       "rank": 2,
       "kind": "note",
       "icon": "💌",
-      "title": "A thank-you note!",
-      "text": "Thank you for letting me watch you cook! When I'm a chef, I want to be just like you.",
+      "title": "Thank you!",
+      "text": "Thanks for letting me watch you cook!",
       "from": "Sota",
       "headline": "Sota pinned a note to your stall"
     },
@@ -229,7 +244,7 @@
       "kind": "paper",
       "icon": "📰",
       "title": "Aomori Daily",
-      "text": "New stall's rabbit apples hop off the counter! Chef {name}'s little apple stall is the talk of the town.",
+      "text": "Chef {name}'s apple stall is the talk of the town!",
       "from": "The Aomori Daily",
       "headline": "Your stall is in the newspaper!"
     },
@@ -237,8 +252,8 @@
       "rank": 4,
       "kind": "invite",
       "icon": "✉️",
-      "title": "An invitation",
-      "text": "The Hirosaki Apple Festival invites Chef {name} to cook on the main street this year!",
+      "title": "You're invited!",
+      "text": "Come and cook at the Hirosaki Apple Festival!",
       "from": "Hirosaki Apple Festival",
       "headline": "A letter came in the post"
     },
@@ -247,7 +262,7 @@
       "kind": "award",
       "icon": "🏆",
       "title": "The Golden Apple award",
-      "text": "The whole town cheers as Chef {name} receives the Golden Apple award. And look who's here...",
+      "text": "The whole town cheers for Chef {name}! And look who's here...",
       "from": "The town of Aomori",
       "headline": "A ceremony, just for you"
     }
@@ -257,5 +272,14 @@
     "line": "Surprise! I came home for your big day, {name}. One {dish} for your proud Ojiichan, please!",
     "tagline": "Your grandpa, home from his travels!",
     "color": "#E8A92A"
-  }
+  },
+  "prologue": {
+    "bye": "Ojiichan is off to see the world!",
+    "byeSay": "Bye-bye, Aomori!",
+    "arrive": "Next morning, {name} arrives at the apple stall by Aomori Bay...",
+    "arriveSay": "It's empty!?",
+    "note": "There's a note on the counter!",
+    "noteTo": "To: {name}"
+  },
+  "firstLetter": "When your stall does well, people send you notes, newspapers and invitations. Keep them all in your Scrapbook (in My chef)."
 }

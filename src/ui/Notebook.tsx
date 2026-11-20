@@ -6,8 +6,8 @@
 import { useContext, useState } from 'react';
 import {
   GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
-  type GameState, type NewsItem, type NotebookPage, type Rank,
-} from '../core/index.ts';
+  type GameState, type NewsItem, type NotebookPage, type Rank, FIRST_LETTER, PROLOGUE, DEFAULT_LOOK, type ChefLook } from '../core/index.ts';
+import { ChefPreview } from '../three/ChefPreview.tsx';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { BACKGROUNDS } from '../game/backgrounds.ts';
 import { dishIcon, portrait } from './icons.tsx';
@@ -70,9 +70,10 @@ export function NotebookPageView({ page, name, unlocked }: { page: NotebookPage;
 }
 
 /** Onboarding, right after the chef maker: Ojiichan's letter, then notebook page 1. */
-export function GrandpaLetter({ name, onDone }: { name: string; onDone: () => void }) {
-  const [step, setStep] = useState<'letter' | 'page'>('letter');
+export function GrandpaLetter({ name, look, onDone }: { name: string; look?: ChefLook; onDone: () => void }) {
+  const [step, setStep] = useState<'prologue' | 'letter' | 'page'>('prologue');
   const l = letterFor(name);
+  if (step === 'prologue') return <Prologue name={name} look={look} onDone={() => setStep('letter')} />;
   return (
     <div className="onb letter-screen" data-testid="grandpa-letter">
       <div className="onb-sky" />
@@ -101,6 +102,39 @@ export function GrandpaLetter({ name, onDone }: { name: string; onDone: () => vo
           <button className="btn primary huge" data-testid="letter-done" onClick={() => { tap(); onDone(); }}>Let’s cook!</button>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * The opening, a three-panel manga page before the letter: Ojiichan flies off, the chef arrives at
+ * the empty stall, and a note waits on the counter (tap it to read the letter).
+ */
+function Prologue({ name, look, onDone }: { name: string; look?: ChefLook; onDone: () => void }) {
+  return (
+    <div className="onb prologue" data-testid="prologue">
+      <div className="pr-panel pr-1">
+        <div className="pr-sky" />
+        <span className="pr-plane" aria-hidden>✈️</span>
+        <img className="pr-oji" src={portrait('O')} alt="Ojiichan" />
+        <span className="pr-case" aria-hidden>🧳</span>
+        <div className="pr-say">{PROLOGUE.byeSay}</div>
+        <div className="pr-cap">{PROLOGUE.bye}</div>
+      </div>
+      <div className="pr-panel pr-2" style={{ backgroundImage: `url(${BACKGROUNDS.aomori_city.url})` }}>
+        <ChefPreview look={look ?? DEFAULT_LOOK} className="pr-chef" />
+        <div className="pr-sfx">{PROLOGUE.arriveSay}</div>
+        <div className="pr-cap">{withName(PROLOGUE.arrive, name)}</div>
+      </div>
+      <button type="button" className="pr-panel pr-3" data-testid="prologue-note" onClick={() => { tap(); onDone(); }}>
+        <div className="pr-note">
+          <span className="pr-pin" aria-hidden />
+          <span className="pr-note-to">{withName(PROLOGUE.noteTo, name)}</span>
+          <span aria-hidden>🍎</span>
+        </div>
+        <div className="pr-cap">{PROLOGUE.note}</div>
+        <div className="pr-tap">Tap the note!</div>
+      </button>
     </div>
   );
 }
@@ -146,7 +180,7 @@ export function NotebookBook({ state, name }: { state: GameState; name: string }
  * pin and sways, the newspaper spins in, the invitation rises out of an opening envelope, the award
  * lands on gold rays with confetti.
  */
-export function NewsCard({ item, name, onDone }: { item: NewsItem; name: string; onDone: () => void }) {
+export function NewsCard({ item, name, first = false, onDone }: { item: NewsItem; name: string; first?: boolean; onDone: () => void }) {
   const r = rankInfo(item.rank);
   return (
     <div className={`news-backdrop k-${item.kind}`} role="dialog" aria-label={item.title} data-testid="news-card">
@@ -157,7 +191,7 @@ export function NewsCard({ item, name, onDone }: { item: NewsItem; name: string;
       <div className={`news-card n-${item.kind}`}>
         {item.kind === 'note' && <div className="news-pin" aria-hidden />}
         <div className="news-why"><RankBadge rank={item.rank} size={22} /> You’re {/^[AEIOU]/.test(r.name) ? 'an' : 'a'} {r.name} now!</div>
-        <div className="news-headline">{item.headline}</div>
+        {first && <div className="news-first" data-testid="news-first"><b>📬 Your first letter!</b> {FIRST_LETTER}</div>}
         <div className="news-icon" aria-hidden>{item.icon}</div>
         <div className="news-title">{item.title}</div>
         {item.kind === 'paper' && <img className="news-photo" src={dishIcon('rabbit_apples')} alt="Photo: rabbit apples" />}

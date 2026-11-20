@@ -81,12 +81,18 @@ interface StoryData {
   pages: NotebookPage[];
   regulars: Regular[];
   news: NewsItem[];
+  /** The manga opening before Ojiichan's letter. */
+  prologue: { bye: string; byeSay: string; arrive: string; arriveSay: string; note: string; noteTo: string };
+  /** Shown with the very first news card: what letters are for. */
+  firstLetter: string;
   ojiichanVisit: { customer: string; line: string; tagline: string; color: string };
 }
 
 const STORY = STORY_JSON as unknown as StoryData;
 
 export const GRANDPA = Object.freeze({ ...STORY.grandpa });
+export const PROLOGUE = Object.freeze({ ...STORY.prologue });
+export const FIRST_LETTER = STORY.firstLetter;
 export const NOTEBOOK: readonly NotebookPage[] = Object.freeze([...STORY.pages].sort((a, b) => a.rank - b.rank));
 export const REGULARS: readonly Regular[] = Object.freeze(STORY.regulars);
 export const NEWS: readonly NewsItem[] = Object.freeze([...STORY.news].sort((a, b) => a.rank - b.rank));

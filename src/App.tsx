@@ -71,7 +71,7 @@ function Root() {
     body = <ChefMaker mode="create" onBack={() => setScreen(idx.profiles.length ? 'who' : 'welcome')}
       onDone={(name: string, look: ChefLook) => { const p = store.create(name, look); refresh(); setChef(p); setScreen('letter'); }} />;
   } else if (screen === 'letter' && chef) {
-    body = <GrandpaLetter name={chef.name} onDone={() => play(chef)} />;
+    body = <GrandpaLetter name={chef.name} look={chef.look} onDone={() => play(chef)} />;
   } else if (screen === 'edit' && chef) {
     body = <ChefMaker mode="edit" initial={chef} onBack={() => setScreen('play')}
       onDone={(name: string, look: ChefLook) => { const p = store.update(chef.id, { name, look }); refresh(); setChef(p); setScreen('play'); }} />;
@@ -195,7 +195,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
       <TopBar state={state} onOpen={setSheet} onExitPractice={() => dispatch({ type: 'EXIT_PRACTICE' })} />
 
       {state.phase === 'shop' && (news
-        ? <NewsCard item={news} name={chef.name} onDone={() => dispatch({ type: 'NEWS_SEEN', rank: news.rank })} />
+        ? <NewsCard item={news} name={chef.name} first={!state.progress.seenUnlockRewards.some((k) => k.startsWith('news:'))} onDone={() => dispatch({ type: 'NEWS_SEEN', rank: news.rank })} />
         : <ShopOverlay state={state} dispatch={dispatch} />)}
       {state.phase === 'choose' && <AppleDrawer state={state} dispatch={dispatch} />}
       {state.phase === 'cook' && stage && (
