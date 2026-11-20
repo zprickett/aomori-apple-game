@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (165 tests)
+npm test                   # vitest (167 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -77,6 +77,10 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 - Apples already cooked with show a plain green ✓ in the apple picker and the collection.
 - Story characters (regulars, Ojiichan) get their own order bubble: colour, portrait, big name, tagline and story hearts. Everyday customers keep the plain bubble.
 - The stall builds up along the ladder from the original stall's own parts (split in `stall.py`; list in `src/game/stallPieces.ts`), always in the same design and framing: Helper bare frame, counter and one crate; Apprentice red awning, ★ apple counter cloth; Cook noren (shortened in the scene so the chef's face shows), ★ paper lantern; Head Cook chalkboard, ★ second crate, ★★ hanging sign; Golden Chef bunting. No extra props around the stall. A ★ step with only a stall piece shows a small "Stall upgrade!" card. Chef pieces: badge (Apprentice), neckerchief (Cook), beret star (Head Cook), gold apron (Golden Chef), in `RANK_PIECES` (chefLook.ts).
+- Stall upgrade moment: the new piece stays hidden after the dish, then the 'upgrade' camera (wide shot, customers out) drops it in with a manga STALL UPGRADE! frame (`StallUpgrade` in Reveal.tsx, `pop` in Scene's Stall). Rank-ups get their piece's moment too. The shop camera is a little wider than before.
+- High score = a dish that beats the chef's best-ever dish (`newHigh` on the order record): a NEW HIGH SCORE! burst on the result card, a highlight in the day recap, and Records in My chef. Score chips and trophies can be tapped for an explanation.
+- Opening: a three-panel manga page (Ojiichan flies off, the chef finds the empty stall, a note on the counter) before Ojiichan's letter. Text in story.json `prologue`; the first news card explains letters (`firstLetter`).
+- Character dialog is listed for editing in the Claude Doc "Aomori Apple Kitchen: character dialog" (https://claude.ai/artifact/1kurEaUL1S2sneM8B4TwZD), including a draft Stage 2 intro.
 - First order: a "Let's make your first order!" banner, and a "Time it right!" tip before the very first action.
 - Golden Trophies (`trophies.ts`): 8 trophies with bronze/silver/gold steps (Golden Peeler, Hop-Hop Warren, Golden Spoon, Perfect Streak, Rainbow Basket, Apple Encyclopedia, Big and Small, Regulars' Friend). Counters live in `trophyStats` in the save (rebuilt from history for older saves). New steps are listed in the day recap (no pop-ups after dishes); the cabinet is in My chef. World Traveller, Golden Seal Master and Collector's Crown come with Stage 2.
 - The stall tours with rank: Aomori City (Helper, Apprentice), Lake Towada (Cook), Takayama Inari (Head Cook, Golden Chef). Each backdrop's `groundTop` lines its sand up with the stall.
