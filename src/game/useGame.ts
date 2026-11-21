@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
-  createMemoryStore, createSaveStore, defaultSave, LADDER, gameReducer, ojiichanVisitAt, rankUpsOf, typicalLadder, typicalPoints, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
+  APPLE_ORDER, RECIPE_ORDER, createMemoryStore, createSaveStore, defaultSave, LADDER, gameReducer, ojiichanVisitAt, rankUpsOf, typicalLadder, typicalPoints, initialStateFromSave, orderIdFor, rewardKeys, shouldPersist, toSaveData, unlocksEarnedAt,
   type GameAction, type GameState, type SaveStore,
 } from '../core/index.ts';
 import { setSoundEnabled, suspendAudio, unlockAudio } from './audio.ts';
@@ -42,12 +42,17 @@ function devSkip(store: SaveStore) {
   history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
 }
 
-/** DEV review "Play": `?play=<recipeId>&apple=<appleId>` → in-memory session with everything unlocked. */
+/**
+ * Try a recipe: `?play=<recipeId>&apple=<appleId>` → in-memory practice with everything unlocked.
+ * Works in production too (for testing recipes on a phone); it never reads or writes a save.
+ */
 export function devPlayParams(): { recipeId: string; appleId: string | null } | null {
-  if (!import.meta.env.DEV || typeof location === 'undefined') return null;
+  if (typeof location === 'undefined') return null;
   const p = new URLSearchParams(location.search);
   const recipeId = p.get('play');
-  return recipeId ? { recipeId, appleId: p.get('apple') } : null;
+  if (!recipeId || !(RECIPE_ORDER as readonly string[]).includes(recipeId)) return null;
+  const appleId = p.get('apple');
+  return { recipeId, appleId: appleId && APPLE_ORDER.includes(appleId) ? appleId : null };
 }
 
 function bootDevPlay(play: { recipeId: string; appleId: string | null }): Boot {

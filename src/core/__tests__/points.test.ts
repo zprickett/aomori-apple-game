@@ -11,7 +11,7 @@ const all = (id: string, g: Grade) => recipe(id).steps.map(() => g);
 
 describe('points scoring', () => {
   it('scales difficulty with action count', () => {
-    expect(RECIPE_ORDER.map(recipeDifficulty)).toEqual([1, 1.5, 2, 3, 2.5, 1, 2.5, 2, 2]);
+    expect(RECIPE_ORDER.map(recipeDifficulty)).toEqual([1, 1.5, 2, 3, 2.5, 1, 2.5, 2, 2, 2, 2.5, 2, 2.5, 3, 2.5, 2.5, 3, 3, 3, 3]);
   });
 
   it('harder recipes are worth more at their best', () => {

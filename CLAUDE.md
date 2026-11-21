@@ -23,7 +23,7 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 
 - `/?review`: browse all 100 apples (3D at true size, S/M/L, stats, fit per recipe).
 - `/?review=recipes&recipe=<id>`: step through every frame of a recipe in the real scene. **▶ Play** opens the next URL.
-- `/?play=<recipeId>&apple=<appleId>`: an in-memory practice session with everything unlocked. It does not touch saves.
+- `/?play=<recipeId>&apple=<appleId>`: an in-memory practice session with everything unlocked. It does not touch saves. This one also works on the live site (for trying recipes on a phone).
 - `/?skip=N`: start a fresh save with N orders already done on a typical 10-year-old's ladder (`TYPICAL_LADDER`, `typicalPoints` in `ranks.ts`), to test unlocks and reveals.
 - `/?bg=<id>`: preview another painted backdrop (`aomori_city`, `lake_towada`, `takayama_inari`; see `src/game/backgrounds.ts`).
 - `/?skip=N&ready`: the same, with points just below the next ladder step, so the next dish reaches it. Rank-ups: N = 4, 17, 31 or 50. Ojiichan visits at order 56 (`?skip=55`).
@@ -110,14 +110,15 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 
 ## Status
 
-- Playable: 100 apples and 9 recipes: `fresh_juice`, `rabbit_apples`, `apple_jam`, `mini_candy_apple`, `hirosaki_pie`, `jam_toast`, `yogurt_parfait`, `baked_apple`, `apple_compote`.
-- Not built yet: 11 recipes in `EXTRA_RECIPE_META` (`src/core/content.ts`). They are dorayaki, daifuku, jelly, whole apple pie, cheesecake, kinton, keema, shumai, pork rolls, pink tart, and Festival Pie, a 3-apple finale.
+- Playable: 100 apples and all 20 recipes. Stage 1's nine: `fresh_juice`, `rabbit_apples`, `apple_jam`, `ringo_ame`, `hirosaki_pie`, `jam_toast`, `yogurt_parfait`, `baked_apple`, `apple_compote`.
+- Journey recipes (built 2026-11-21): `apple_kinton`, `apple_jelly`, `whole_apple_pie`, `apple_daifuku`, `apple_dorayaki`, `apple_keema`, `apple_shumai`, `apple_cheesecake`, `apple_pork`, `red_flesh_tart`, `festival_pie`. They unlock after Golden Chef (`JOURNEY_RECIPES` in `ranks.ts`: one every 3 orders from 8 orders after it). That pacing is a placeholder until Stage 2's story places them. They are not on the notebook's riddle pages. Festival Pie uses the one chosen apple for now; its 3-apple picker is not built.
+- Journey stages are in `src/game/stationsJourney.ts`; shared stage helpers in `stationKit.ts`. Models are in `assets/blender/expansion2.py` (`FryPan`, `MixBowl`, `RiceCooker`, `PorkPrep` and each `Dish_*`).
 - Adding a recipe touches:
-  - `RECIPE_ORDER` and `REQUIRED_ACTION_COUNTS`
-  - its rank in `RANK_RECIPES` (`ranks.ts`) and intro lines in `progression.ts`
-  - a stage function in `stations.ts`
-  - models in `expansion.py`
-  - its dish icon
+  - `RECIPE_ORDER`, `REQUIRED_ACTION_COUNTS`, `DISH_WANTS` and `SHORT_DISH` (`content.ts`)
+  - its ladder step in `LADDER` or `JOURNEY_RECIPES` (`ranks.ts`), and `INTRO_LINES` and `LINES` in `progression.ts`
+  - its stages and dish in `stations.ts` or `stationsJourney.ts`, and `DISH_DISPLAY_SCALE`
+  - models in `expansion.py` or `expansion2.py`
+  - its dish icon (`previews.py` icon list)
   - the tests
 
 ## Git workflow

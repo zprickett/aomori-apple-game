@@ -24,15 +24,17 @@ describe('content counts and matrix', () => {
     expect(validateContent()).toEqual({ apples: 10, recipes: 5, pairings: 50, timedSteps: 71 });
   });
 
-  it('has 100 apples in unlock order and 9 playable recipes', () => {
+  it('has 100 apples in unlock order and 20 playable recipes', () => {
     expect(APPLES).toHaveLength(100);
     expect(new Set(APPLES.map((a) => a.id)).size).toBe(100);
     expect(APPLES.slice(0, 5).map((a) => a.id)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006']);
     expect(RECIPES.map((r) => r.id)).toEqual([
       'fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame',
       'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote',
+      'apple_kinton', 'apple_jelly', 'whole_apple_pie', 'apple_daifuku', 'apple_dorayaki', 'apple_keema',
+      'apple_shumai', 'apple_cheesecake', 'apple_pork', 'red_flesh_tart', 'festival_pie',
     ]);
-    expect(validateExpansion()).toEqual({ apples: 100, recipes: 9, pairings: 2000 });
+    expect(validateExpansion()).toEqual({ apples: 100, recipes: 20, pairings: 2000 });
   });
 
   it('uses the 100×20 matrix for new apples and recipes', () => {
@@ -71,12 +73,12 @@ describe('content counts and matrix', () => {
   it('throws on unknown ids', () => {
     expect(() => fitStars('a999', 'fresh_juice')).toThrow();
     expect(() => apple('nope')).toThrow();
-    expect(() => recipe('festival_pie')).toThrow();
+    expect(() => recipe('nope')).toThrow();
   });
 });
 
 describe('recipes', () => {
-  it('uses player-facing names and 1/2/3/5/4 actions', () => {
+  it('uses player-facing names and action counts', () => {
     expect(RECIPES.map((r) => [r.name, r.steps.length])).toEqual([
       ['Fresh Apple Juice', 1],
       ['Rabbit Apple Wedges', 2],
@@ -87,6 +89,17 @@ describe('recipes', () => {
       ['Apple Yogurt Parfait', 4],
       ['Baked Apple', 3],
       ['Shiny Apple Compote', 3],
+      ['Golden Apple Kinton', 3],
+      ['Fresh Apple Jelly', 4],
+      ['Whole Apple Pie', 3],
+      ['Azuki Apple Daifuku', 4],
+      ['Apple Nama Dorayaki', 5],
+      ['Apple Keema Curry', 4],
+      ['Fluffy Apple Shumai', 4],
+      ['Apple Cheesecake', 5],
+      ['Apple Pork Rolls', 5],
+      ['Pink Apple Tart', 5],
+      ['Festival Pie', 5],
     ]);
     expect(recipe('baked_apple').preserveWholeApple).toBe(true);
     expect(recipe('baked_apple').nameJa).toBe('焼きりんご');
@@ -124,10 +137,11 @@ describe('apples', () => {
 describe('tips', () => {
   it('names only playable recipes', () => {
     const names = RECIPES.map((r) => r.name);
+    const early = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame'];
     for (const a of APPLES) {
-      const tip = gameplayTipFor(a.id);
+      expect(names.some((n) => gameplayTipFor(a.id).includes(n))).toBe(true);
+      const tip = gameplayTipFor(a.id, early);
       expect(tip).not.toMatch(/Whole Apple Pie|Dorayaki|Daifuku|Kinton|Jelly|Cheesecake|Shumai|Keema/);
-      expect(names.some((n) => tip.includes(n))).toBe(true);
     }
     expect(gameplayTipFor('a048', ['fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame'])).toBe('Try Fuji in Fresh Apple Juice or Rabbit Apple Wedges!');
     expect(gameplayTipFor('a086')).toContain('resists browning');

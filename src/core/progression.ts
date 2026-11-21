@@ -3,7 +3,7 @@
  * All functions are pure; "completed" = number of completed orders.
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
-import { TYPICAL_LADDER, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel } from './ranks.ts';
+import { TYPICAL_LADDER, isJourneyRecipe, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel } from './ranks.ts';
 import { OJIICHAN_VISIT, REGULARS, nextDayStart } from './story.ts';
 
 /**
@@ -73,6 +73,7 @@ export function recipeUnlockAt(recipeId: string, ladder: readonly number[] = DEF
 export function recipeLockText(recipeId: string, ladder: readonly number[]): string {
   const at = recipeUnlockAtFor(recipeId, ladder);
   const step = recipeStep(recipeId);
+  if (at === null && isJourneyRecipe(recipeId)) return 'After Golden Chef';
   return at === null && step ? `At ${stepLabel(step)}` : `After ${at ?? 0} orders`;
 }
 /** Child-facing lock text for a locked card, e.g. "Arrives after 6 orders". */
@@ -181,6 +182,17 @@ const INTRO_LINES: Record<RecipeId, string> = {
   yogurt_parfait: 'Something cool and crunchy! An Apple Yogurt Parfait, please.',
   baked_apple: 'Brr, it’s chilly! May I have a warm Baked Apple?',
   apple_compote: 'Could you make me some Shiny Apple Compote?',
+  apple_kinton: 'Golden Apple Kinton? It sounds like treasure! One, please.',
+  apple_jelly: 'It’s so hot today! Could I have a cool Fresh Apple Jelly?',
+  whole_apple_pie: 'A whole apple inside a pie? I have to try that!',
+  apple_daifuku: 'Could you make me an Azuki Apple Daifuku, please?',
+  apple_dorayaki: 'Fluffy pancakes with apple inside? An Apple Nama Dorayaki, please!',
+  apple_keema: 'I’m so hungry! Could I have Apple Keema Curry?',
+  apple_shumai: 'Could I try your Fluffy Apple Shumai?',
+  apple_cheesecake: 'A cheesecake from a rice cooker? Yes, please!',
+  apple_pork: 'Apple Pork Rolls for dinner, please!',
+  red_flesh_tart: 'I heard about a pink tart! A Pink Apple Tart, please.',
+  festival_pie: 'It’s festival day! Could you bake the Festival Pie?',
 };
 
 const LINES: Record<RecipeId, readonly string[]> = {
@@ -205,6 +217,17 @@ const LINES: Record<RecipeId, readonly string[]> = {
   yogurt_parfait: ['One Apple Yogurt Parfait, please!', 'A crunchy Apple Yogurt Parfait, please.', 'Could I have a parfait with apples?'],
   baked_apple: ['One Baked Apple, please!', 'A warm Baked Apple, please.', 'Could I have a soft Baked Apple?'],
   apple_compote: ['Shiny Apple Compote, please!', 'Could I have some Apple Compote?', 'Apple Compote for dessert, please.'],
+  apple_kinton: ['Golden Apple Kinton, please!', 'Could I have some Apple Kinton?', 'Sweet golden kinton, please.'],
+  apple_jelly: ['One Fresh Apple Jelly, please!', 'A wobbly Apple Jelly, please.', 'Could I have Apple Jelly?'],
+  whole_apple_pie: ['One Whole Apple Pie, please!', 'Could I have a Whole Apple Pie?', 'A whole apple in pastry, please!'],
+  apple_daifuku: ['Azuki Apple Daifuku, please!', 'A soft daifuku, please.', 'Could I have an Apple Daifuku?'],
+  apple_dorayaki: ['Apple Nama Dorayaki, please!', 'One fluffy dorayaki, please.', 'Could I have an Apple Dorayaki?'],
+  apple_keema: ['Apple Keema Curry, please!', 'A plate of Keema Curry, please.', 'Could I have Apple Curry?'],
+  apple_shumai: ['Fluffy Apple Shumai, please!', 'Some steamed shumai, please.', 'Could I have Apple Shumai?'],
+  apple_cheesecake: ['A slice of Apple Cheesecake, please!', 'Apple Cheesecake, please.', 'Could I have your cheesecake?'],
+  apple_pork: ['Apple Pork Rolls, please!', 'Some Pork Rolls for lunch, please.', 'Could I have Apple Pork Rolls?'],
+  red_flesh_tart: ['A Pink Apple Tart, please!', 'Could I have a Pink Tart?', 'Something pink! A Pink Apple Tart, please.'],
+  festival_pie: ['A slice of Festival Pie, please!', 'Festival Pie for everyone, please!', 'Could I have Festival Pie?'],
 };
 
 const DEMO_LINES: Partial<Record<AppleId, string>> = {

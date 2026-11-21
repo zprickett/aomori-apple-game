@@ -217,6 +217,9 @@ export const APPLE_ORDER: readonly string[] = Object.freeze([...EXPANSION_DATA.u
 export const RECIPE_ORDER = [
   'fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame',
   'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote',
+  // Journey recipes: after Golden Chef (core/ranks.ts JOURNEY_RECIPES)
+  'apple_kinton', 'apple_jelly', 'whole_apple_pie', 'apple_daifuku', 'apple_dorayaki', 'apple_keema',
+  'apple_shumai', 'apple_cheesecake', 'apple_pork', 'red_flesh_tart', 'festival_pie',
 ] as const;
 export const PROTOTYPE_RECIPES = ['fresh_juice', 'rabbit_apples', 'apple_jam', 'hirosaki_pie', 'ringo_ame'] as const;
 export type AppleId = string;
@@ -252,6 +255,17 @@ export const RECIPE_DISPLAY_NAMES: Readonly<Record<RecipeId, string>> = {
   yogurt_parfait: EXTRA_RECIPE_META.yogurt_parfait.name,
   baked_apple: EXTRA_RECIPE_META.baked_apple.name,
   apple_compote: EXTRA_RECIPE_META.apple_compote.name,
+  apple_kinton: EXTRA_RECIPE_META.apple_kinton.name,
+  apple_jelly: EXTRA_RECIPE_META.apple_jelly.name,
+  whole_apple_pie: EXTRA_RECIPE_META.whole_apple_pie.name,
+  apple_daifuku: EXTRA_RECIPE_META.apple_daifuku.name,
+  apple_dorayaki: EXTRA_RECIPE_META.apple_dorayaki.name,
+  apple_keema: EXTRA_RECIPE_META.apple_keema.name,
+  apple_shumai: EXTRA_RECIPE_META.apple_shumai.name,
+  apple_cheesecake: EXTRA_RECIPE_META.apple_cheesecake.name,
+  apple_pork: EXTRA_RECIPE_META.apple_pork.name,
+  red_flesh_tart: EXTRA_RECIPE_META.red_flesh_tart.name,
+  festival_pie: EXTRA_RECIPE_META.festival_pie.name,
 };
 
 /** Required timed-action counts per playable recipe. */
@@ -265,11 +279,23 @@ export const REQUIRED_ACTION_COUNTS: Readonly<Record<RecipeId, number>> = {
   yogurt_parfait: 4,
   baked_apple: 3,
   apple_compote: 3,
+  apple_kinton: 3,
+  apple_jelly: 4,
+  whole_apple_pie: 3,
+  apple_daifuku: 4,
+  apple_dorayaki: 5,
+  apple_keema: 4,
+  apple_shumai: 4,
+  apple_cheesecake: 5,
+  apple_pork: 5,
+  red_flesh_tart: 5,
+  festival_pie: 5,
 };
 
 /** Recipes that cook the apple (used for "try a cooked dish" suggestions). */
-export const COOKED_RECIPES: readonly RecipeId[] = ['apple_jam', 'hirosaki_pie', 'baked_apple', 'apple_compote'];
-const RAW_RECIPES: readonly string[] = ['fresh_juice', 'rabbit_apples', 'yogurt_parfait'];
+export const COOKED_RECIPES: readonly RecipeId[] = ['apple_jam', 'hirosaki_pie', 'baked_apple', 'apple_compote', 'whole_apple_pie',
+  'apple_kinton', 'apple_daifuku', 'apple_dorayaki', 'apple_cheesecake', 'red_flesh_tart'];
+const RAW_RECIPES: readonly string[] = ['fresh_juice', 'rabbit_apples', 'yogurt_parfait', 'apple_jelly'];
 
 export const DEFAULT_FLESH = '#FFF1C9';
 
@@ -645,12 +671,26 @@ const DISH_WANTS: Readonly<Record<string, readonly StatKey[]>> = Object.freeze({
   yogurt_parfait: ['raw_firmness', 'sweetness'],
   baked_apple: ['tartness', 'raw_firmness'],
   apple_compote: ['raw_firmness', 'tartness'],
+  apple_kinton: ['sweetness', 'aroma'],
+  apple_jelly: ['juiciness', 'aroma'],
+  whole_apple_pie: ['raw_firmness', 'tartness'],
+  apple_daifuku: ['tartness', 'raw_firmness'],
+  apple_dorayaki: ['tartness', 'sweetness'],
+  apple_keema: ['sweetness', 'raw_firmness'],
+  apple_shumai: ['sweetness', 'juiciness'],
+  apple_cheesecake: ['tartness', 'raw_firmness'],
+  apple_pork: ['tartness', 'raw_firmness'],
+  red_flesh_tart: ['tartness', 'aroma'],
+  festival_pie: ['tartness', 'aroma'],
 });
 const STRONG: Readonly<Record<StatKey, string>> = { sweetness: 'sweet', tartness: 'tangy', juiciness: 'juicy', raw_firmness: 'crunchy', aroma: 'smells lovely' };
 const WEAK: Readonly<Record<StatKey, string>> = { sweetness: 'not very sweet', tartness: 'not very tangy', juiciness: 'not very juicy', raw_firmness: 'a bit soft', aroma: 'light on smell' };
 const SHORT_DISH: Readonly<Record<string, string>> = {
   fresh_juice: 'juice', rabbit_apples: 'rabbit wedges', apple_jam: 'jam', ringo_ame: 'a candy apple', hirosaki_pie: 'pie',
   jam_toast: 'jam toast', yogurt_parfait: 'a parfait', baked_apple: 'baking', apple_compote: 'compote',
+  apple_kinton: 'kinton', apple_jelly: 'jelly', whole_apple_pie: 'a whole apple pie', apple_daifuku: 'daifuku',
+  apple_dorayaki: 'dorayaki', apple_keema: 'curry', apple_shumai: 'shumai', apple_cheesecake: 'cheesecake',
+  apple_pork: 'pork rolls', red_flesh_tart: 'a pink tart', festival_pie: 'Festival Pie',
 };
 
 /**

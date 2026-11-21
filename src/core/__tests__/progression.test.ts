@@ -13,6 +13,7 @@ import {
   unlockedRecipes,
   unlocksEarnedAt,
 } from '../progression.ts';
+import { JOURNEY_RECIPES } from '../ranks.ts';
 
 describe('unlock schedule', () => {
   it('5 starter apples, then 3 new apples every 6 orders from order 3', () => {
@@ -70,13 +71,17 @@ describe('unlock schedule', () => {
     }
     expect(seen.filter((x) => /^a\d{3}$/.test(x))).toHaveLength(95);
     expect(seen.filter((x) => !/^a\d{3}$/.test(x)).sort()).toEqual(
-      ['rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie', 'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote'].sort(),
+      ['rabbit_apples', 'apple_jam', 'ringo_ame', 'hirosaki_pie', 'jam_toast', 'yogurt_parfait', 'baked_apple', 'apple_compote',
+        ...JOURNEY_RECIPES.map((j) => j.id)].sort(),
     );
     expect(new Set(seen).size).toBe(seen.length);
     expect(unlocksEarnedAt(3).apples).toContain('a094');
     expect(unlocksEarnedAt(5).recipes).toEqual(['apple_jam']);
     expect(unlocksEarnedAt(14).recipes).toEqual(['ringo_ame']);
     expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });
+    // Journey recipes: one every 3 orders from 8 orders after Golden Chef (order 51 on the typical ladder).
+    expect(unlocksEarnedAt(59).recipes).toEqual(['apple_kinton']);
+    expect(unlocksEarnedAt(89).recipes).toEqual(['festival_pie']);
     expect(unlocksEarnedAt(4)).toEqual({ apples: [], recipes: [] });
   });
 
@@ -159,9 +164,9 @@ describe('order queue', () => {
 
   it('rotation in free play covers all recipes', () => {
     const counts: Record<string, number> = {};
-    for (let n = 41; n <= 100; n++) counts[orderForIndex(n, 5).recipeId] = (counts[orderForIndex(n, 5).recipeId] ?? 0) + 1;
-    expect(Object.keys(counts)).toHaveLength(9);
-    for (const v of Object.values(counts)) expect(v).toBeGreaterThanOrEqual(5);
+    for (let n = 101; n <= 200; n++) counts[orderForIndex(n, 5).recipeId] = (counts[orderForIndex(n, 5).recipeId] ?? 0) + 1;
+    expect(Object.keys(counts)).toHaveLength(20);
+    for (const v of Object.values(counts)) expect(v).toBeGreaterThanOrEqual(4);
   });
 });
 

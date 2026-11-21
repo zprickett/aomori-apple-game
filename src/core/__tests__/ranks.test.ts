@@ -6,6 +6,7 @@ import { orderForIndex } from '../progression.ts';
 import { evaluateDish } from '../scoring.ts';
 import {
   LADDER,
+  LADDER_RECIPES,
   RANKS,
   TYPICAL_LADDER,
   advanceLadder,
@@ -30,7 +31,8 @@ describe('the ladder', () => {
       'Head Cook', 'Head Cook ★', 'Head Cook ★★', 'Golden Chef',
     ]);
     for (let i = 1; i < LADDER.length; i++) expect(LADDER[i].points).toBeGreaterThan(LADDER[i - 1].points);
-    expect(RECIPE_ORDER.map(recipeRank).sort()).toEqual([1, 1, 2, 2, 3, 3, 4, 4, 4]);
+    expect(RECIPE_ORDER.map(recipeRank).sort()).toEqual([1, 1, 2, 2, 3, 3, 4, 4, 4, ...Array(11).fill(5)]);
+    expect(LADDER_RECIPES).toEqual(RECIPE_ORDER);
     expect(TYPICAL_LADDER).toHaveLength(LADDER.length);
   });
 

@@ -68,6 +68,17 @@ export const START_RECIPES: ReadonlyArray<{ id: RecipeId; after: number }> = Obj
   { id: 'rabbit_apples', after: 2 },
 ]);
 
+/**
+ * Journey recipes come after Golden Chef, by orders served after reaching it (no points needed):
+ * one every 3 orders, starting after Ojiichan's visit (the first order of the next day).
+ * Placeholder pacing until Stage 2's story places them.
+ */
+export const JOURNEY_RECIPES: ReadonlyArray<{ id: RecipeId; after: number }> = Object.freeze(([
+  'apple_kinton', 'apple_jelly', 'whole_apple_pie', 'apple_daifuku', 'apple_dorayaki', 'apple_keema',
+  'apple_shumai', 'apple_cheesecake', 'apple_pork', 'red_flesh_tart', 'festival_pie',
+] as const).map((id, i) => ({ id, after: 8 + i * 3 })));
+const GOLDEN_STEP = 9;
+
 /** Ladder step index of each rank 2..5. */
 const RANK_STEP: Readonly<Record<number, number>> = Object.freeze({ 2: 0, 3: 3, 4: 6, 5: 9 });
 
@@ -106,7 +117,7 @@ export function rankUpsOf(ladder: readonly number[]): number[] {
 export function recipeStep(recipeId: string): LadderStep | null {
   const s = LADDER.find((x) => (x.recipes as readonly string[]).includes(recipeId));
   if (s) return s;
-  if (START_RECIPES.some((x) => x.id === recipeId)) return null;
+  if (START_RECIPES.some((x) => x.id === recipeId) || JOURNEY_RECIPES.some((x) => x.id === recipeId)) return null;
   throw new Error(`Unknown recipe ${recipeId}`);
 }
 
@@ -114,12 +125,18 @@ export function recipeStep(recipeId: string): LadderStep | null {
 export function recipeUnlockAtFor(recipeId: string, ladder: readonly number[]): number | null {
   const start = START_RECIPES.find((x) => x.id === recipeId);
   if (start) return start.after;
+  const journey = JOURNEY_RECIPES.find((x) => x.id === recipeId);
+  if (journey) {
+    const golden = ladder[GOLDEN_STEP];
+    return golden === undefined ? null : golden + journey.after;
+  }
   const step = recipeStep(recipeId)!;
   return ladder[step.index] ?? null;
 }
 
 /** The rank that brings a recipe. */
 export function recipeRank(recipeId: string): Rank {
+  if (JOURNEY_RECIPES.some((x) => x.id === recipeId)) return 5;
   return recipeStep(recipeId)?.rank ?? 1;
 }
 
@@ -212,4 +229,6 @@ export function stepLabel(step: LadderStep): string {
 }
 
 /** Every recipe in RECIPE_ORDER is reachable (checked by tests). */
-export const LADDER_RECIPES: readonly RecipeId[] = Object.freeze(RECIPE_ORDER.filter((id) => recipeStep(id) !== null || START_RECIPES.some((x) => x.id === id)));
+export const LADDER_RECIPES: readonly RecipeId[] = Object.freeze(RECIPE_ORDER.filter((id) => recipeStep(id) !== null || START_RECIPES.some((x) => x.id === id) || JOURNEY_RECIPES.some((x) => x.id === id)));
+/** Recipes after Golden Chef (not on the notebook's riddle pages). */
+export const isJourneyRecipe = (id: string): boolean => JOURNEY_RECIPES.some((x) => x.id === id);

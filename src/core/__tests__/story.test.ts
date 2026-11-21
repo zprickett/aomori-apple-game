@@ -3,7 +3,7 @@ import { RECIPE_ORDER, recipe } from '../content.ts';
 import { gameReducer, initialStateFromSave, selectors, type GameAction } from '../gameReducer.ts';
 import { defaultSave } from '../persistence.ts';
 import { DEFAULT_SEED, appleUnlockAt, ojiichanOrder, orderForIndex } from '../progression.ts';
-import { RANKS, rankReachedAt, recipeRank, type Rank } from '../ranks.ts';
+import { RANKS, isJourneyRecipe, rankReachedAt, recipeRank, type Rank } from '../ranks.ts';
 
 /** A full ladder from rank-up orders: ★ steps spread between the ranks. */
 export function lad(...ranks: number[]): number[] {
@@ -22,10 +22,11 @@ describe('story data', () => {
     expect(NOTEBOOK.map((p) => p.rank)).toEqual(RANKS.map((r) => r.rank));
   });
 
-  it("each riddle is about exactly the recipes that page's rank brings", () => {
-    for (const p of NOTEBOOK) expect([...p.riddleRecipes].sort()).toEqual(RECIPE_ORDER.filter((id) => recipeRank(id) === p.rank).sort());
+  it("each riddle is about exactly the recipes that page's rank brings (journey recipes come with Stage 2)", () => {
+    const ladder = RECIPE_ORDER.filter((id) => !isJourneyRecipe(id));
+    for (const p of NOTEBOOK) expect([...p.riddleRecipes].sort()).toEqual(ladder.filter((id) => recipeRank(id) === p.rank).sort());
     const all = NOTEBOOK.flatMap((p) => p.riddleRecipes);
-    expect(all.sort()).toEqual([...RECIPE_ORDER].sort());
+    expect(all.sort()).toEqual([...ladder].sort());
     for (const p of NOTEBOOK) expect(p.riddle === null).toBe(p.riddleRecipes.length === 0);
   });
 

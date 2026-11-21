@@ -229,6 +229,25 @@ def apple_icons(cam, out, ids=None):
     body.data.materials[0] = orig
 
 
+NEW_DISH_HIDE = {
+    'Dish_Daifuku': ('Daifuku_Sheet', 'Daifuku_Fill'), 'Dish_Jelly': ('Jelly_Cup', 'Jelly_Cubes', 'Jelly_Liquid'),
+    'Dish_WholePie': ('WholePie_Body', 'WholePie_Stem', 'WholePie_Hole', 'WholePie_Pastry'), 'Dish_Shumai': ('Shumai_Raw', 'Shumai_Lid'),
+    'Dish_PinkTart': ('PinkTart_Ring', 'PinkTart_MFruit', 'PinkTart_MMousse', 'PinkTart_MBase'), 'Dish_FestivalPie': ('Festival_Top',),
+}
+NEW_DISHES = (('Dish_Dorayaki', 'apple_dorayaki'), ('Dish_Daifuku', 'apple_daifuku'), ('Dish_Jelly', 'apple_jelly'),
+              ('Dish_WholePie', 'whole_apple_pie'), ('Dish_Cheesecake', 'apple_cheesecake'), ('Dish_Kinton', 'apple_kinton'),
+              ('Dish_Keema', 'apple_keema'), ('Dish_Shumai', 'apple_shumai'), ('Dish_PorkRolls', 'apple_pork'),
+              ('Dish_PinkTart', 'red_flesh_tart'), ('Dish_FestivalPie', 'festival_pie'))
+FP_ALL = ('FP_Raw', 'FP_Bubbly', 'FP_Cooked', 'FP_Veg', 'FP_Mince', 'FP_Stew', 'FP_Curry', 'FP_Roux', 'FP_Rolls', 'FP_RollsCooked',
+          'FP_Three', 'FP_ThreeCooked', 'FP_Steam')
+MB_ALL = ('MixBowl_Lumps', 'MixBowl_Flour', 'MixBowl_Batter', 'MixBowl_Cheese', 'MixBowl_Mochi', 'MixBowl_JuiceRaw', 'MixBowl_Juice', 'MixBowl_KintonRaw',
+          'MixBowl_Kinton', 'MixBowl_FillingRaw', 'MixBowl_Filling', 'MixBowl_MousseRaw', 'MixBowl_Mousse')
+
+
+def _all_but(all_, keep):
+    return tuple(x for x in all_ if x not in keep)
+
+
 def render_all(prev, icons_dir, only=None, icons=True):
     os.makedirs(prev, exist_ok=True)
     os.makedirs(icons_dir, exist_ok=True)
@@ -305,8 +324,20 @@ def render_all(prev, icons_dir, only=None, icons=True):
             ('Dish_BakedApple', 'dish_bakedapple', ('BakedApple_Stem', 'BakedApple_Hole', 'BakedApple_Fill')),
             ('Dish_Compote', 'dish_compote', ('Compote_Raw', 'Compote_Sugar', 'Compote_Lid')),
             ('Microwave', 'microwave', ()), ('Corer', 'corer', ())]
+    jobs += [(r, 'new_' + rid, NEW_DISH_HIDE.get(r, ())) for r, rid in NEW_DISHES]
+    for keep in (('FP_Raw',), ('FP_Bubbly',), ('FP_Cooked',), ('FP_Veg',), ('FP_Veg', 'FP_Mince'), ('FP_Stew', 'FP_Roux'), ('FP_Curry',),
+                 ('FP_Rolls',), ('FP_RollsCooked',), ('FP_Three',), ('FP_ThreeCooked',)):
+        jobs.append(('FryPan', 'new_frypan_' + keep[-1][3:].lower(), _all_but(FP_ALL, keep)))
+    for k in MB_ALL:
+        jobs.append(('MixBowl', 'new_mixbowl_' + k[8:].lower(), _all_but(MB_ALL, (k,))))
+    jobs += [('RiceCooker', 'new_ricecooker_open', ('RC_Lid', 'RC_Batter', 'RC_Steam')),
+             ('RiceCooker', 'new_ricecooker_closed', ('RC_LidOpen', 'RC_Apples', 'RC_Batter')),
+             ('PorkPrep', 'new_porkprep_fill', ('Pork_Rolled',)), ('PorkPrep', 'new_porkprep_rolled', ('Pork_Strips', 'Pork_Fill')),
+             ('Dish_WholePie', 'new_wholepie_raw', ('WholePie_Baked', 'WholePie_Stem', 'WholePie_Hole', 'WholePie_Body')),
+             ('Dish_PinkTart', 'new_pinktart_mould', ('PinkTart_Done',)), ('Dish_Jelly', 'new_jelly_cup', ('Jelly_Set',)),
+             ('Dish_Shumai', 'new_shumai_raw', ('Shumai_Cooked', 'Shumai_Lid')), ('Dish_Daifuku', 'new_daifuku_fill', ('Daifuku_Ball', 'Daifuku_Half'))]
     for root, nm, hide in jobs:
-        if not want(nm) and not want('props'):
+        if not want(nm) and not want('props') and not (nm.startswith('new_') and want('new')):
             continue
         with Pose(hide=hide):
             R.auto_cam(cam, [root], yaw=-28, pitch=24, fill=0.82, lens=50)
@@ -327,8 +358,8 @@ def render_all(prev, icons_dir, only=None, icons=True):
         for root, rid in (('Dish_Juice', 'fresh_juice'), ('Dish_Rabbit', 'rabbit_apples'), ('Dish_Jam', 'apple_jam'),
                           ('Dish_Pie', 'hirosaki_pie'), ('Dish_CandyApple', 'ringo_ame'),
                           ('Dish_Toast', 'jam_toast'), ('Dish_Parfait', 'yogurt_parfait'),
-                          ('Dish_BakedApple', 'baked_apple'), ('Dish_Compote', 'apple_compote')):
-            hide = dish_hide.get(root, ())
+                          ('Dish_BakedApple', 'baked_apple'), ('Dish_Compote', 'apple_compote')) + NEW_DISHES:
+            hide = dish_hide.get(root, NEW_DISH_HIDE.get(root, ()))
             with Pose(hide=hide):
                 R.auto_cam(cam, [root], yaw=-28, pitch=26, fill=0.92, lens=50)
                 _render([root], os.path.join(icons_dir, f'dish_{rid}.png'), (256, 256), True, 48, hide=hide)

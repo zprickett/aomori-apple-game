@@ -5,56 +5,17 @@
  * state until Retry or Continue-with-help resolves it.
  */
 import type { RecipeId } from '../core/content.ts';
+import { isJourneyRecipe } from '../core/ranks.ts';
+import { journeyDish, journeyStages } from './stationsJourney.ts';
 
-export const COUNTER_Y = 0.95;
-/** Food is drawn a little larger than life so it reads on a phone. */
-export const FOOD = 1.4;
-const BOARD_S = 1.2;
-const BOARD_H = 0.032 * BOARD_S;
+import { BOARD_H, COUNTER_Y, FOOD, board, onBoard, peeled, wholeApple, type PropSpec, type StepStage } from './stationKit.ts';
 
-export interface PropSpec {
-  key: string;
-  model: string;
-  x: number;
-  z: number;
-  y?: number; // offset above counter top
-  rotY?: number;
-  scale?: number;
-  /** Only these child nodes visible (by name); others hidden. */
-  only?: string[];
-  hide?: string[];
-  tint?: 'apple' | 'jam' | 'none';
-  /** Multiply scale by the apple variety's size scale. */
-  appleSized?: boolean;
-  /** Extra visual effect while shown. */
-  fx?: 'steam' | 'sparkle' | 'bubbles' | 'glow';
-}
-
-export interface StepStage {
-  bridge: PropSpec[][];
-  bridgeLines: string[];
-  ready: PropSpec[];
-  done: PropSpec[];
-  /** Point (world) the gesture targets + its rough world radius. */
-  anchor: { x: number; y: number; z: number; r: number };
-  swipeAxis?: 'v' | 'h';
-  tool?: 'knife' | 'spoon';
-  /** Diegetic cue drawn in 3D while the step is active. */
-  cue?: 'juicer' | 'syrup' | 'oven' | 'microwave' | 'none';
-  /** What the chef says when the step is ready. */
-  chefLine: string;
-  /** What she says after a good result. */
-  praise: string;
-}
-
-const board = (x = 0, z = 0.2): PropSpec => ({ key: 'board', model: 'CuttingBoard', x, z, scale: BOARD_S });
-const onBoard = (key: string, model: string, x = 0, z = 0.2, extra: Partial<PropSpec> = {}): PropSpec => ({
-  key, model, x, z, y: BOARD_H, tint: 'apple', scale: FOOD, ...extra,
-});
-const wholeApple = (x = 0, z = 0.2, extra: Partial<PropSpec> = {}) => onBoard('apple', 'Apple', x, z, { appleSized: true, ...extra });
-const peeled = (x = 0, z = 0.2) => onBoard('peeled', 'Apple_Peeled', x, z, { appleSized: true });
+export { BOARD_H, COUNTER_Y, FOOD, OVEN_BUTTON, board, onBoard, oven, peeled, wholeApple } from './stationKit.ts';
+export type { PropSpec, StepStage } from './stationKit.ts';
 
 const Y = COUNTER_Y;
+
+
 
 /** Microwave on the counter and its button anchor (shared by baked apple and compote). */
 const MW_S = 1.3;
@@ -62,6 +23,7 @@ const microwave = (x = 0.1, z = 0.1, scale = MW_S): PropSpec => ({ key: 'microwa
 const MW_BUTTON = { x: 0.1 + 0.145 * MW_S, y: Y + 0.087 * MW_S, z: 0.1 + 0.142 * MW_S, r: 0.05 };
 
 export function recipeStages(recipeId: RecipeId): StepStage[] {
+  if (isJourneyRecipe(recipeId)) return journeyStages(recipeId);
   switch (recipeId) {
     case 'jam_toast':
     case 'yogurt_parfait':
@@ -245,6 +207,7 @@ export function recipeStages(recipeId: RecipeId): StepStage[] {
       ];
     }
   }
+  throw new Error(`No stations for ${recipeId}`);
 }
 
 function expansionStages(recipeId: RecipeId): StepStage[] {
@@ -382,8 +345,10 @@ function expansionStages(recipeId: RecipeId): StepStage[] {
   }
 }
 
+
 /** Finished dish model shown on serve/result. */
 export function dishProp(recipeId: RecipeId): PropSpec {
+  if (isJourneyRecipe(recipeId)) return journeyDish(recipeId);
   switch (recipeId) {
     case 'fresh_juice': return { key: 'dish', model: 'Dish_Juice', x: 0, z: 0, tint: 'apple' };
     case 'rabbit_apples': return { key: 'dish', model: 'Dish_Rabbit', x: 0, z: 0, tint: 'apple' };
@@ -395,11 +360,14 @@ export function dishProp(recipeId: RecipeId): PropSpec {
     case 'baked_apple': return { key: 'dish', model: 'Dish_BakedApple', x: 0, z: 0, tint: 'apple', appleSized: true, hide: ['BakedApple_Stem', 'BakedApple_Fill'] };
     case 'apple_compote': return { key: 'dish', model: 'Dish_Compote', x: 0, z: 0, tint: 'apple', hide: ['Compote_Raw', 'Compote_Sugar', 'Compote_Lid'] };
   }
+  throw new Error(`No dish for ${recipeId}`);
 }
 
 export const DISH_DISPLAY_SCALE: Record<RecipeId, number> = {
   fresh_juice: 2.4, rabbit_apples: 2.1, apple_jam: 2.8, hirosaki_pie: 2.2, ringo_ame: 2.6,
   jam_toast: 2.3, yogurt_parfait: 2.0, baked_apple: 2.3, apple_compote: 2.2,
+  apple_kinton: 2.4, apple_jelly: 2.4, whole_apple_pie: 2.0, apple_daifuku: 2.5, apple_dorayaki: 2.3, apple_keema: 2.0,
+  apple_shumai: 2.1, apple_cheesecake: 2.1, apple_pork: 2.3, red_flesh_tart: 2.3, festival_pie: 2.2,
 };
 
 export const GESTURE_WORD: Record<string, string> = { tap: 'Tap', swipe: 'Swipe', circle: 'Circle' };

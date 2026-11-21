@@ -102,10 +102,11 @@ function Fallback({ title, body, loading }: { title: string; body: string; loadi
 function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitchChef?: () => void; onEditChef?: () => void }) {
   const { state, dispatch, persistent, reducedMotion } = useGame(saveKey);
   const chef = useContext(ChefContext) ?? DEFAULT_CHEF;
-  // DEV review "Play": leaving practice returns to the review page on the same recipe.
+  // `?play=`: leaving practice returns to the review page on the same recipe (dev).
   const devPlay = useMemo(devPlayParams, []);
   useEffect(() => {
-    if (devPlay && state.mode === 'order') location.href = `/?review=recipes&recipe=${devPlay.recipeId}`;
+    // (Outside dev there is no review page: start the same practice again.)
+    if (devPlay && state.mode === 'order') location.href = import.meta.env.DEV ? `/?review=recipes&recipe=${devPlay.recipeId}` : `${location.pathname}${location.search}`;
   }, [devPlay, state.mode]);
   const [sheet, setSheet] = useState<null | SheetKind>(null);
   const [bridgeFrame, setBridgeFrame] = useState(0);
