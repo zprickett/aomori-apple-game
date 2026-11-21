@@ -160,12 +160,12 @@
         {
           "rank": 3,
           "after": 11,
-          "line": "I tried something harder at home. It was... a little burnt. Could I have {dish}, please?"
+          "line": "I tried the recipe at home. It was... a little burnt. Could I have {dish}, please?"
         },
         {
           "rank": 4,
           "after": 8,
-          "line": "I made jam all by myself! It's lumpy, but it's for you. And {dish}, please!"
+          "line": "I made jam! It's lumpy, but I brought it for a taste. And {dish}, please!"
         }
       ]
     },
@@ -179,7 +179,7 @@
         {
           "rank": 2,
           "after": 5,
-          "line": "Good day! I'm Kiyoshi. {dish}, please. Oh, and do you sell pie apples? No reason!"
+          "line": "Good day! I'm Kiyoshi. {dish}, please. Oh, and do you sell apples for pies?"
         },
         {
           "rank": 3,
@@ -235,7 +235,7 @@
       "kind": "note",
       "icon": "💌",
       "title": "Thank you!",
-      "text": "Thanks for letting me watch you cook!",
+      "text": "Watching you cook is out of this world!",
       "from": "Sota",
       "headline": "Sota pinned a note to your stall"
     },
