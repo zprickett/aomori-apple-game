@@ -210,7 +210,7 @@ function DayTrophies({ state, onOpen }: { state: GameState; onOpen: (id: string)
   if (!list.length) return null;
   return (
     <div className="dr-trophies" data-testid="day-trophies">
-      <div className="dr-tr-head">🏆 New trophies today! <span className="dr-tr-hint">Tap one to see it</span></div>
+      <div className="dr-tr-head">🏆 New trophies today!</div>
       <div className="dr-tr-list">
         {list.map((t) => {
           const def = trophy(t.id);

@@ -1033,7 +1033,8 @@ li.golden-row { background: linear-gradient(90deg, rgba(244,201,84,0.18), transp
 .scene-bg.view-upgrade { transform: none; }
 
 /* ---- Tappable score chips and their info bubble ---- */
-button.chip { font: inherit; cursor: pointer; border: 2px solid transparent; }
+/* Buttons don't inherit text colour (iOS shows them blue): keep the chips' original ink colour. */
+button.chip { font: inherit; color: var(--ink); -webkit-appearance: none; appearance: none; cursor: pointer; border: 2px solid transparent; }
 button.chip.on { border-color: var(--wood-d); transform: translateY(-1px); }
 .chip-info { background: #fffaf0; border: 2px solid var(--wood-d); border-radius: 14px; padding: 8px 12px; margin: -4px 0 10px; font-weight: 700;
   font-size: 0.92rem; line-height: 1.35; position: relative; animation: pop 0.25s cubic-bezier(.2,1.5,.4,1) both; cursor: pointer; }
@@ -1054,7 +1055,6 @@ button.chip.on { border-color: var(--wood-d); transform: translateY(-1px); }
 .dr-highlights li.big { background: radial-gradient(circle at 20% 30%, #fff6cf, #f4c954 80%); border-color: var(--wood-d); font-size: 1.08rem; font-weight: 900;
   box-shadow: 3px 4px 0 rgba(74,51,38,0.3); }
 button.dr-tr { font: inherit; color: inherit; background: #fffdf2; border: 2px solid #f0d98c; border-radius: 12px; padding: 5px 8px; text-align: left; cursor: pointer; }
-.dr-tr-hint { font-weight: 700; font-size: 0.78rem; color: var(--ink-soft); }
 button.cab-card { font: inherit; color: inherit; cursor: pointer; }
 .trophy-info-back { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 18px; background: rgba(74,51,38,0.35); animation: ov-in 0.25s both; }
 .trophy-info { width: min(100%, 340px); background: var(--paper); border: 3px solid var(--wood-d); border-radius: 22px; padding: 16px; display: grid; gap: 8px;
