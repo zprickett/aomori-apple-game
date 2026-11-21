@@ -45,6 +45,10 @@ export interface SceneProps {
   sideCustomerId?: string | null;
   /** Ojiichan stays at the stall after his visit. */
   helper?: boolean;
+  /** Golden Request gifts on the gift shelf (model node names). */
+  gifts?: readonly string[];
+  /** A gift dropping onto the shelf now (rewards moment), or null. */
+  popGift?: string | null;
 }
 
 const BG = '#FCF8F0';
@@ -180,6 +184,39 @@ function Stall({ steps, reduced, view, backdrop, pop }: { steps: number; reduced
     <group>
       <primitive object={stall} />
       {upgrades.map(([o]) => <primitive key={o.name} object={o} />)}
+    </group>
+  );
+}
+
+/** The gift shelf on the right post and the Golden Request gifts on it. */
+function Gifts({ gifts, pop, reduced }: { gifts: readonly string[]; pop: string | null; reduced: boolean }) {
+  const lib = getLib();
+  const shelf = useMemo(() => lib.clone('Gift_Shelf'), [lib]);
+  const items = useMemo(() => gifts.map((g) => lib.clone(g)), [lib, gifts]);
+  const rest = useMemo(() => new Map(items.map((o) => [o, o.position.y])), [items]);
+  const start = useRef<number | null>(null);
+  useEffect(() => { start.current = null; }, [pop]);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (pop && start.current === null) start.current = t;
+    for (const o of items) {
+      const age = o.name === pop && start.current !== null ? t - start.current - 0.5 : Infinity;
+      if (!reduced && age < 1.2) {
+        o.visible = age >= 0;
+        const k = Math.max(0, Math.min(1, age / 0.55));
+        const bounce = k >= 1 ? 0.08 * Math.exp(-(age - 0.55) * 7) * Math.abs(Math.sin((age - 0.55) * 14)) : 0;
+        o.position.y = (rest.get(o) ?? 0) + 1.2 * Math.pow(1 - k, 2) + bounce;
+      } else {
+        o.visible = true;
+        o.position.y = rest.get(o) ?? o.position.y;
+      }
+    }
+  });
+  if (!gifts.length) return null;
+  return (
+    <group>
+      <primitive object={shelf} />
+      {items.map((o) => <primitive key={o.name} object={o} />)}
     </group>
   );
 }
@@ -513,6 +550,7 @@ export function GameScene(p: SceneProps) {
         <Customer key={`side-${p.sideCustomerId}`} id={p.sideCustomerId} orderKey={`${p.orderKey}-side`} view={p.view} reduced={p.reducedMotion} side />
       )}
       {p.helper && <Helper view={p.view} reduced={p.reducedMotion} />}
+      <Gifts gifts={p.gifts ?? []} pop={p.popGift ?? null} reduced={p.reducedMotion} />
       {p.view === 'cook' && <PropsLayer props={p.props} appleId={p.appleId} reduced={p.reducedMotion} cue={p.cue} recipeId={p.recipeId} />}
       {p.view === 'cook' && <Tool tool={p.tool} live={p.toolLive} anchor={p.anchor} />}
       {showDish && <DishDisplay recipeId={p.recipeId} appleId={p.appleId} visible reduced={p.reducedMotion} />}

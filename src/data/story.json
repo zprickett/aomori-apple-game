@@ -281,5 +281,78 @@
     "note": "There's a note on the counter!",
     "noteTo": "To: {name}"
   },
-  "firstLetter": "When your stall does well, people send you notes, newspapers and invitations. Keep them all in your Scrapbook (in My chef)."
+  "firstLetter": "When your stall does well, people send you notes, newspapers and invitations. Keep them all in your Scrapbook (in My chef).",
+  "stage2Intro": {
+    "_comment": "Plays the day after Ojiichan's ending, then opens the first Golden Request.",
+    "ojiichan1": "{name}, remember my postcards? I told everyone I met about your apples.",
+    "whoosh": "WHOOSH!",
+    "calling": "THE WORLD IS CALLING!",
+    "ojiichan2": "You're a Golden Chef now, so the whole world is your stall. Let's open the first one together!",
+    "tip": "Golden Requests are menus of several dishes. Pick the apple that fits each clue, then cook them one after another!"
+  },
+  "requests": [
+    {
+      "id": "fjord",
+      "title": "Friendship Fjord Platter",
+      "visitor": "Captain Ingrid",
+      "place": "Norway",
+      "stamp": "⛵",
+      "customer": "I",
+      "color": "#2F6FB0",
+      "pin": {
+        "lat": 61,
+        "lon": 8
+      },
+      "letter": [
+        "Hello, Chef {name}! I'm Captain Ingrid, from Norway.",
+        "Did you know Norway helped make salmon sushi popular in Japan?",
+        "Now I'm cooking a thank-you dinner for my crew. Will you make the dessert menu?"
+      ],
+      "dishes": [
+        {
+          "recipe": "rabbit_apples",
+          "name": "Longship Rabbit Wedges",
+          "clue": [
+            "crisp",
+            "redSkin"
+          ],
+          "clueText": "Crisp, with red skin"
+        },
+        {
+          "recipe": "apple_jam",
+          "name": "Fjord Jam",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "fresh_juice",
+          "name": "Sailor's Juice",
+          "clue": [
+            "extraJuicy"
+          ],
+          "clueText": "Extra juicy"
+        }
+      ],
+      "twist": {
+        "kind": "picky",
+        "rule": "notVerySweet",
+        "name": "Picky guest",
+        "text": "No very sweet apples. Ingrid likes them tangy!"
+      },
+      "matchGood": "A perfect match!",
+      "matchMiss": "Hmm, Ingrid wanted something different.",
+      "tasting": [
+        "Let's try it… crunch!",
+        "Tangy and crisp, like the sea air!",
+        "♪ Heave-ho, the apples go! ♪"
+      ],
+      "thanks": "Thank you, Chef {name}! Take this little longship for your stall.",
+      "gift": {
+        "name": "Little wooden longship",
+        "node": "Gift_Longship"
+      }
+    }
+  ]
 }

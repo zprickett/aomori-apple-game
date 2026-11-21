@@ -44,6 +44,8 @@ PALETTE = {
     'M_CompoteSyrup': '#E8A23A', 'M_Mint': '#5FA65A', 'M_Ceramic': '#F6EFE2', 'M_CoreHole': '#7A4A2A', 'M_Whip': '#FFFDF6',
     # rank upgrades
     'M_Gold': '#E8B230', 'M_Brick': '#B8664A',
+    # Golden Request visitors
+    'M_HairBlonde': '#E9C46E', 'M_Cloth_Captain': '#22385F',
     # player chef (recoloured at runtime)
     'M_ChefIris': '#6B3E26', 'M_ChefButton': '#D94232', 'M_ChefSkirt': '#D94232', 'M_ChefHat': '#D94232',
 }

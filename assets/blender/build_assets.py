@@ -31,7 +31,7 @@ import expansion  # noqa: E402
 import expansion2  # noqa: E402
 
 ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Chef',
-         'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O',
+         'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O', 'Customer_I', 'Gift_Shelf', 'Gift_Longship',
          'Apple', 'Apple_Peeled', 'Apple_Wedges', 'Rabbit_Wedges', 'Apple_Dice', 'Apple_Slices', 'Apple_Chunks',
          'CuttingBoard', 'Knife', 'Juicer', 'Pot', 'Pan', 'Spoon', 'PieTin', 'Oven', 'SyrupPan', 'CoolingTray',
          'Stick', 'Dish_Juice', 'Dish_Pie', 'Dish_Rabbit', 'Dish_Jam', 'Dish_CandyApple', 'Crate_Delivery',
@@ -47,6 +47,8 @@ def build_all():
     chars.build_customer_C()
     chars.build_customer_D()
     chars.build_customer_O()
+    chars.build_customer_I()
+    stall.build_gifts()
     props.build_apple()
     props.build_cut_pieces()
     props.build_tools()

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, requestById, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
 import { LadderBar } from './Ranks.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
@@ -204,7 +204,7 @@ export function ServeOverlay({ state, dispatch, reduced }: { state: GameState; d
   const r = selectors.activeRecipe(state);
   return (
     <div className="serve-banner" role="status">
-      <div className="serve-text">Here’s your {r.name}!</div>
+      <div className="serve-text">Here’s your {state.request ? requestById(state.request.id).dishes[state.request.dishIndex].name : r.name}!</div>
     </div>
   );
 }

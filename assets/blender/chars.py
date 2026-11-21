@@ -671,3 +671,57 @@ def build_customer_D():
     root = assemble(P, body, head, eo, None, arms, legs)
     parent(bk, arms[0])
     return root
+
+
+def build_customer_I():
+    """Captain Ingrid (Golden Request 1, Norway): a ship captain in a navy double-breasted coat with
+    gold buttons, a white captain's cap with a black peak and gold badge, and a long blonde braid."""
+    P = 'Customer_I'
+    hip, sh = 0.5, 0.88
+    b = MB()
+    prof = [(0.0, hip - 0.12), (0.16, hip - 0.12), (0.165, hip + 0.02), (0.15, hip + 0.16), (0.155, sh - 0.1),
+            (0.14, sh - 0.01), (0.075, sh + 0.035), (0.0, sh + 0.04)]
+    b.lathe(prof, 10, m='M_Cloth_Captain', scale=(1, 0.85, 1))
+    for s_ in (-1, 1):
+        for z in (sh - 0.24, sh - 0.16, sh - 0.08):
+            b.sphere((0.013, 0.008, 0.013), (s_ * 0.055, -0.133, z), 'M_Gold', 6, 4)
+    b.torus(0.158, 0.012, 10, 4, (0, 0, hip + 0.06), 'M_Black', scale=(1, 0.86, 1))
+    b.box((0.04, 0.012, 0.03), (0, -0.138, hip + 0.06), 'M_Gold')
+    b.cyl(0.07, 0.062, 0.045, 10, (0, -0.005, sh + 0.035), 'M_Cloth_White')
+    for s_ in (-1, 1):  # gold shoulder boards
+        b.box((0.07, 0.045, 0.014), (s_ * 0.12, 0, sh - 0.01), 'M_Gold', (0, s_ * 18, 0))
+    body = b.build(f'{P}_Body')
+    legs = []
+    for s_ in (1, -1):
+        l = MB()
+        x = s_ * 0.072
+        l.cyl(0.06, 0.055, hip - 0.12, 8, (x, 0, (hip - 0.12) / 2 + 0.04), 'M_Cloth_Navy')
+        l.box((0.1, 0.17, 0.08), (x, -0.025, 0.04), 'M_Black', bevel=0.022)
+        legs.append(l.build(f'{P}_Leg{"L" if s_ > 0 else "R"}', pivot=(x, 0, hip)))
+    C = (0, -0.05, 1.08)
+    R = (0.19, 0.175, 0.18)
+    h = MB()
+    face_base(h, C, R, brow_el=0.28, brows='M_HairBlonde', blush_el=-0.28, blush_az=0.62)
+    hair_shell(h, C, R, 1.07, m='M_HairBlonde', fringe=0.42, side=1.1, bottom=-0.45, back_bottom=-0.75)
+    bangs(h, C, R, 5, 0.42, 0.85, m='M_HairBlonde', size=(0.08, 0.07, 0.03), k=1.05, droop=0.06)
+    # one long braid over the right shoulder
+    p0, n0 = surf(C, R, 0.85, -0.5, -0.01)
+    pts = [Vector(p0) + Vector((-0.014 * k, -0.03 * k, -0.07 * k)) for k in range(5)]
+    for i, q in enumerate(pts):
+        h.sphere((0.034 - i * 0.002, 0.03, 0.04), tuple(q), 'M_HairBlonde', 8, 5)
+    h.sphere((0.022, 0.02, 0.016), tuple(pts[-1] + Vector((0, -0.005, -0.04))), 'M_AppleRed', 6, 4)
+    # captain's cap: white crown, black peak, gold band and badge
+    cm = T((C[0], C[1] + 0.0, C[2] + R[2] * 0.55), (-8, 0, 0))
+    h.lathe([(0.185, 0.0), (0.19, 0.05), (0.215, 0.09), (0.2, 0.11), (0.0, 0.115)], 14, m='M_Cloth_White', M=cm, scale=(1, 0.98, 1))
+    h.torus(0.188, 0.016, 14, 4, (0, 0, 0.025), 'M_Black', M=cm)
+    peak = [(0.15 * math.cos(a), -0.12 - 0.09 * math.sin(a)) for a in [PI * i / 8 for i in range(9)]]
+    h.prism(peak, 0.016, cm @ T((0, 0, 0.0), (-18, 0, 0)), 'M_Black')
+    pb, nb = surf((C[0], C[1], C[2] + R[2] * 0.62), (0.2, 0.19, 0.1), 0, 0.2, 0.0)
+    h.sphere((0.03, 0.012, 0.026), (0, C[1] - 0.188, C[2] + R[2] * 0.55 + 0.055), 'M_Gold', 8, 5)
+    _head_common(h, C, R, -0.42, 0.05, 0.032)
+    head = h.build(f'{P}_Head', pivot=(0, -0.04, sh + 0.03))
+    e, ec = eyes(C, R, az=0.34, el=-0.06, ew=0.036, eh=0.048, brown=False, lash=True, iris='M_Cloth_Blue')
+    eo = e.build(f'{P}_Eyes', pivot=tuple(ec))
+    arms = [arm(P, s_, (s_ * 0.155, -0.04, sh - 0.05), 0.33, 'M_Cloth_Captain', r_top=0.05, r_bot=0.045,
+                sleeve_frac=0.9, cuff_m='M_Gold', hand_r=0.044, splay=7) for s_ in (1, -1)]
+    return assemble(P, body, head, eo, None, arms, legs)

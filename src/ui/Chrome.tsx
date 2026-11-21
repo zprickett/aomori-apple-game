@@ -79,7 +79,7 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
           {kind === 'collection' && <Collection state={state} />}
           {kind === 'practice' && <Practice state={state} dispatch={dispatch} onClose={onClose} />}
           {kind === 'history' && <History state={state} />}
-          {kind === 'player' && <PlayerSheet state={state} />}
+          {kind === 'player' && <PlayerSheet state={state} onReplay={(id) => { onClose(); dispatch({ type: 'OPEN_REQUEST', id }); }} />}
           {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent}
             chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
         </div>

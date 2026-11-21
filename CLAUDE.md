@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (167 tests)
+npm test                   # vitest (176 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -26,16 +26,17 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
 - `/?play=<recipeId>&apple=<appleId>`: an in-memory practice session with everything unlocked. It does not touch saves. This one also works on the live site (for trying recipes on a phone).
 - `/?skip=N`: start a fresh save with N orders already done on a typical 10-year-old's ladder (`TYPICAL_LADDER`, `typicalPoints` in `ranks.ts`), to test unlocks and reveals.
 - `/?bg=<id>`: preview another painted backdrop (`aomori_city`, `lake_towada`, `takayama_inari`; see `src/game/backgrounds.ts`).
+- `/?skip=60`: past Ojiichan's ending; after the news cards the Stage 2 intro plays, then Captain Ingrid's letter. `?skip` overwrites the chef you pick, so use a test chef.
 - `/?skip=N&ready`: the same, with points just below the next ladder step, so the next dish reaches it. Rank-ups: N = 4, 17, 31 or 50. Ojiichan visits at order 56 (`?skip=55`).
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `trophies.ts`: Golden Trophies. `ranks.ts`: the chef's ladder (one points-driven progression: 5 ranks with two ★ steps each, which recipes each step brings, v3 migration). `story.ts`: Ojiichan's letter and notebook (from `src/data/story.json`). `progression.ts`: unlock schedule, order queue, the second customer (`offerFor`, `waitingAfter`). `points.ts`: scoring, dish stars, Golden Recipe bonus. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
+| `src/core/` | Pure game logic, no rendering, all unit tested. `content.ts`: apples, recipes, `RECIPE_ORDER` (playable recipes). `requests.ts`: Golden Requests (apple clues, twists, Golden Seal, the waiting letter). `trophies.ts`: Golden Trophies. `ranks.ts`: the chef's ladder (one points-driven progression: 5 ranks with two ★ steps each, which recipes each step brings, v3 migration). `story.ts`: Ojiichan's letter and notebook (from `src/data/story.json`). `progression.ts`: unlock schedule, order queue, the second customer (`offerFor`, `waitingAfter`). `points.ts`: scoring, dish stars, Golden Recipe bonus. `profiles.ts`: chef profiles and looks. `gameReducer.ts`, `persistence.ts`. |
 | `src/game/` | `backgrounds.ts`: painted backdrops behind the stall (Aomori City by default). `stations.ts`: per-recipe counter stages (props before, during and after each action). `stallPieces.ts`: which ladder step brings each stall piece. `useGame.ts`: boot, saves, dev URLs. `chef.ts`: the active chef context. |
 | `src/three/` | `Scene.tsx`: camera, stall, chef, customers. `Showcase.tsx`: spinning hero model. `ChefPreview.tsx`, `chefLook.ts`: applies hair and colours to the chef model. `props.ts`. |
-| `src/ui/` | `Ranks.tsx`: rank badge, the ladder bar, rank-up page, day recap (with the day's new trophies). `Finale.tsx`: Ojiichan's tasting and the group photo. `Notebook.tsx`: Ojiichan's letter, notebook pages and reveal. `Player.tsx`: My chef panel. `Trophies.tsx`: trophy pop-up and cabinet. `Onboarding.tsx`: welcome, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Review.tsx`. |
+| `src/ui/` | `Ranks.tsx`: rank badge, the ladder bar, rank-up page, day recap (with the day's new trophies). `Finale.tsx`: Ojiichan's tasting and the group photo. `Notebook.tsx`: Ojiichan's letter, notebook pages and reveal. `Player.tsx`: My chef panel. `Trophies.tsx`: trophy pop-up and cabinet. `Onboarding.tsx`: welcome, chef maker, profile picker. `Chrome.tsx`: top bar, history, settings, collection. `CookOverlay.tsx`, `Screens.tsx`: result card, apple drawer. `Reveal.tsx`: manga unlock intro and overview. `Requests.tsx`: Stage 2 intro, the letter on the counter, request screens, menu strip, passport and world map. `Review.tsx`. |
 | `src/data/` | Content data. See the next section. |
 | `assets/blender/` | Blender Python that builds every model. `expansion.py` holds the newer dishes and tools. `chars.py` holds the chef and customers. |
 
@@ -65,11 +66,12 @@ The chef's customisable parts are named nodes and materials, which `chefLook.ts`
 - stall parts: `Stall_Frame`, `Stall_Roof`, `Counter_Cloth`, `Noren_L/C/R`, `Noren_Rod`, `Lantern`, `Lantern_Bracket`, `Crate`, `Chalkboard`, `Greenery`, `Ground`; extras `Upgrade_Sign`, `Upgrade_Crate2`, `Upgrade_Banner`
 - materials: `M_ChefIris`, `M_ChefButton`, `M_ChefSkirt`, `M_ChefHat`
 
-Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
+Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) and `Customer_I` (Captain Ingrid) in `chars.py`. Request gifts: `Gift_Shelf` and `Gift_Longship` in `stall.py` (`build_gifts`), on the right post.
 
 ## Game design decisions (from the user)
 
-- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit), phase 4 (stall upgrades and chef outfit pieces per rank) and phase 5 (Golden Trophy cabinet). Stage 1 is complete; Stage 2 (Golden Requests) is next.
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit), phase 4 (stall upgrades and chef outfit pieces per rank) and phase 5 (Golden Trophy cabinet). Stage 1 is complete; Stage 2 (Golden Requests) Slice A is built (see below); Slice B (the other seven requests and the finale) is next.
+- Golden Request gifts go on one small gift shelf on the stall's right post (the user's choice, the one exception to "no extra props"). Requests begin after Golden Chef, not earlier.
 - Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
 - Customers: A Sota, B Yui, C Grandpa Kiyoshi, D Mei (the four regulars, also everyday customers); O Ojiichan (chef whites, only on his visit the day after Golden Chef). Each regular has 4 story visits (`story.json` `regulars`, each timed as `rank` + `after` orders), laid over the order queue in `progression.ts` without replacing recipe intros or apple demos. Last visits fall in Head Cook, so every story ends before Golden Chef. Mei's last visit gives the Oirase apple early.
 - News cards (Sota's thank-you note, Aomori Daily, festival invite, Golden Apple award) show at the start of the day after each rank-up (one order later if the day ended on a celebration), say why they came and who sent them, have their own entrance per kind, and are kept in the My chef scrapbook. Customers stay hidden while one shows.
@@ -88,7 +90,7 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
 - Kids choose: on everyday orders two customers wait and the kid taps who to serve (`offerFor`). A new recipe's intro and story visits must be served. The customer not picked waits for the next turn, once.
 - Max two pop-ups between orders: a rank-up is the rank page + notebook page (a recipe that comes with a rank skips its manga intro); a rank-up or Ojiichan's order keeps that order's apples for the next order.
 - Ojiichan's ending: after his order, a manga tasting ("It's better than mine!"), then a group photo with the four regulars (kept in the scrapbook). From then on he stays at the stall, behind the counter, and carries Stage 2's story.
-- A day is 5 orders, then a recap. Saves are v4 (`ladder`, `waiting`); v3 rank histories (and v2's earliest schedule) move onto the ladder without losing rank or recipes.
+- A day is 5 orders, then a recap. Saves are v5 (`ladder`, `waiting`, `requests`); v3 rank histories (and v2's earliest schedule) move onto the ladder without losing rank or recipes.
 - Scoring:
   - Each action scores Perfect 100, Good 70 or OK 40. Perfect windows: tap ±90 ms, slice ±100 ms; two Perfect slices and one Good still make a Perfect step. "Chef, help!" gives an assisted OK.
   - Dish stars (0–3) come from points: 3 at 70%+ of the best possible total, 2 at 40%+, 1 above 0. A Golden Recipe is never below 2 and earns +25% points.
@@ -107,6 +109,14 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`.
   - 3 hair styles per sex
   - eyes: brown, green or blue
   - outfit colour: red, pink, light blue or purple. It colours the buttons, skirt and hat.
+
+## Golden Requests (Stage 2, Slice A built 2026-11-21)
+
+- The Stage 2 intro (`stage2Intro` in story.json) plays from the day after Ojiichan's visit, after any news card, then opens the first request. After that the waiting request is a letter button above the bottom bar; the kid can open it or keep serving customers.
+- Flow (mode 'request', phase 'request'): letter → menu card (dishes with apple clues, one twist; Ojiichan's tip the first time) → apple matching (a gold match fits the clue and the twist) → the dishes cooked back to back with a menu combo strip → manga tasting reveal with the visitor's crew → rewards (passport stamp, the gift drops onto the gift shelf with the wide camera). Request runs are not saved; a reload goes back to the shop.
+- Golden Seal: every apple gold and every action Good or Perfect without help. Any finished request counts. Requests add points and trophy counts, not orders. Replays from the Passport in My chef.
+- Request text is in story.json `requests` (draft lines also in the character dialog doc). Built: Captain Ingrid (Friendship Fjord Platter: crisp red-skinned, tart, extra juicy; picky guest, no very sweet apples). Twist rules built: notVerySweet, pinkInside, tiny, big. Not built: Big party, Rush order, Collector, the other seven requests, the finale, Stage 2 trophies (Slice B).
+- Saves are v5: `requests` records ({done, seal, plays, bestStars}); v4 saves load with none.
 
 ## Status
 

@@ -70,7 +70,7 @@ describe('save store', () => {
     data.unlockedApples = unlockedApples(4);
     data.unlockedRecipes = ['fresh_juice', 'rabbit_apples', 'apple_jam'];
     expect(store.save(data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(4);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(5);
     const again = createSaveStore(storage).load();
     expect(again.data).toEqual(data);
     expect(again.persistent).toBe(true);
@@ -84,7 +84,7 @@ describe('save store', () => {
     expect(r.data).toEqual(defaultSave());
     expect(r.notice).toBe(NOTICE_CORRUPT);
     expect(store.save(r.data)).toBe(true);
-    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(4);
+    expect(JSON.parse(storage.getItem(SAVE_KEY)!).version).toBe(5);
     storage.setItem(SAVE_KEY, '"just a string"');
     expect(createSaveStore(storage).load().notice).toBe(NOTICE_CORRUPT);
   });
@@ -172,7 +172,7 @@ describe('save store', () => {
 
   it('future versions are not overwritten; runs in memory with a notice', () => {
     const storage = new FakeStorage();
-    const future = JSON.stringify({ version: 5, completedOrders: 9, newThing: true });
+    const future = JSON.stringify({ version: 6, completedOrders: 9, newThing: true });
     storage.setItem(SAVE_KEY, future);
     const store = createSaveStore(storage);
     const r = store.load();
@@ -232,7 +232,7 @@ describe('legacy v1 migration', () => {
     );
     const { data, notice } = createSaveStore(storage).load();
     expect(notice).toBe(NOTICE_MIGRATED);
-    expect(data.version).toBe(4);
+    expect(data.version).toBe(5);
     expect(data.completedOrders).toBe(8);
     expect(data.unlockedApples).not.toContain('aXXX');
     expect(data.unlockedApples).toContain('a091');

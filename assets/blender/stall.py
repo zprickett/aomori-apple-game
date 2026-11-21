@@ -315,3 +315,32 @@ def build_upgrades():
         b.prism(tri, 0.008, align_z((0, -1, 0), (x, yb + 0.004, z - 0.005)), m)
     b.build('Upgrade_Banner')
 
+
+
+def build_gifts():
+    """Golden Request gifts: a small shelf on the front of the right post (comes with the first gift)
+    and each gift on it. Separate roots, shown by the game per finished request."""
+    sx, sy, sz = POST_X, POST_YF - 0.17, 1.3
+    sh = MB()
+    sh.box((0.56, 0.16, 0.035), (sx, sy, sz), 'M_WoodLight', bevel=0.008)
+    sh.box((0.58, 0.02, 0.05), (sx, sy - 0.08, sz + 0.01), 'M_WoodDark', bevel=0.004)
+    for dx in (-0.2, 0.2):
+        sh.box((0.03, 0.08, 0.12), (sx + dx, POST_YF - 0.12, sz - 0.075), 'M_WoodDark', (-30, 0, 0), bevel=0.004)
+    sh.build('Gift_Shelf', pivot=(sx, sy, sz))
+
+    # Captain Ingrid's little wooden longship, on the left of the shelf
+    g = MB()
+    gx, gy, gz = sx, sy, sz + 0.0175
+    hull = [(-0.11, 0.035), (-0.08, 0.0), (0.08, 0.0), (0.11, 0.035)]
+    g.prism(hull, 0.05, T((gx, gy + 0.025, gz), (90, 0, 0)), 'M_Wood')
+    g.box((0.2, 0.052, 0.008), (gx, gy, gz + 0.035), 'M_WoodDark')
+    for k in range(4):  # round shields along the side
+        g.cyl(0.011, 0.011, 0.004, 8, (gx - 0.06 + k * 0.04, gy - 0.027, gz + 0.028), ['M_AppleRed', 'M_AppleYellow'][k % 2], (90, 0, 0))
+    g.tube([(gx + 0.105, gy, gz + 0.035), (gx + 0.125, gy, gz + 0.065), (gx + 0.115, gy, gz + 0.08)], 0.008, 5, 'M_Wood')
+    g.tube([(gx - 0.105, gy, gz + 0.035), (gx - 0.125, gy, gz + 0.06)], 0.007, 5, 'M_Wood')
+    g.cyl(0.004, 0.004, 0.13, 5, (gx, gy, gz + 0.035), 'M_WoodDark', base=True)
+    for i in range(4):  # red and white striped sail
+        g.box((0.1, 0.004, 0.022), (gx, gy - 0.006, gz + 0.075 + i * 0.022), 'M_AppleRed' if i % 2 == 0 else 'M_White')
+    c = Vector((gx, gy, gz))
+    g.V = [c + (Vector(v) - c) * 1.7 for v in g.V]
+    g.build('Gift_Longship', pivot=(gx, gy, gz))

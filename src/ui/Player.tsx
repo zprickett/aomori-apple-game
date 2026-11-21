@@ -10,10 +10,11 @@ import { ChefPreview } from '../three/ChefPreview.tsx';
 import { RankBadge, RankGoals } from './Ranks.tsx';
 import { NotebookBook, Scrapbook } from './Notebook.tsx';
 import { TrophyCabinet } from './Trophies.tsx';
+import { Passport } from './Requests.tsx';
 import { GRANDPA } from '../core/index.ts';
 import { sfx } from '../game/audio.ts';
 
-export function PlayerSheet({ state, reduced = false }: { state: GameState; reduced?: boolean }) {
+export function PlayerSheet({ state, reduced = false, onReplay }: { state: GameState; reduced?: boolean; onReplay?: (id: string) => void }) {
   const chef = useContext(ChefContext);
   const r = rankInfo(selectors.rank(state));
   const [book, setBook] = useState(false);
@@ -44,6 +45,10 @@ export function PlayerSheet({ state, reduced = false }: { state: GameState; redu
       <Records state={state} />
       <h3>Golden Trophies</h3>
       <TrophyCabinet state={state} />
+      {Object.values(state.progress.requests).some((r) => r.done) && (<>
+        <h3>Passport</h3>
+        <Passport state={state} onReplay={(id) => onReplay?.(id)} />
+      </>)}
       {selectors.seenNews(state).length > 0 && (<>
         <h3>Scrapbook</h3>
         <Scrapbook state={state} name={chef.name} />

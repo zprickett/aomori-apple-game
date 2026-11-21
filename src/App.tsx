@@ -1,6 +1,6 @@
 import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { LADDER, createProfileStore, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
+import { LADDER, REQUESTS, createProfileStore, requestById, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
 import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
 import { GrandpaLetter, NewsCard } from './ui/Notebook.tsx';
@@ -13,6 +13,7 @@ import { CookOverlay } from './ui/CookOverlay.tsx';
 import { ShopOverlay, AppleDrawer, ServeOverlay, ResultCard } from './ui/Screens.tsx';
 import { UnlockReveal } from './ui/Reveal.tsx';
 import { DayRecap } from './ui/Ranks.tsx';
+import { MenuStrip, RequestLetterButton, RequestScreen, Stage2Intro } from './ui/Requests.tsx';
 import { backdropFit, backgroundFor } from './game/backgrounds.ts';
 import { upgradeStepOf } from './game/stallPieces.ts';
 import { Review } from './ui/Review.tsx';
@@ -128,7 +129,15 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
   /** The stall-upgrade moment playing in the reveal: its ladder step, or null. */
   const [stallMoment, setStallMoment] = useState<number | null>(null);
   useEffect(() => { if (state.phase !== 'delivery') setStallMoment(null); }, [state.phase]);
-  const view: ViewMode = stallMoment !== null ? 'upgrade' : state.phase === 'day' ? 'result' : state.phase;
+  const run = state.request;
+  const req = run ? requestById(run.id) : null;
+  // A request's gift drops onto the shelf on its first rewards screen (wide 'upgrade' shot).
+  const giftMoment = run?.view === 'rewards' && run.first ? req!.gift.node : null;
+  const view: ViewMode = stallMoment !== null || giftMoment ? 'upgrade'
+    : state.phase === 'day' ? 'result'
+    : state.phase === 'request' ? (run && (run.view === 'reveal' || run.view === 'rewards') ? 'result' : 'shop')
+    : state.phase;
+  const gifts = REQUESTS.filter((r) => state.progress.requests[r.id]?.done || r.gift.node === giftMoment).map((r) => r.gift.node);
 
   // Chef greets each new customer.
   useEffect(() => {
@@ -149,6 +158,8 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
     : pendingRank ? LADDER.findIndex((st) => st.rank === pendingRank) : selectors.steps(state);
   const backdrop = backgroundFor(shownRank);
   const news = selectors.pendingNews(state);
+  const stage2 = selectors.pendingStage2(state);
+  const letter = news || stage2 ? null : selectors.waitingRequest(state);
   const appleId = state.phase === 'choose' ? state.previewAppleId : state.appleId;
   const deliveryApple = state.phase === 'delivery' ? state.delivery?.apples[0] ?? null : null;
 
@@ -169,8 +180,8 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
             <GameScene
               chefLook={chef.look}
               view={view}
-              customerId={state.order.customerId}
-              orderKey={state.order.orderId}
+              customerId={req ? req.customer : state.order.customerId}
+              orderKey={run ? `request-${run.id}` : state.order.orderId}
               props={props}
               appleId={appleId}
               anchor={stage?.anchor ?? null}
@@ -184,10 +195,12 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
               deliveryAppleId={deliveryApple}
               reducedMotion={reducedMotion}
               backdrop
-              hideCustomer={news !== null || stallMoment !== null}
+              hideCustomer={news !== null || stage2 || stallMoment !== null || giftMoment !== null}
               sideCustomerId={state.mode === 'order' && stallMoment === null ? selectors.sideCustomer(state) : null}
               helper={selectors.ojiichanHelps(state) && stallMoment === null}
               popStep={stallMoment}
+              gifts={gifts}
+              popGift={giftMoment}
             />
           </Suspense>
         </Canvas>
@@ -197,7 +210,12 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
 
       {state.phase === 'shop' && (news
         ? <NewsCard item={news} name={chef.name} first={!state.progress.seenUnlockRewards.some((k) => k.startsWith('news:'))} onDone={() => dispatch({ type: 'NEWS_SEEN', rank: news.rank })} />
-        : <ShopOverlay state={state} dispatch={dispatch} />)}
+        : stage2
+          ? <Stage2Intro name={chef.name} reduced={reducedMotion} onDone={() => { dispatch({ type: 'STAGE2_SEEN' }); dispatch({ type: 'OPEN_REQUEST', id: REQUESTS[0].id }); }} />
+          : <ShopOverlay state={state} dispatch={dispatch} />)}
+      {state.phase === 'shop' && letter && <RequestLetterButton req={letter} onOpen={() => dispatch({ type: 'OPEN_REQUEST', id: letter.id })} />}
+      {state.phase === 'request' && <RequestScreen state={state} dispatch={dispatch} name={chef.name} reduced={reducedMotion} />}
+      {state.mode === 'request' && (state.phase === 'cook' || state.phase === 'serve') && <MenuStrip state={state} />}
       {state.phase === 'choose' && <AppleDrawer state={state} dispatch={dispatch} />}
       {state.phase === 'cook' && stage && (
         <CookOverlay state={state} dispatch={dispatch} stage={stage} stages={stages} bridgeFrame={bridgeFrame} setBridgeFrame={setBridgeFrame} reduced={reducedMotion} />

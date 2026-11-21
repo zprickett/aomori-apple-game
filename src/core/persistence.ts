@@ -7,12 +7,13 @@ import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './co
 import { CUSTOMERS, DEFAULT_SEED, unlockedApples, unlockedRecipes, type WaitingCustomer } from './progression.ts';
 import { advanceLadder, cleanLadder, ladderFromRankUps } from './ranks.ts';
 import { EMPTY_STATS, sanitizeStats, type TrophyStats } from './trophies.ts';
+import { sanitizeRequests, type RequestRecord } from './requests.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
 
 export const SAVE_KEY = 'aomori-kitchen-save';
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 export const ACTION_SYSTEM_VERSION = '2.0';
 
 export const NOTICE_NO_STORAGE = 'Progress cannot be saved on this device';
@@ -52,7 +53,7 @@ export interface CurrentOrderSave {
 }
 
 export interface SaveData {
-  version: 4;
+  version: 5;
   actionSystemVersion: '2.0';
   seed: number;
   completedOrders: number;
@@ -74,6 +75,8 @@ export interface SaveData {
   history: OrderRecord[];
   /** Golden Trophy counters (rebuilt from history when missing). */
   trophyStats?: TrophyStats;
+  /** Golden Requests played (v5; empty for older saves). */
+  requests: Record<string, RequestRecord>;
   settings: SaveSettings;
   /** Unlock celebrations already shown, e.g. 'apple:a094', 'recipe:apple_jam'. */
   seenUnlockRewards: string[];
@@ -92,7 +95,7 @@ export const DEFAULT_SETTINGS: Readonly<SaveSettings> = Object.freeze({
 
 export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings = DEFAULT_SETTINGS): SaveData {
   return {
-    version: 4,
+    version: 5,
     actionSystemVersion: '2.0',
     seed,
     completedOrders: 0,
@@ -107,6 +110,7 @@ export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings 
     bestPoints: {},
     history: [],
     trophyStats: { ...EMPTY_STATS, storiesDone: [] },
+    requests: {},
     settings: { ...settings },
     seenUnlockRewards: [],
     current: null,
@@ -269,7 +273,7 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     for (const [k, s] of Object.entries(v.bestPoints)) if (isRecipeId(k)) { const n = nonNegInt(s, -1); if (n >= 0) bestPoints[k] = n; }
   const history = (Array.isArray(v.history) ? v.history : []).map(sanitizeRecord).filter((r): r is OrderRecord => r !== null).slice(-HISTORY_LIMIT);
   const data: SaveData = {
-    version: 4,
+    version: 5,
     actionSystemVersion: '2.0',
     seed,
     completedOrders,
@@ -284,6 +288,7 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     bestPoints,
     history,
     trophyStats: sanitizeStats(v.trophyStats, history),
+    requests: sanitizeRequests(v.requests),
     settings: sanitizeSettings(v.settings),
     seenUnlockRewards: uniq(strArr(v.seenUnlockRewards)),
     current,
@@ -379,7 +384,7 @@ export function parseSave(text: string | null): { data: SaveData; notice: string
     const m = migrateV1(raw);
     return { ...m, future: false };
   }
-  if (raw.version >= 2 && raw.version <= 4) return { ...sanitizeSave(raw), future: false };
+  if (raw.version >= 2 && raw.version <= 5) return { ...sanitizeSave(raw), future: false };
   return { data: defaultSave(), notice: NOTICE_CORRUPT, future: false };
 }
 
