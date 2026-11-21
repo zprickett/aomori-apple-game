@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, requestById, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, requestDishName, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
 import { LadderBar } from './Ranks.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
@@ -204,7 +204,7 @@ export function ServeOverlay({ state, dispatch, reduced }: { state: GameState; d
   const r = selectors.activeRecipe(state);
   return (
     <div className="serve-banner" role="status">
-      <div className="serve-text">Here’s your {state.request ? requestById(state.request.id).dishes[state.request.dishIndex].name : r.name}!</div>
+      <div className="serve-text">Here’s your {state.request ? requestDishName(state.request.id, state.request.dishIndex) : r.name}!</div>
     </div>
   );
 }
@@ -302,6 +302,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
         {pr ? 'Back to the shop'
           : state.delivery?.finale ? 'Ojiichan takes a bite…'
           : state.delivery?.rank ? 'Rank up!'
+          : state.delivery?.goldenRank ? 'Golden Chef rank up!'
           : state.delivery && !state.delivery.apples.length && !state.delivery.recipes.length ? 'Stall upgrade!'
           : state.delivery?.recipes.length ? 'New recipe!'
           : state.delivery ? 'New apples!'

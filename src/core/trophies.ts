@@ -3,8 +3,7 @@
  * Counters that can't be rebuilt from progress (slices, stirs, streaks, finished stories) live in
  * TrophyStats; the rest is read from progress (apples cooked and discovered). Pure functions.
  *
- * Trophies tied to Golden Requests (World Traveller, Golden Seal Master, Collector's Crown) come
- * with Stage 2.
+ * World Traveller, Golden Seal Master and Apple Detective come from Golden Requests (Stage 2).
  */
 import { APPLES, apple, recipe } from './content.ts';
 import type { Grade } from './timing.ts';
@@ -21,9 +20,11 @@ export interface TrophyStats {
   bestStreak: number;
   /** Regulars whose last story visit was served. */
   storiesDone: string[];
+  /** Gold apple matches in Golden Requests (replays count). */
+  goldMatches: number;
 }
 
-export const EMPTY_STATS: Readonly<TrophyStats> = Object.freeze({ slices: 0, rabbitPlates: 0, perfectStirs: 0, streak: 0, bestStreak: 0, storiesDone: [] });
+export const EMPTY_STATS: Readonly<TrophyStats> = Object.freeze({ slices: 0, rabbitPlates: 0, perfectStirs: 0, streak: 0, bestStreak: 0, storiesDone: [], goldMatches: 0 });
 
 /** Add one served dish to the stats. `storyDone` = a regular whose story just finished. */
 export function addDish(stats: TrophyStats, recipeId: string, grades: readonly Grade[], storyDone?: string): TrophyStats {
@@ -37,7 +38,7 @@ export function addDish(stats: TrophyStats, recipeId: string, grades: readonly G
     bestStreak = Math.max(bestStreak, streak);
   });
   const storiesDone = storyDone && !stats.storiesDone.includes(storyDone) ? [...stats.storiesDone, storyDone] : stats.storiesDone;
-  return { slices, perfectStirs, streak, bestStreak, storiesDone, rabbitPlates: stats.rabbitPlates + (recipeId === 'rabbit_apples' ? 1 : 0) };
+  return { slices, perfectStirs, streak, bestStreak, storiesDone, goldMatches: stats.goldMatches, rabbitPlates: stats.rabbitPlates + (recipeId === 'rabbit_apples' ? 1 : 0) };
 }
 
 /** Rebuild what we can from order history (older saves had no stats). */
@@ -53,6 +54,7 @@ export function sanitizeStats(v: unknown, history: ReadonlyArray<{ recipeId: str
     slices: n(o.slices), rabbitPlates: n(o.rabbitPlates), perfectStirs: n(o.perfectStirs),
     streak: n(o.streak), bestStreak: n(o.bestStreak),
     storiesDone: Array.isArray(o.storiesDone) ? [...new Set(o.storiesDone.filter((x): x is string => typeof x === 'string'))] : [],
+    goldMatches: n(o.goldMatches),
   };
 }
 
@@ -69,6 +71,11 @@ export interface TrophyInput {
   /** Apple ids cooked at least once. */
   cookedApples: readonly string[];
   unlockedApples: readonly string[];
+  /** Golden Requests finished (passport stamps) and sealed. */
+  stamps?: number;
+  seals?: number;
+  /** How many Golden Requests there are. */
+  requestCount?: number;
 }
 
 export interface TrophyStep {
@@ -150,6 +157,22 @@ export const TROPHIES: readonly TrophyDef[] = Object.freeze([
     },
   },
   counter('friends', "Regulars' Friend", '💛', (p) => p.stats.storiesDone.length, [1, 2, 4], (n) => (n === 1 ? "Finish a regular's story" : n === 4 ? "Finish all 4 regulars' stories" : `Finish ${n} regulars' stories`)),
+  // Stage 2 (Golden Requests)
+  {
+    id: 'traveller', name: 'World Traveller', icon: '✈️',
+    steps: (p) => {
+      const all = p.requestCount ?? 8;
+      return [count('Collect 3 passport stamps', p.stamps ?? 0, 3), count('Collect 6 passport stamps', p.stamps ?? 0, 6), count('Collect every passport stamp', p.stamps ?? 0, all)];
+    },
+  },
+  {
+    id: 'seal', name: 'Golden Seal Master', icon: '🏅',
+    steps: (p) => {
+      const all = p.requestCount ?? 8;
+      return [count('Win a Golden Seal', p.seals ?? 0, 1), count('Win Golden Seals on 4 requests', p.seals ?? 0, 4), count('Win a Golden Seal on every request', p.seals ?? 0, all)];
+    },
+  },
+  counter('detective', 'Apple Detective', '🔍', (p) => p.stats.goldMatches, [10, 50, 150], (n) => `Find ${n} gold apple matches`),
 ]);
 
 /** What each trophy counts (shown when a kid taps it). */
@@ -162,6 +185,9 @@ const ABOUT: Readonly<Record<string, string>> = {
   encyclopedia: 'Every new apple that arrives at your stall counts.',
   sizes: 'Cook with small, medium and large apples. Can you find the tiniest and the biggest?',
   friends: "Serve each regular's last story visit to finish their story.",
+  traveller: 'Finish a Golden Request to get its passport stamp.',
+  seal: 'Gold apples for every dish and no breaks in the combo win a Golden Seal. Replays count!',
+  detective: 'Every apple that lights up gold in a Golden Request counts, replays too.',
 };
 for (const t of TROPHIES as TrophyDef[]) t.about = ABOUT[t.id];
 

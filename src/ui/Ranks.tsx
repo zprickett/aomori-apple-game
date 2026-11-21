@@ -1,6 +1,6 @@
 /** Story ranks UI: rank badge, next-rank goals, the rank-up intro and the end-of-day recap. */
 import { useContext, useEffect, useState } from 'react';
-import { DAY_LENGTH, MAX_RANK, TIER_NAMES, ladderProgress, rankInfo, recipe, selectors, stepsForPoints, trophy, type GameAction, type GameState, type LadderStep, type Rank } from '../core/index.ts';
+import { DAY_LENGTH, MAX_RANK, TIER_NAMES, goldenRankOf, ladderProgress, rankInfo, recipe, selectors, stepsForPoints, trophy, type GameAction, type GameState, type LadderStep, type Rank } from '../core/index.ts';
 import { piecesAtStep } from '../game/stallPieces.ts';
 import { useCountUp } from './Screens.tsx';
 import { emitCue } from '../game/bus.ts';
@@ -49,12 +49,14 @@ export function LadderBar({ points, before, reduced = false, testId = 'ladder-ba
     <div className={`ladder-bar ${stepUp ? 'up' : ''}`} data-testid={testId}>
       <div className="lb-row">
         <RankBadge rank={lp.rank} size={26} />
-        <span className="lb-name">{rankInfo(lp.rank).name}{lp.stars > 0 && <span className="lb-stars"> {'★'.repeat(lp.stars)}</span>}</span>
+        <span className="lb-name">{rankInfo(lp.rank).name}{lp.golden && <span className="lb-stars"> rank {lp.golden.rank}</span>}{lp.stars > 0 && <span className="lb-stars"> {'★'.repeat(lp.stars)}</span>}</span>
         {stepUp && <span className="lb-up">{lp.stars === 0 ? 'RANK UP!' : 'STEP UP!'}</span>}
         <span className="lb-pts">{shown.toLocaleString()} pts</span>
       </div>
-      <div className="lb-track"><i style={{ width: `${Math.round(lp.frac * 100)}%` }} /></div>
-      {reward ? (
+      <div className={`lb-track ${lp.golden ? 'golden' : ''}`}><i style={{ width: `${Math.round((lp.golden?.frac ?? lp.frac) * 100)}%` }} /></div>
+      {lp.golden ? (
+        <div className="lb-next"><b>{lp.golden.toGo.toLocaleString()}</b> pts to <span>Golden Chef rank {lp.golden.next}</span></div>
+      ) : reward ? (
         <div className="lb-next">
           <b>{lp.toGo.toLocaleString()}</b> pts to {reward.icon && <img src={reward.icon} alt="" />}<span>{reward.text}</span>
         </div>
@@ -166,9 +168,12 @@ export function DayRecap({ state, dispatch, reduced }: { state: GameState; dispa
   const bests = records.filter((h) => h.newBest && !h.newHigh);
   const golden = records.filter((h) => h.golden).length;
   const top = [...records].sort((x, y) => y.points - x.points)[0];
+  const gNow = goldenRankOf(state.progress.totalPoints);
+  const goldenUp = gNow >= 2 && goldenRankOf(state.progress.totalPoints - points) < gNow ? gNow : 0;
   const highlights: { key: string; icon: string; text: string; big?: boolean }[] = [
     ...(high ? [{ key: 'high', icon: '🏆', text: `New high score! ${recipe(high.recipeId).name}: ${high.points.toLocaleString()} pts`, big: true }] : []),
     ...bests.map((h) => ({ key: `best-${h.orderId}`, icon: '⭐', text: `New best for ${recipe(h.recipeId).name}: ${h.points.toLocaleString()} pts` })),
+    ...(goldenUp ? [{ key: 'grank', icon: '👑', text: `Golden Chef rank ${goldenUp}!`, big: true }] : []),
     ...(golden ? [{ key: 'golden', icon: '✨', text: golden === 1 ? '1 Golden Recipe!' : `${golden} Golden Recipes!` }] : []),
     ...(top && !high && top.points > 0 ? [{ key: 'top', icon: '🥇', text: `Best dish today: ${recipe(top.recipeId).name}, ${top.points.toLocaleString()} pts` }] : []),
   ];

@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (176 tests)
+npm test                   # vitest (185 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -66,11 +66,11 @@ The chef's customisable parts are named nodes and materials, which `chefLook.ts`
 - stall parts: `Stall_Frame`, `Stall_Roof`, `Counter_Cloth`, `Noren_L/C/R`, `Noren_Rod`, `Lantern`, `Lantern_Bracket`, `Crate`, `Chalkboard`, `Greenery`, `Ground`; extras `Upgrade_Sign`, `Upgrade_Crate2`, `Upgrade_Banner`
 - materials: `M_ChefIris`, `M_ChefButton`, `M_ChefSkirt`, `M_ChefHat`
 
-Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) and `Customer_I` (Captain Ingrid) in `chars.py`. Request gifts: `Gift_Shelf` and `Gift_Longship` in `stall.py` (`build_gifts`), on the right post.
+Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`. Golden Request visitors: `Customer_I` Ingrid, `G` Mr. Ōgane, `F` Chef Amélie, `L` Commander Leila, `M` Carer Mia, `P` Princess Amara, `H` the Head Butler, `R` Grandma Rosa (`build_customer_I`, `build_visitors`). Gifts: the two-tier `Gift_Shelf` on the right post and `Gift_Longship`, `Gift_LuckyCat`, `Gift_CopperPan`, `Gift_EarthPhoto`, `Gift_FlyingFox`, `Gift_PinkLantern`, `Gift_Teapot`, `Gift_Taxi` (`build_gifts` in `stall.py`).
 
 ## Game design decisions (from the user)
 
-- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit), phase 4 (stall upgrades and chef outfit pieces per rank) and phase 5 (Golden Trophy cabinet). Stage 1 is complete; Stage 2 (Golden Requests) Slice A is built (see below); Slice B (the other seven requests and the finale) is next.
+- Story: the Golden Chef Journey (Claude Doc "Aomori Apple Kitchen: Golden Chef Journey"). The hero is the player's own chef, not a fixed "Hana". Built: phase 1 (ranks, stars, days), phase 2 (Ojiichan's letter after the chef maker, a notebook page per rank, stall tour) phase 3 (regulars, news cards, Ojiichan's visit), phase 4 (stall upgrades and chef outfit pieces per rank) and phase 5 (Golden Trophy cabinet). Stage 1 is complete; Stage 2's eight Golden Requests and trophies are built (see below); the World Apple Feast finale is not.
 - Golden Request gifts go on one small gift shelf on the stall's right post (the user's choice, the one exception to "no extra props"). Requests begin after Golden Chef, not earlier.
 - Grandpa is "Ojiichan". Story text lives in `src/data/story.json` (edit it freely; tests check it). Never use he/she for the chef. Postcards foreshadow Stage 2 visitors (Norway, Paris, Queensland).
 - Customers: A Sota, B Yui, C Grandpa Kiyoshi, D Mei (the four regulars, also everyday customers); O Ojiichan (chef whites, only on his visit the day after Golden Chef). Each regular has 4 story visits (`story.json` `regulars`, each timed as `rank` + `after` orders), laid over the order queue in `progression.ts` without replacing recipe intros or apple demos. Last visits fall in Head Cook, so every story ends before Golden Chef. Mei's last visit gives the Oirase apple early.
@@ -110,18 +110,26 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) and `Customer_I` (Cap
   - eyes: brown, green or blue
   - outfit colour: red, pink, light blue or purple. It colours the buttons, skirt and hat.
 
-## Golden Requests (Stage 2, Slice A built 2026-11-21)
+## After Golden Chef: the long-term loop (decided 2026-11-22)
 
-- The Stage 2 intro (`stage2Intro` in story.json) plays from the day after Ojiichan's visit, after any news card, then opens the first request. After that the waiting request is a letter button above the bottom bar; the kid can open it or keep serving customers.
+- Visitors keep sending big-scoring menu requests mixed in with everyday orders; kids use them for points, trophies and learning the apples. A letter arrives every 4–7 orders after the last request (`letterGap`, `requestClock` in the save): new visitors first in story order, then returning ones (never the same twice in a row). A waiting letter stays until opened.
+- Points keep counting: Golden Chef rank 1 at 55,000, each gap 10% bigger (68,200, 82,720, 98,692…; `goldenRankOf` in `ranks.ts`). Always worded "Golden Chef rank 2", never "Golden Chef 2". A quick gold card after the dish that reaches it (seen key `grank:N`), the ladder bar, My chef and the day recap.
+- The 11 journey recipes are each brought by a returning regular who found it (story.json `recipeIntros`, shown in their story bubble with "Found a new recipe!"): 8 orders after Golden Chef, then every 3–5 orders (`JOURNEY_GAPS`).
+
+## Golden Requests (Stage 2: Slices A and B built 2026-11-21/22)
+
+- The Stage 2 intro (`stage2Intro` in story.json) plays from the day after Ojiichan's visit, after any news card, then opens the first request. After that a waiting request is a letter button above the bottom bar; the kid can open it or keep serving customers.
 - Flow (mode 'request', phase 'request'): letter → menu card (dishes with apple clues, one twist; Ojiichan's tip the first time) → apple matching (a gold match fits the clue and the twist) → the dishes cooked back to back with a menu combo strip → manga tasting reveal with the visitor's crew → rewards (passport stamp, the gift drops onto the gift shelf with the wide camera). Request runs are not saved; a reload goes back to the shop.
-- Golden Seal: every apple gold and every action Good or Perfect without help. Any finished request counts. Requests add points and trophy counts, not orders. Replays from the Passport in My chef.
-- Request text is in story.json `requests` (draft lines also in the character dialog doc). Built: Captain Ingrid (Friendship Fjord Platter: crisp red-skinned, tart, extra juicy; picky guest, no very sweet apples). Twist rules built: notVerySweet, pinkInside, tiny, big. Not built: Big party, Rush order, Collector, the other seven requests, the finale, Stage 2 trophies (Slice B).
-- Saves are v5: `requests` records ({done, seal, plays, bestStars}); v4 saves load with none.
+- Golden Seal: every apple gold and every action Good or Perfect without help. Any finished request counts. Request menus earn ×1.5 points, ×2 with the Golden Seal (`menuPoints`), plus trophy counts, not orders. Replays from the Passport in My chef.
+- All 8 requests are in story.json `requests` (each with letter, dishes and clues, twist, tasting lines, crew kind and gift): Ingrid, Ōgane (Big party: every dish twice, round 2 at ×0.8 timing), Amélie (Rush order: one "Try again" for the whole menu), Leila (yellow/green apples only), Mia (naturally sweet only), Amara (pink inside), the Head Butler (Rush order), Rosa (L size only). Every dish has at least 2 gold apples by the time its letter can arrive (tested).
+- Stage 2 trophies: World Traveller (stamps 3/6/8), Golden Seal Master (sealed requests 1/4/8), Apple Detective (gold matches 10/50/150, `trophyStats.goldMatches`). Apple Detective replaced Collector's Crown (no rarity data for most apples).
+- Not built: the World Apple Feast finale; Festival Pie's 3-apple picker.
+- Saves are v5: `requests` records ({done, seal, plays, bestStars}) and `requestClock`; v4 saves load with none.
 
 ## Status
 
 - Playable: 100 apples and all 20 recipes. Stage 1's nine: `fresh_juice`, `rabbit_apples`, `apple_jam`, `ringo_ame`, `hirosaki_pie`, `jam_toast`, `yogurt_parfait`, `baked_apple`, `apple_compote`.
-- Journey recipes (built 2026-11-21): `apple_kinton`, `apple_jelly`, `whole_apple_pie`, `apple_daifuku`, `apple_dorayaki`, `apple_keema`, `apple_shumai`, `apple_cheesecake`, `apple_pork`, `red_flesh_tart`, `festival_pie`. They unlock after Golden Chef (`JOURNEY_RECIPES` in `ranks.ts`: one every 3 orders from 8 orders after it). That pacing is a placeholder until Stage 2's story places them. They are not on the notebook's riddle pages. Festival Pie uses the one chosen apple for now; its 3-apple picker is not built.
+- Journey recipes (built 2026-11-21): `apple_kinton`, `apple_jelly`, `whole_apple_pie`, `apple_daifuku`, `apple_dorayaki`, `apple_keema`, `apple_shumai`, `apple_cheesecake`, `apple_pork`, `red_flesh_tart`, `festival_pie`. They unlock after Golden Chef (`JOURNEY_RECIPES` in `ranks.ts`), each brought by a regular (see the long-term loop above). They are not on the notebook's riddle pages. Festival Pie uses the one chosen apple for now; its 3-apple picker is not built.
 - Journey stages are in `src/game/stationsJourney.ts`; shared stage helpers in `stationKit.ts`. Models are in `assets/blender/expansion2.py` (`FryPan`, `MixBowl`, `RiceCooker`, `PorkPrep` and each `Dish_*`).
 - Adding a recipe touches:
   - `RECIPE_ORDER`, `REQUIRED_ACTION_COUNTS`, `DISH_WANTS` and `SHORT_DISH` (`content.ts`)

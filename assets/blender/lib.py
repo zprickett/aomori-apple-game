@@ -46,11 +46,14 @@ PALETTE = {
     'M_Gold': '#E8B230', 'M_Brick': '#B8664A',
     # Golden Request visitors
     'M_HairBlonde': '#E9C46E', 'M_Cloth_Captain': '#22385F',
+    'M_SkinMid': '#E0AE84', 'M_SkinDeep': '#A8704C', 'M_HairAuburn': '#9A4A2A', 'M_Cloth_Lavender': '#A894C8',
+    'M_Cloth_Suit': '#4A4E57', 'M_Cloth_Orange': '#E8833A', 'M_Copper': '#C46A3A', 'M_Silver': '#C9CED6',
+    'M_Taxi': '#F2C230', 'M_Bat': '#5A3E30', 'M_Photo': '#2C5E9E',
     # player chef (recoloured at runtime)
     'M_ChefIris': '#6B3E26', 'M_ChefButton': '#D94232', 'M_ChefSkirt': '#D94232', 'M_ChefHat': '#D94232',
 }
 
-ROUGH = {'M_Caramel': 0.25, 'M_Compote': 0.25, 'M_CompoteSyrup': 0.2, 'M_Yogurt': 0.6, 'M_Candy': 0.15, 'M_Filling': 0.35, 'M_Jam': 0.3, 'M_Glass': 0.1,
+ROUGH = {'M_Copper': 0.3, 'M_Silver': 0.25, 'M_Taxi': 0.4, 'M_Caramel': 0.25, 'M_Compote': 0.25, 'M_CompoteSyrup': 0.2, 'M_Yogurt': 0.6, 'M_Candy': 0.15, 'M_Filling': 0.35, 'M_Jam': 0.3, 'M_Glass': 0.1,
          'M_Metal': 0.45, 'M_MetalDark': 0.5, 'M_JuiceGold': 0.45, 'M_OvenWindow': 0.2, 'M_Gold': 0.3,
          'M_EyeWhite': 0.5, 'M_Black': 0.6}
 

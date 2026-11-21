@@ -7,7 +7,7 @@ import { RECIPE_ORDER, isAppleId, isRecipeId, recipe, type RecipeId } from './co
 import { CUSTOMERS, DEFAULT_SEED, unlockedApples, unlockedRecipes, type WaitingCustomer } from './progression.ts';
 import { advanceLadder, cleanLadder, ladderFromRankUps } from './ranks.ts';
 import { EMPTY_STATS, sanitizeStats, type TrophyStats } from './trophies.ts';
-import { sanitizeRequests, type RequestRecord } from './requests.ts';
+import { sanitizeClock, sanitizeRequests, type RequestClock, type RequestRecord } from './requests.ts';
 import type { DishEvaluation, PracticeSummary, StepResult } from './scoring.ts';
 import { GRADE_POINTS, GRADES, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, scoreDish, type OrderRecord } from './points.ts';
@@ -77,6 +77,8 @@ export interface SaveData {
   trophyStats?: TrophyStats;
   /** Golden Requests played (v5; empty for older saves). */
   requests: Record<string, RequestRecord>;
+  /** When the last Golden Request was finished (paces the next letter). */
+  requestClock?: RequestClock;
   settings: SaveSettings;
   /** Unlock celebrations already shown, e.g. 'apple:a094', 'recipe:apple_jam'. */
   seenUnlockRewards: string[];
@@ -111,6 +113,7 @@ export function defaultSave(seed: number = DEFAULT_SEED, settings: SaveSettings 
     history: [],
     trophyStats: { ...EMPTY_STATS, storiesDone: [] },
     requests: {},
+    requestClock: { at: 0, last: null },
     settings: { ...settings },
     seenUnlockRewards: [],
     current: null,
@@ -289,6 +292,7 @@ export function sanitizeSave(raw: unknown): { data: SaveData; notice: string | n
     history,
     trophyStats: sanitizeStats(v.trophyStats, history),
     requests: sanitizeRequests(v.requests),
+    requestClock: sanitizeClock(v.requestClock),
     settings: sanitizeSettings(v.settings),
     seenUnlockRewards: uniq(strArr(v.seenUnlockRewards)),
     current,

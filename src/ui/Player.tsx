@@ -36,7 +36,7 @@ export function PlayerSheet({ state, reduced = false, onReplay }: { state: GameS
       <div className="pl-rank">
         <RankBadge rank={r.rank} size={44} />
         <div>
-          <div className="pl-rank-name">{r.name}</div>
+          <div className="pl-rank-name">{r.name}{selectors.goldenRank(state) > 0 && ` rank ${selectors.goldenRank(state)}`}</div>
           <div className="pl-rank-ja" lang="ja">{r.nameJa}</div>
         </div>
       </div>

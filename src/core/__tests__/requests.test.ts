@@ -4,7 +4,11 @@ import { gameReducer, initialStateFromSave, selectors, toSaveData, type GameActi
 import { defaultSave, parseSave } from '../persistence.ts';
 import { unlockedApples } from '../progression.ts';
 import { typicalLadder, typicalPoints } from '../ranks.ts';
-import { REQUESTS, STAGE2_KEY, appleMatch, clueHolds, menuCombo, requestById, sealEarned, skinFamily, twistHolds, waitingRequest } from '../requests.ts';
+import { REQUESTS, STAGE2_KEY, appleMatch, clueHolds, letterGap, menuCombo, menuPlan, menuPoints, requestById, sealEarned, skinFamily, twistHolds, waitingRequest } from '../requests.ts';
+import { pendingDelivery } from '../gameReducer.ts';
+import { DEFAULT_SEED, orderForIndex } from '../progression.ts';
+import { JOURNEY_RECIPES, goldenRankOf, goldenRankPoints, ladderProgress } from '../ranks.ts';
+import { RECIPE_INTROS } from '../story.ts';
 import type { StepResult } from '../scoring.ts';
 
 const ingrid = requestById('fjord');
@@ -162,5 +166,144 @@ describe('Golden Request flow', () => {
     expect(v4.data.requests).toEqual({});
     const junk = parseSave(JSON.stringify({ ...JSON.parse(text), requests: { fjord: { done: 'yes', plays: -2 }, nope: { done: true } } }));
     expect(junk.data.requests).toEqual({ fjord: { done: false, seal: false, plays: 0, bestStars: 0 } });
+  });
+});
+
+describe('Slice B: the long-term loop', () => {
+  /** Play a request start to finish with gold apples and Perfect actions. */
+  function playRequest(s: GameState, id: string): GameState {
+    const r = requestById(id);
+    s = run(s, { type: 'OPEN_REQUEST', id }, { type: 'REQUEST_VIEW', view: 'match' });
+    for (const [i, d] of r.dishes.entries()) {
+      const gold = s.progress.unlockedApples.find((a) => appleMatch(a, d, r.twist.rule).gold) ?? s.progress.unlockedApples[0];
+      s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: gold });
+    }
+    s = run(s, { type: 'REQUEST_COOK' });
+    while (s.phase === 'cook') s = cookDish(s);
+    return run(s, { type: 'REQUEST_NEXT' }, { type: 'REQUEST_NEXT' });
+  }
+  const serveOrders = (s: GameState, n: number): GameState => {
+    // Advance completed orders without cooking (the letter clock only reads the count).
+    return { ...s, progress: { ...s.progress, completedOrders: s.progress.completedOrders + n } };
+  };
+
+  it('eight visitors, each with a crew, a gift and enough gold apples', () => {
+    expect(REQUESTS.map((r) => r.visitor)).toEqual(['Captain Ingrid', 'Mr. Ōgane', 'Chef Amélie', 'Commander Leila', 'Carer Mia', 'Princess Amara', 'The Head Butler', 'Grandma Rosa']);
+    expect(new Set(REQUESTS.map((r) => r.customer)).size).toBe(8);
+    expect(new Set(REQUESTS.map((r) => r.gift.node)).size).toBe(8);
+    REQUESTS.forEach((r, i) => {
+      const have = unlockedApples(56 + i * 6);
+      for (const d of r.dishes) expect(have.filter((a) => appleMatch(a, d, r.twist.rule).gold).length, `${r.id}: ${d.name}`).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it('a letter every 4–7 orders: new visitors first in story order, then returning ones', () => {
+    for (let n = 1; n < 40; n++) { expect(letterGap(n)).toBeGreaterThanOrEqual(4); expect(letterGap(n)).toBeLessThanOrEqual(7); }
+    let s = playRequest(afterFinale([STAGE2_KEY]), 'fjord');
+    expect(s.progress.requestClock).toEqual({ at: 60, last: 'fjord' });
+    expect(selectors.waitingRequest(s)).toBeNull();
+    s = serveOrders(s, letterGap(1) - 1);
+    expect(selectors.waitingRequest(s)).toBeNull();
+    s = serveOrders(s, 1);
+    expect(selectors.waitingRequest(s)?.id).toBe('tower');
+    const seen = ['fjord'];
+    for (const r of REQUESTS.slice(1)) {
+      while (!selectors.waitingRequest(s)) s = serveOrders(s, 1);
+      expect(selectors.waitingRequest(s)!.id).toBe(r.id);
+      s = playRequest(s, r.id);
+      seen.push(r.id);
+    }
+    expect(seen).toHaveLength(8);
+    // Then returning visitors, never the same one twice in a row.
+    let last = s.progress.requestClock.last;
+    for (let k = 0; k < 6; k++) {
+      while (!selectors.waitingRequest(s)) s = serveOrders(s, 1);
+      const next = selectors.waitingRequest(s)!.id;
+      expect(next).not.toBe(last);
+      s = playRequest(s, next);
+      last = next;
+    }
+  });
+
+  it('request menus earn ×1.5, or ×2 with the Golden Seal', () => {
+    expect(menuPoints([100, 200], false)).toEqual({ base: 300, total: 450, mult: 1.5 });
+    expect(menuPoints([100, 200], true)).toEqual({ base: 300, total: 600, mult: 2 });
+    const start = afterFinale([STAGE2_KEY]);
+    const s = playRequest(start, 'fjord');
+    expect(s.progress.requests.fjord.seal).toBe(true);
+    expect(s.progress.totalPoints - start.progress.totalPoints).toBeGreaterThan(0);
+  });
+
+  it('Big party: every dish twice, the second round faster', () => {
+    const tower = requestById('tower');
+    expect(menuPlan(tower)).toHaveLength(6);
+    let s = run(afterFinale([STAGE2_KEY]), { type: 'OPEN_REQUEST', id: 'fjord' }, { type: 'REQUEST_EXIT' });
+    s = { ...s, progress: { ...s.progress, requests: { fjord: { done: true, seal: false, plays: 1, bestStars: 3 } }, requestClock: { at: 0, last: 'fjord' } } };
+    s = run(s, { type: 'OPEN_REQUEST', id: 'tower' }, { type: 'REQUEST_VIEW', view: 'match' });
+    tower.dishes.forEach((d, i) => { s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: s.progress.unlockedApples.find((a) => appleMatch(a, d, 'none').clue)! }); });
+    s = run(s, { type: 'REQUEST_COOK' });
+    const first = selectors.currentStep(run(s, { type: 'BRIDGE_DONE' }))!;
+    s = cookDish(s);
+    expect(selectors.activeRecipe(s).id).toBe('ringo_ame');
+    const second = selectors.currentStep(run(s, { type: 'BRIDGE_DONE' }))!;
+    expect(second.timing.target_ms).toBeLessThan(first.timing.target_ms);
+    while (s.phase === 'cook') s = cookDish(s);
+    expect(s.request?.evaluations).toHaveLength(6);
+  });
+
+  it('Rush order: one "Try again" for the whole menu', () => {
+    let s = afterFinale([STAGE2_KEY]);
+    s = { ...s, progress: { ...s.progress, requests: { fjord: { done: true, seal: false, plays: 1, bestStars: 3 }, tower: { done: true, seal: false, plays: 1, bestStars: 3 } }, requestClock: { at: 0, last: 'tower' } } };
+    s = run(s, { type: 'OPEN_REQUEST', id: 'challenge' }, { type: 'REQUEST_VIEW', view: 'match' });
+    expect(s.request?.retriesLeft).toBe(1);
+    s = run(s, { type: 'REQUEST_PICK', dish: 0, appleId: 'a094' }, { type: 'REQUEST_PICK', dish: 1, appleId: 'a094' }, { type: 'REQUEST_COOK' },
+      { type: 'BRIDGE_DONE' }, { type: 'READY' }, { type: 'COUNTIN_DONE' }, { type: 'SUBMIT', eventMs: null });
+    expect(s.cook?.sub).toBe('miss');
+    s = run(s, { type: 'RETRY_STEP' });
+    expect(s.request?.retriesLeft).toBe(0);
+    s = run(s, { type: 'COUNTIN_DONE' }, { type: 'SUBMIT', eventMs: null });
+    expect(run(s, { type: 'RETRY_STEP' })).toBe(s);
+  });
+
+  it('World Traveller, Golden Seal Master and Apple Detective count requests', () => {
+    const s = playRequest(afterFinale([STAGE2_KEY]), 'fjord');
+    const t = Object.fromEntries(selectors.trophies(s).map((x) => [x.id, x]));
+    expect(t.traveller.next).toMatchObject({ have: 1, need: 3 });
+    expect(t.seal.tier).toBe(1);
+    expect(t.detective.next).toMatchObject({ have: 3, need: 10 });
+  });
+});
+
+describe('after Golden Chef', () => {
+  it('Golden Chef ranks: every gap 10% bigger than the one before', () => {
+    expect([1, 2, 3, 4].map(goldenRankPoints)).toEqual([55000, 68200, 82720, 98692]);
+    expect(goldenRankOf(54999)).toBe(0);
+    expect(goldenRankOf(55000)).toBe(1);
+    expect(goldenRankOf(68199)).toBe(1);
+    expect(goldenRankOf(68200)).toBe(2);
+    const lp = ladderProgress(70000);
+    expect(lp.golden).toMatchObject({ rank: 2, next: 3, toGo: 12720 });
+  });
+
+  it('a new Golden Chef rank shows once, as a card after a dish', () => {
+    const s = afterFinale();
+    const p = { ...s.progress, totalPoints: 70000 };
+    expect(pendingDelivery(p, p.completedOrders)?.goldenRank).toBe(2);
+    expect(pendingDelivery({ ...p, seenUnlockRewards: [...p.seenUnlockRewards, 'grank:2'] }, p.completedOrders)?.goldenRank ?? null).toBeNull();
+  });
+
+  it('a regular comes back with each new recipe they found, every 3–5 orders', () => {
+    const gaps = JOURNEY_RECIPES.slice(1).map((j, i) => j.after - JOURNEY_RECIPES[i].after);
+    for (const g of gaps) { expect(g).toBeGreaterThanOrEqual(3); expect(g).toBeLessThanOrEqual(5); }
+    expect(new Set(gaps).size).toBeGreaterThan(1);
+    const L = typicalLadder(120);
+    for (const j of JOURNEY_RECIPES) {
+      const o = orderForIndex(L[9] + j.after + 1, DEFAULT_SEED, L);
+      expect(o.recipeId).toBe(j.id);
+      expect(o.intro).toBe(true);
+      expect(o.visit).toMatchObject({ tagline: 'Found a new recipe!', of: 0 });
+      expect(o.line).toBe(RECIPE_INTROS[j.id].line);
+      expect(o.customerId).toBe(RECIPE_INTROS[j.id].who);
+    }
   });
 });

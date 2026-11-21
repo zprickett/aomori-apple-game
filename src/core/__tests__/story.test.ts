@@ -65,7 +65,7 @@ describe('regulars, news and Ojiichan', () => {
       const L = lad(5, 15, 30, 50);
       const os = orders(L, 60, seed);
       for (const r of REGULARS) {
-        const mine = os.filter((o) => o.visit?.who === r.id);
+        const mine = os.filter((o) => o.visit?.who === r.id && o.visit.of > 0);
         expect(mine).toHaveLength(4);
         mine.forEach((o, i) => {
           expect(o.customerId).toBe(r.customer);
@@ -75,7 +75,7 @@ describe('regulars, news and Ojiichan', () => {
         });
       }
       // Visits never replace a recipe intro or an apple demo.
-      for (const o of os) if (o.visit) expect(o.intro || o.demo).toBeFalsy();
+      for (const o of os) if (o.visit && o.visit.of > 0) expect(o.intro || o.demo).toBeFalsy();
     }
   });
 
@@ -84,7 +84,7 @@ describe('regulars, news and Ojiichan', () => {
       const L = lad(...ranks);
       const os = orders(L, 70);
       for (const r of REGULARS) {
-        const last = os.filter((o) => o.visit?.who === r.id).at(-1)!;
+        const last = os.filter((o) => o.visit?.who === r.id && o.visit.of > 0).at(-1)!;
         expect(last.visit!.step).toBe(4);
         expect(last.orderNumber).toBeLessThanOrEqual(ranks[3]);
       }

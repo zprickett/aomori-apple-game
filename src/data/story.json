@@ -352,7 +352,511 @@
       "gift": {
         "name": "Little wooden longship",
         "node": "Gift_Longship"
+      },
+      "crew": {
+        "kind": "sailors",
+        "count": 4
+      }
+    },
+    {
+      "id": "tower",
+      "title": "The Golden Tower Party",
+      "visitor": "Mr. Ōgane",
+      "place": "Tokyo",
+      "stamp": "🗼",
+      "customer": "G",
+      "color": "#C7922B",
+      "pin": {
+        "lat": 35.7,
+        "lon": 139.7
+      },
+      "letter": [
+        "Konnichiwa, Chef {name}! I'm Mr. Ōgane. My toy company in Tokyo turns 100!",
+        "Did you know Tokyo Skytree is the tallest tower in Japan? I want a party tower even taller!",
+        "There will be lots of guests, so please cook every dish twice!"
+      ],
+      "dishes": [
+        {
+          "recipe": "ringo_ame",
+          "name": "Candy Apple Tower",
+          "clue": [
+            "tiny"
+          ],
+          "clueText": "Tiny (S size)"
+        },
+        {
+          "recipe": "hirosaki_pie",
+          "name": "Tower-Top Pie",
+          "clue": [
+            "crisp"
+          ],
+          "clueText": "Crisp, so it holds its shape"
+        },
+        {
+          "recipe": "fresh_juice",
+          "name": "Juice Fountain",
+          "clue": [
+            "extraJuicy"
+          ],
+          "clueText": "Extra juicy"
+        }
+      ],
+      "twist": {
+        "kind": "bigParty",
+        "rule": "none",
+        "rounds": 2,
+        "name": "Big party",
+        "text": "Cook each dish twice. The second round is faster!"
+      },
+      "matchGood": "Splendid! Just right!",
+      "matchMiss": "Hmm, that one might wobble.",
+      "tasting": [
+        "Let's try the tower… wobble wobble!",
+        "Saved! Delicious and still standing!",
+        "★ BANZAI! ★"
+      ],
+      "thanks": "Thank you, Chef {name}! This golden lucky cat will bring your stall good luck.",
+      "gift": {
+        "name": "Golden lucky cat",
+        "node": "Gift_LuckyCat"
+      },
+      "crew": {
+        "kind": "staff",
+        "count": 4
+      }
+    },
+    {
+      "id": "challenge",
+      "title": "The Great Apple Challenge",
+      "visitor": "Chef Amélie",
+      "place": "Paris",
+      "stamp": "🥐",
+      "customer": "F",
+      "color": "#2F5DA8",
+      "pin": {
+        "lat": 48.9,
+        "lon": 2.3
+      },
+      "letter": [
+        "Bonjour, Chef {name}! I'm Chef Amélie from Paris.",
+        "My famous tarte Tatin is an apple tart baked upside down!",
+        "Your Ojiichan says your pie is better. A friendly cook-off? Only one retry, chef!"
+      ],
+      "dishes": [
+        {
+          "recipe": "hirosaki_pie",
+          "name": "Challenge Pie",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "baked_apple",
+          "name": "Challenge Baked Apple",
+          "clue": [
+            "crisp",
+            "tart"
+          ],
+          "clueText": "Firm and tart, so it holds its shape"
+        }
+      ],
+      "twist": {
+        "kind": "rush",
+        "rule": "none",
+        "retries": 1,
+        "name": "Rush order",
+        "text": "Only one \"Try again\" for the whole menu!"
+      },
+      "matchGood": "Magnifique! A perfect match!",
+      "matchMiss": "Hmm, Amélie would pick another.",
+      "tasting": [
+        "Let me taste… mmm…",
+        "It's a tie! Magnifique!",
+        "♪ Bravo, bravo! ♪"
+      ],
+      "thanks": "Merci, Chef {name}! Take my copper pan. Let's be pen pals!",
+      "gift": {
+        "name": "Shiny copper pan",
+        "node": "Gift_CopperPan"
+      },
+      "crew": {
+        "kind": "brigade",
+        "count": 4
+      }
+    },
+    {
+      "id": "space",
+      "title": "Snacks for Space",
+      "visitor": "Commander Leila",
+      "place": "Space station",
+      "stamp": "🚀",
+      "customer": "L",
+      "color": "#4B4F9E",
+      "pin": {
+        "lat": 10,
+        "lon": -40
+      },
+      "letter": [
+        "Hello from space, Chef {name}! I'm Commander Leila.",
+        "Astronauts eat tortillas instead of bread, because crumbs float into the machines!",
+        "Could you send up some apple snacks? No crumbs, please!"
+      ],
+      "dishes": [
+        {
+          "recipe": "apple_compote",
+          "name": "Compote Pouch",
+          "clue": [
+            "crisp"
+          ],
+          "clueText": "Firm, so the wedges stay whole"
+        },
+        {
+          "recipe": "apple_jam",
+          "name": "Space Jam Jar",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "fresh_juice",
+          "name": "Rocket Juice",
+          "clue": [
+            "sweet"
+          ],
+          "clueText": "Sweet"
+        }
+      ],
+      "twist": {
+        "kind": "picky",
+        "rule": "lightSkin",
+        "name": "Picky guest",
+        "text": "Space snacks must look fresh and pale: yellow or green apples only!"
+      },
+      "matchGood": "Perfect for orbit!",
+      "matchMiss": "Hmm, Mission Control says try another.",
+      "tasting": [
+        "Calling the stall from orbit… slurp!",
+        "Floating blobs of yum!",
+        "★ Houston, it's delicious! ★"
+      ],
+      "thanks": "Thank you, Chef {name}! Here is a photo of Earth from space, signed by the crew.",
+      "gift": {
+        "name": "Photo of Earth from space",
+        "node": "Gift_EarthPhoto"
+      },
+      "crew": {
+        "kind": "astronauts",
+        "count": 3
+      }
+    },
+    {
+      "id": "foxes",
+      "title": "Farewell Feast for the Flying Foxes",
+      "visitor": "Carer Mia",
+      "place": "Queensland",
+      "stamp": "🦇",
+      "customer": "M",
+      "color": "#4E8A3E",
+      "pin": {
+        "lat": -20,
+        "lon": 146
+      },
+      "letter": [
+        "G'day, Chef {name}! I'm Carer Mia from a flying-fox rescue in Queensland.",
+        "Flying foxes are big fruit bats. They spread seeds and help plant forests!",
+        "My orphan pups are ready to fly free. Will you cook their farewell feast?"
+      ],
+      "dishes": [
+        {
+          "recipe": "fresh_juice",
+          "name": "Pup Juice",
+          "clue": [
+            "extraJuicy"
+          ],
+          "clueText": "Extra juicy (pups squeeze out the juice!)"
+        },
+        {
+          "recipe": "rabbit_apples",
+          "name": "Upside-down Wedges",
+          "clue": [
+            "crisp"
+          ],
+          "clueText": "Crisp"
+        }
+      ],
+      "twist": {
+        "kind": "picky",
+        "rule": "naturallySweet",
+        "name": "Picky guest",
+        "text": "No added sugar, so only naturally sweet apples!"
+      },
+      "matchGood": "The pups will love it!",
+      "matchMiss": "Hmm, the pups want something sweeter.",
+      "tasting": [
+        "Here you go, little pups… munch munch!",
+        "They love it, upside down!",
+        "♪ Squeak squeak, bye-bye! ♪"
+      ],
+      "thanks": "Thank you, Chef {name}! This little flying fox will hang upside down on your stall.",
+      "gift": {
+        "name": "Upside-down flying fox",
+        "node": "Gift_FlyingFox"
+      },
+      "crew": {
+        "kind": "bats",
+        "count": 4
+      }
+    },
+    {
+      "id": "pink",
+      "title": "The Pink Birthday",
+      "visitor": "Princess Amara",
+      "place": "Rosevale",
+      "stamp": "👑",
+      "customer": "P",
+      "color": "#C9507A",
+      "pin": {
+        "lat": 52,
+        "lon": 20
+      },
+      "letter": [
+        "Greetings, Chef {name}! I am Princess Amara of Rosevale.",
+        "Some apples are pink inside, like Kurenai no Yume from Hirosaki!",
+        "Everything at my birthday party must be pink. Even the food!"
+      ],
+      "dishes": [
+        {
+          "recipe": "apple_jam",
+          "name": "Royal Pink Jam",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "yogurt_parfait",
+          "name": "Pink Parfait",
+          "clue": [],
+          "clueText": "Any pink-inside apple"
+        },
+        {
+          "recipe": "ringo_ame",
+          "name": "Pink Candy Apple",
+          "clue": [
+            "redSkin"
+          ],
+          "clueText": "Red skin"
+        }
+      ],
+      "twist": {
+        "kind": "colour",
+        "rule": "pinkInside",
+        "name": "Colour theme",
+        "text": "Every apple must be pink inside!"
+      },
+      "matchGood": "Pink and perfect!",
+      "matchMiss": "Hmm, that one isn't pink inside.",
+      "tasting": [
+        "A pink feast! Let me taste…",
+        "Delightful! I crown you Royal Apple Chef!",
+        "♪ Happy birthday, Princess! ♪"
+      ],
+      "thanks": "Thank you, Royal Apple Chef {name}! Please take my pink paper lantern.",
+      "gift": {
+        "name": "Pink paper lantern",
+        "node": "Gift_PinkLantern"
+      },
+      "crew": {
+        "kind": "royals",
+        "count": 4
+      }
+    },
+    {
+      "id": "royal",
+      "title": "Save the Royal Dinner!",
+      "visitor": "The Head Butler",
+      "place": "London",
+      "stamp": "🫖",
+      "customer": "H",
+      "color": "#3A3F4A",
+      "pin": {
+        "lat": 51.5,
+        "lon": -0.1
+      },
+      "letter": [
+        "Good evening, Chef {name}. I am the Head Butler of a royal palace in London.",
+        "Our pastry chef is ill on the night of the royal dinner! Chefs from around the world are trying out.",
+        "The Bramley apple first grew in England over 200 years ago. Quickly now, only one retry!"
+      ],
+      "dishes": [
+        {
+          "recipe": "hirosaki_pie",
+          "name": "Royal Pie",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart, a cooking apple"
+        },
+        {
+          "recipe": "baked_apple",
+          "name": "Palace Baked Apple",
+          "clue": [
+            "greenSkin"
+          ],
+          "clueText": "Green skin, like a Bramley"
+        },
+        {
+          "recipe": "jam_toast",
+          "name": "Afternoon Tea Toast",
+          "clue": [
+            "tart",
+            "aromatic"
+          ],
+          "clueText": "Tart and lovely smelling"
+        }
+      ],
+      "twist": {
+        "kind": "rush",
+        "rule": "none",
+        "retries": 1,
+        "name": "Rush order",
+        "text": "The dinner starts soon! Only one \"Try again\" for the whole menu."
+      },
+      "matchGood": "Most excellent.",
+      "matchMiss": "Hmm, not quite palace standard.",
+      "tasting": [
+        "Under the silver dome… voilà!",
+        "The guests are asking for seconds!",
+        "★ Hip hip, hooray! ★"
+      ],
+      "thanks": "With the palace's thanks, Chef {name}. Please accept this tiny silver teapot.",
+      "gift": {
+        "name": "Tiny silver teapot",
+        "node": "Gift_Teapot"
+      },
+      "crew": {
+        "kind": "footmen",
+        "count": 4
+      }
+    },
+    {
+      "id": "bigapple",
+      "title": "Big Apple meets Aomori",
+      "visitor": "Grandma Rosa",
+      "place": "New York",
+      "stamp": "🗽",
+      "customer": "R",
+      "color": "#D9822B",
+      "pin": {
+        "lat": 40.7,
+        "lon": -74
+      },
+      "letter": [
+        "Hello, Chef {name}! I'm Grandma Rosa from New York.",
+        "New York's nickname is \"the Big Apple\"!",
+        "My grandson studies in Hirosaki now. I want to taste his new home, with the biggest apples you have!"
+      ],
+      "dishes": [
+        {
+          "recipe": "hirosaki_pie",
+          "name": "Big Apple Pie",
+          "clue": [
+            "crisp"
+          ],
+          "clueText": "Crisp"
+        },
+        {
+          "recipe": "jam_toast",
+          "name": "Grandma's Jam Toast",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "ringo_ame",
+          "name": "Big Candy Apple",
+          "clue": [
+            "redSkin"
+          ],
+          "clueText": "Red skin"
+        }
+      ],
+      "twist": {
+        "kind": "size",
+        "rule": "big",
+        "name": "Big apples",
+        "text": "Only the biggest apples: L size!"
+      },
+      "matchGood": "Now that's a Big Apple!",
+      "matchMiss": "Hmm, Rosa wants a bigger one.",
+      "tasting": [
+        "Just like my grandson said… mmm!",
+        "Oh my, happy tears! You're family now!",
+        "♪ New York, Aomori! ♪"
+      ],
+      "thanks": "Thank you, Chef {name}! Take this little yellow taxi, from New York with love.",
+      "gift": {
+        "name": "Little yellow taxi",
+        "node": "Gift_Taxi"
+      },
+      "crew": {
+        "kind": "family",
+        "count": 3
       }
     }
-  ]
+  ],
+  "recipeIntros": {
+    "_comment": "After Golden Chef, a regular comes back with each new recipe they found (A Sota, B Yui, C Kiyoshi, D Mei).",
+    "apple_kinton": {
+      "who": "D",
+      "line": "Chef {name}! At New Year my grandma made Golden Apple Kinton: sweet potato and apple! Will you try it?"
+    },
+    "apple_jelly": {
+      "who": "B",
+      "line": "My brother wants something cold and wobbly. I found Fresh Apple Jelly in a cookbook! Can you make it?"
+    },
+    "whole_apple_pie": {
+      "who": "C",
+      "line": "At the pie contest I heard about a pie with a whole apple inside! Whole Apple Pie, please, Chef {name}!"
+    },
+    "apple_daifuku": {
+      "who": "A",
+      "line": "I saw Azuki Apple Daifuku at the sweet shop. Mochi with apple inside! Let's try it!"
+    },
+    "apple_dorayaki": {
+      "who": "D",
+      "line": "Apple fact: Hirosaki shops put apples in dorayaki! Apple Nama Dorayaki, please!"
+    },
+    "apple_keema": {
+      "who": "C",
+      "line": "My grandson says apples make curry sweeter. Will you make Apple Keema Curry?"
+    },
+    "apple_shumai": {
+      "who": "B",
+      "line": "I want to cook dinner for my brother. Can apples go in shumai? Let's find out!"
+    },
+    "apple_cheesecake": {
+      "who": "A",
+      "line": "My mum bakes cake in the rice cooker! Could you make Apple Cheesecake?"
+    },
+    "apple_pork": {
+      "who": "C",
+      "line": "Pork and apple go together like me and pie. Apple Pork Rolls, please!"
+    },
+    "red_flesh_tart": {
+      "who": "D",
+      "line": "Look, a pink-inside apple from my collection! It would make a perfect Pink Apple Tart."
+    },
+    "festival_pie": {
+      "who": "A",
+      "line": "The Apple Festival is coming! Everyone says you should bake a Festival Pie!"
+    }
+  },
+  "goldenRank": {
+    "title": "Golden Chef rank {n}!",
+    "line": "Keep cooking, Chef {name}! The world is watching."
+  }
 }

@@ -326,7 +326,7 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === 'BUTTON') return;
       if ((e.key === ' ' || e.key === 'Enter') && sub === 'active') { e.preventDefault(); altAction(); }
-      else if (sub === 'miss' && (e.key === 'r' || e.key === 'R')) dispatch({ type: 'RETRY_STEP' });
+      else if (sub === 'miss' && (e.key === 'r' || e.key === 'R') && state.request?.retriesLeft !== 0) dispatch({ type: 'RETRY_STEP' });
       else if (sub === 'miss' && (e.key === 'c' || e.key === 'C')) dispatch({ type: 'CONTINUE_WITH_HELP' });
     };
     window.addEventListener('keydown', onKey);
@@ -433,7 +433,11 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
           {sub === 'miss' && (
             <div className="miss-box" role="dialog" aria-label="Missed step">
               <div className="row">
-                <button className="btn primary" data-testid="retry" onClick={() => dispatch({ type: 'RETRY_STEP' })}>Try again</button>
+                {state.request?.retriesLeft !== 0 && (
+                  <button className="btn primary" data-testid="retry" onClick={() => dispatch({ type: 'RETRY_STEP' })}>
+                    Try again{state.request && state.request.retriesLeft !== null ? ` (${state.request.retriesLeft} left)` : ''}
+                  </button>
+                )}
                 <button className="btn" data-testid="continue-help" onClick={() => dispatch({ type: 'CONTINUE_WITH_HELP' })}>Chef, help!</button>
               </div>
             </div>

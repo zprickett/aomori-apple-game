@@ -52,10 +52,10 @@ import {
 import { gradeStep, toleranceMultiplier, trackZones, type TrackZones } from './stepTimer.ts';
 import { GRADE_POINTS, type Grade } from './timing.ts';
 import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
-import { LADDER, advanceLadder, cleanLadder, rankOf, rankUpsOf, type Rank } from './ranks.ts';
+import { LADDER, advanceLadder, cleanLadder, goldenRankOf, rankOf, rankUpsOf, type Rank } from './ranks.ts';
 import { newsFor, nextDayStart, type NewsItem } from './story.ts';
 import { addDish, sanitizeStats, trophyKey, trophyStatus, type TrophyInput, type TrophyStats, type TrophyStatus } from './trophies.ts';
-import { REQUESTS, STAGE2_KEY, appleMatch, requestById, sanitizeRequests, sealEarned, waitingRequest, type RequestRecord } from './requests.ts';
+import { REQUESTS, ROUND_SPEED, STAGE2_KEY, appleMatch, menuPlan, menuPoints, requestById, sanitizeClock, sanitizeRequests, sealEarned, waitingRequest, type RequestClock, type RequestRecord } from './requests.ts';
 
 export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'day' | 'request';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
@@ -70,8 +70,10 @@ export interface RequestRun {
   view: RequestView;
   /** Apple picked for each dish (null = not yet). */
   apples: (string | null)[];
-  /** Dish being cooked. */
+  /** Position in the cooking plan (menuPlan: each dish, once per Big party round). */
   dishIndex: number;
+  /** Rush order: retries left for the whole menu (null = no limit). */
+  retriesLeft: number | null;
   /** Accepted step results of each finished dish. */
   steps: StepResult[][];
   evaluations: DishEvaluation[];
@@ -109,6 +111,8 @@ export interface Delivery {
   steps: number[];
   /** Ojiichan's order: his tasting and the group photo play first. */
   finale: boolean;
+  /** A new Golden Chef rank (2+) reached, or null. */
+  goldenRank?: number | null;
   collectionComplete: boolean;
 }
 
@@ -132,6 +136,8 @@ export interface Progress {
   trophyStats: TrophyStats;
   /** Golden Requests played. */
   requests: Record<string, RequestRecord>;
+  /** When the last request was finished (paces the next letter). */
+  requestClock: RequestClock;
 }
 
 export interface GameState {
@@ -198,7 +204,10 @@ export type GameAction =
 // ---------------------------------------------------------------------------
 
 function activeRecipeId(state: GameState): string {
-  if (state.mode === 'request' && state.request) return requestById(state.request.id).dishes[state.request.dishIndex].recipe;
+  if (state.mode === 'request' && state.request) {
+    const r = requestById(state.request.id);
+    return r.dishes[menuPlan(r)[state.request.dishIndex].dish].recipe;
+  }
   return state.mode === 'practice' && state.practiceRecipeId ? state.practiceRecipeId : state.order.recipeId;
 }
 
@@ -248,9 +257,10 @@ export function isAssistedDish(state: GameState): boolean {
 }
 
 /** Reward keys for celebrations ('apple:a094', 'recipe:apple_jam', 'rank:3'). */
-export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[]; rank?: number | null; steps?: readonly number[]; finale?: boolean }): string[] {
+export function rewardKeys(d: { apples: readonly string[]; recipes: readonly string[]; rank?: number | null; steps?: readonly number[]; finale?: boolean; goldenRank?: number | null }): string[] {
   return [
     ...(d.rank ? [`rank:${d.rank}`] : []),
+    ...(d.goldenRank ? [`grank:${d.goldenRank}`] : []),
     ...(d.steps ?? []).map((i) => `step:${i}`),
     ...(d.finale ? ['finale'] : []),
     ...d.apples.map((a) => `apple:${a}`),
@@ -289,13 +299,17 @@ export function pendingDelivery(progress: Progress, completed: number = progress
   const recipes = earned.recipes.filter((r) => !progress.seenUnlockRewards.includes(`recipe:${r}`));
   const steps = progress.ladder.flatMap((at, i) => (at === completed && LADDER[i].star > 0 ? [i] : []))
     .filter((i) => !progress.seenUnlockRewards.includes(`step:${i}`));
-  if (!apples.length && !recipes.length && !rank && !finale && !steps.length) return null;
-  return { apples, recipes, rank, steps, finale, collectionComplete: completed === COLLECTION_COMPLETE_AT };
+  const g = goldenRankOf(progress.totalPoints);
+  const goldenRank = g >= 2 && !progress.seenUnlockRewards.includes(`grank:${g}`) ? g : null;
+  if (!apples.length && !recipes.length && !rank && !finale && !steps.length && !goldenRank) return null;
+  return { apples, recipes, rank, steps, finale, goldenRank, collectionComplete: completed === COLLECTION_COMPLETE_AT };
 }
 
 export function trophyInput(p: Progress): TrophyInput {
   const cooked = [...new Set(Object.keys(p.discoveredPairings).map((k) => k.split(':')[0]))];
-  return { stats: p.trophyStats, cookedApples: cooked, unlockedApples: p.unlockedApples };
+  const recs = Object.values(p.requests);
+  return { stats: p.trophyStats, cookedApples: cooked, unlockedApples: p.unlockedApples,
+    stamps: recs.filter((r) => r.done).length, seals: recs.filter((r) => r.seal).length, requestCount: REQUESTS.length };
 }
 
 /**
@@ -327,7 +341,7 @@ export function commitCompletedOrder(progress: Progress, order: Order, evaluatio
   if (progress.completedOrders > 0 && prevHigh > 0 && pts > prevHigh) record.newHigh = true;
   // A regular's story is finished when their last visit is served.
   const v = order.visit;
-  const storyDone = v && v.who !== 'ojiichan' && v.step === v.of ? v.who : undefined;
+  const storyDone = v && v.who !== 'ojiichan' && v.of > 0 && v.step === v.of ? v.who : undefined;
   const next: Progress = {
     ...progress,
     trophyStats: addDish(progress.trophyStats, evaluation.recipeId, evaluation.grades.map((g) => g.grade), storyDone),
@@ -384,6 +398,7 @@ function progressFromSave(save: SaveData): Progress {
     history: save.history.map((h) => ({ ...h, grades: [...h.grades] })),
     trophyStats: sanitizeStats(save.trophyStats, save.history),
     requests: sanitizeRequests(save.requests),
+    requestClock: sanitizeClock(save.requestClock),
   };
 }
 
@@ -530,6 +545,7 @@ export function toSaveData(state: GameState): SaveData {
     history: p.history.map((h) => ({ ...h, grades: [...h.grades] })),
     trophyStats: { ...p.trophyStats, storiesDone: [...p.trophyStats.storiesDone] },
     requests: Object.fromEntries(Object.entries(p.requests).map(([k, r]) => [k, { ...r }])),
+    requestClock: { ...p.requestClock },
     settings: { ...state.settings },
     seenUnlockRewards: [...p.seenUnlockRewards],
     current,
@@ -595,10 +611,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         };
       });
 
-    case 'RETRY_STEP':
+    case 'RETRY_STEP': {
       if (state.phase !== 'cook' || !state.cook || (state.cook.sub !== 'miss' && state.cook.sub !== 'feedback'))
         return state;
+      // Rush order: one retry for the whole menu.
+      const run = state.mode === 'request' ? state.request : null;
+      if (run && run.retriesLeft !== null) {
+        if (run.retriesLeft <= 0) return state;
+        return { ...state, request: { ...run, retriesLeft: run.retriesLeft - 1 }, cook: startAttempt(state, state.cook, 'countin') };
+      }
       return { ...state, cook: startAttempt(state, state.cook, 'countin') };
+    }
 
     case 'CONTINUE_WITH_HELP':
       return withCook(state, 'miss', (cook) => {
@@ -730,7 +753,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'STAGE2_SEEN':
       if (state.progress.seenUnlockRewards.includes(STAGE2_KEY)) return state;
-      return { ...state, progress: { ...state.progress, seenUnlockRewards: [...state.progress.seenUnlockRewards, STAGE2_KEY] } };
+      return { ...state, progress: { ...state.progress, seenUnlockRewards: [...state.progress.seenUnlockRewards, STAGE2_KEY],
+        requestClock: { at: state.progress.completedOrders, last: null } } };
 
     case 'OPEN_REQUEST': {
       if (state.phase !== 'shop' || state.mode !== 'order') return state;
@@ -738,7 +762,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const r = requestById(action.id);
       // A new request opens only when it is the one waiting; finished ones can be replayed.
       const rec = state.progress.requests[r.id];
-      if (!rec?.done && waitingRequest(state.progress.seenUnlockRewards, state.progress.requests)?.id !== r.id) return state;
+      if (!rec?.done && selectors.waitingRequest(state)?.id !== r.id) return state;
       return {
         ...state,
         mode: 'request',
@@ -746,7 +770,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         appleId: null,
         previewAppleId: null,
         cook: null,
-        request: { id: r.id, view: 'letter', apples: r.dishes.map(() => null), dishIndex: 0, steps: [], evaluations: [], first: !rec?.done, seal: false },
+        request: { id: r.id, view: 'letter', apples: r.dishes.map(() => null), dishIndex: 0, steps: [], evaluations: [], first: !rec?.done, seal: false,
+          retriesLeft: r.twist.kind === 'rush' ? r.twist.retries ?? 1 : null },
       };
     }
 
@@ -768,7 +793,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'REQUEST_COOK': {
       const run = state.request;
       if (state.phase !== 'request' || !run || run.view !== 'match' || run.apples.some((a) => a === null)) return state;
-      return { ...state, phase: 'cook', appleId: run.apples[0], cook: newCook(), request: { ...run, dishIndex: 0, steps: [], evaluations: [] } };
+      const r0 = requestById(run.id);
+      return { ...state, phase: 'cook', appleId: run.apples[menuPlan(r0)[0].dish], cook: newCook(),
+        request: { ...run, dishIndex: 0, steps: [], evaluations: [], retriesLeft: r0.twist.kind === 'rush' ? r0.twist.retries ?? 1 : null } };
     }
 
     case 'REQUEST_NEXT': {
@@ -820,9 +847,10 @@ function serveRequestDish(state: GameState, run: RequestRun, recipeId: string): 
   const steps = [...run.steps, state.cook!.stepResults.map((r) => ({ ...r }))];
   const evaluations = [...run.evaluations, evaluation];
   const r = requestById(run.id);
-  if (run.dishIndex + 1 < r.dishes.length) {
+  const plan = menuPlan(r);
+  if (run.dishIndex + 1 < plan.length) {
     const dishIndex = run.dishIndex + 1;
-    return { ...state, phase: 'cook', appleId: run.apples[dishIndex], cook: newCook(), request: { ...run, dishIndex, steps, evaluations } };
+    return { ...state, phase: 'cook', appleId: run.apples[plan[dishIndex].dish], cook: newCook(), request: { ...run, dishIndex, steps, evaluations } };
   }
   const golds = r.dishes.map((d, i) => appleMatch(run.apples[i]!, d, r.twist.rule).gold);
   return { ...state, phase: 'request', cook: null, request: { ...run, steps, evaluations, view: 'reveal', seal: sealEarned(golds, steps) } };
@@ -835,20 +863,23 @@ function finishRequest(state: GameState, run: RequestRun): GameState {
   const stars = run.evaluations.reduce((n, e) => n + e.score.stars, 0);
   let trophyStats = p.trophyStats;
   const discoveredPairings = { ...p.discoveredPairings };
-  let totalPoints = p.totalPoints;
   run.evaluations.forEach((e, i) => {
     trophyStats = addDish(trophyStats, e.recipeId, run.steps[i].map((s) => s.grade));
     const key = `${e.appleId}:${e.recipeId}`;
     discoveredPairings[key] = { bestStars: Math.max(discoveredPairings[key]?.bestStars ?? 0, e.score.stars), fit: e.fitStars };
-    totalPoints += e.score.total;
   });
+  const req = requestById(run.id);
+  const golds = req.dishes.filter((d, i) => appleMatch(run.apples[i]!, d, req.twist.rule).gold).length;
+  trophyStats = { ...trophyStats, goldMatches: trophyStats.goldMatches + golds };
+  const totalPoints = p.totalPoints + menuPoints(run.evaluations.map((e) => e.score.total), run.seal).total;
   const record: RequestRecord = {
     done: true,
     seal: (prev?.seal ?? false) || run.seal,
     plays: (prev?.plays ?? 0) + 1,
     bestStars: Math.max(prev?.bestStars ?? 0, stars),
   };
-  const progress: Progress = { ...p, trophyStats, discoveredPairings, totalPoints, requests: { ...p.requests, [run.id]: record } };
+  const progress: Progress = { ...p, trophyStats, discoveredPairings, totalPoints, requests: { ...p.requests, [run.id]: record },
+    requestClock: { at: p.completedOrders, last: run.id } };
   return leaveRequest({ ...state, progress });
 }
 
@@ -876,7 +907,17 @@ function exitPractice(state: GameState): GameState {
 
 function currentStepOf(state: GameState): StepDef | null {
   if (!state.cook || (state.phase !== 'cook' && state.phase !== 'serve')) return null;
-  return recipe(activeRecipeId(state)).steps[state.cook.stepIndex] ?? null;
+  const step = recipe(activeRecipeId(state)).steps[state.cook.stepIndex] ?? null;
+  // Big party: later rounds run faster (the ring closes sooner; the windows stay the same).
+  const run = state.mode === 'request' ? state.request : null;
+  if (step && run) {
+    const item = menuPlan(requestById(run.id))[run.dishIndex];
+    if (item && item.round > 1) {
+      const k = Math.pow(ROUND_SPEED, item.round - 1);
+      return { ...step, timing: { ...step.timing, duration_ms: Math.round(step.timing.duration_ms * k), target_ms: Math.round(step.timing.target_ms * k) } };
+    }
+  }
+  return step;
 }
 
 /**
@@ -1026,7 +1067,12 @@ export const selectors = {
   /** The Golden Request letter waiting on the counter (shop only). */
   waitingRequest(state: GameState) {
     if (state.phase !== 'shop' || state.mode !== 'order') return null;
-    return waitingRequest(state.progress.seenUnlockRewards, state.progress.requests);
+    const p = state.progress;
+    return waitingRequest(p.seenUnlockRewards, p.requests, p.requestClock, p.completedOrders);
+  },
+  /** Golden Chef rank (0 before Golden Chef). */
+  goldenRank(state: GameState): number {
+    return state.progress.ladder.length >= LADDER.length ? Math.max(1, goldenRankOf(state.progress.totalPoints)) : 0;
   },
   /** Apple ids the player has cooked with at least once. */
   cookedApples(state: GameState): Set<string> {

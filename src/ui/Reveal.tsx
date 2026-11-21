@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
-import { LADDER, RECIPES, apple, fitStars, recipe, stepLabel, type GameAction, type GameState } from '../core/index.ts';
+import { GOLDEN_RANK_CARD, LADDER, RECIPES, apple, fitStars, recipe, stepLabel, withName, type GameAction, type GameState } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
 import { dishIcon, GestureIcon } from './icons.tsx';
-import { RankUpIntro } from './Ranks.tsx';
+import { RankBadge, RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
 import { GroupPhoto, OjiichanTasting } from './Finale.tsx';
 import { stepPieceLabel, upgradeStepOf } from '../game/stallPieces.ts';
@@ -35,7 +35,8 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
    * notebook page, or a "Stall upgrade!" card for a ★ step that brings no recipe.
    */
   const upgrade = upgradeStepOf(d, d.rank !== null ? LADDER.findIndex((st) => st.rank === d.rank) : null);
-  const pre: Array<{ kind: 'taste' } | { kind: 'photo' } | { kind: 'rank' } | { kind: 'page' } | { kind: 'upgrade'; step: number }> = [
+  const pre: Array<{ kind: 'taste' } | { kind: 'photo' } | { kind: 'rank' } | { kind: 'page' } | { kind: 'upgrade'; step: number } | { kind: 'golden'; n: number }> = [
+    ...(d.goldenRank ? [{ kind: 'golden' as const, n: d.goldenRank }] : []),
     ...(d.finale ? [{ kind: 'taste' as const }, { kind: 'photo' as const }] : []),
     ...(d.rank !== null ? [{ kind: 'rank' as const }, { kind: 'page' as const }] : []),
     ...(upgrade !== undefined ? [{ kind: 'upgrade' as const, step: upgrade }] : []),
@@ -73,6 +74,7 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
   if (preStep?.kind === 'page') return <NotebookReveal rank={d.rank!} state={state} name={chef.name} onDone={nextPre} />;
   if (preStep?.kind === 'taste') return <OjiichanTasting state={state} reduced={reduced} onDone={nextPre} />;
   if (preStep?.kind === 'photo') return <GroupPhoto reduced={reduced} onDone={nextPre} />;
+  if (preStep?.kind === 'golden') return <GoldenRankCard n={preStep.n} name={chef.name} reduced={reduced} onDone={() => { sfx.tap(); nextPre(); }} />;
   if (preStep?.kind === 'upgrade') return <StallUpgrade step={preStep.step} reduced={reduced} onMoment={onStallMoment} onDone={() => { sfx.tap(); onStallMoment?.(null); nextPre(); }} />;
   if (!item) return null;
   const next = () => {
@@ -201,6 +203,21 @@ function RecipeOverview({ id }: { id: string }) {
  * Stall-upgrade moment: the scene clears to a wide shot of the whole stall, the new piece drops in
  * with a bounce, and a manga frame shouts STALL UPGRADE! (the centre stays clear to see it).
  */
+/** A new Golden Chef rank (points keep counting after Golden Chef): a quick gold card. */
+function GoldenRankCard({ n, name, reduced, onDone }: { n: number; name: string; reduced: boolean; onDone: () => void }) {
+  useEffect(() => { if (!reduced) sfx.fanfare(); emitCue({ type: 'chef', anim: 'cheer' }); }, [reduced]);
+  return (
+    <div className={`golden-rank ${reduced ? 'still' : ''}`} role="dialog" aria-label={`Golden Chef rank ${n}`} data-testid="golden-rank" onClick={onDone}>
+      <div className="gr-card">
+        <RankBadge rank={5} size={64} />
+        <div className="gr-title">{GOLDEN_RANK_CARD.title.replace('{n}', String(n))}</div>
+        <div className="gr-line">{withName(GOLDEN_RANK_CARD.line, name || 'Chef')}</div>
+        <div className="gr-tap">Tap to continue</div>
+      </div>
+    </div>
+  );
+}
+
 function StallUpgrade({ step, reduced, onMoment, onDone }: { step: number; reduced: boolean; onMoment?: (s: number | null) => void; onDone: () => void }) {
   const label = stepPieceLabel(step);
   useEffect(() => {

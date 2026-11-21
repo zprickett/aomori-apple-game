@@ -69,14 +69,34 @@ export const START_RECIPES: ReadonlyArray<{ id: RecipeId; after: number }> = Obj
 ]);
 
 /**
- * Journey recipes come after Golden Chef, by orders served after reaching it (no points needed):
- * one every 3 orders, starting after Ojiichan's visit (the first order of the next day).
- * Placeholder pacing until Stage 2's story places them.
+ * Journey recipes come after Golden Chef, by orders served after reaching it (no points needed).
+ * A regular comes back with each one (story.json `recipeIntros`): the first 8 orders after it
+ * (after Ojiichan's visit and the Stage 2 intro), then one every 3–5 orders, unevenly.
  */
+const JOURNEY_GAPS = [4, 3, 5, 4, 3, 5, 5, 3, 4, 4] as const;
 export const JOURNEY_RECIPES: ReadonlyArray<{ id: RecipeId; after: number }> = Object.freeze(([
   'apple_kinton', 'apple_jelly', 'whole_apple_pie', 'apple_daifuku', 'apple_dorayaki', 'apple_keema',
   'apple_shumai', 'apple_cheesecake', 'apple_pork', 'red_flesh_tart', 'festival_pie',
-] as const).map((id, i) => ({ id, after: 8 + i * 3 })));
+] as const).map((id, i) => ({ id, after: 8 + JOURNEY_GAPS.slice(0, i).reduce((a, b) => a + b, 0) })));
+
+/**
+ * Golden Chef is the last title, but points keep counting: Golden Chef rank 1 at 55,000 points,
+ * then each gap is 10% bigger than the one before (the last ladder gap was 12,000).
+ */
+const GOLDEN_FIRST_GAP = 12000 * 1.1;
+/** Points needed for Golden Chef rank `n` (n ≥ 1). */
+export function goldenRankPoints(n: number): number {
+  let pts = 55000;
+  for (let k = 1; k < n; k++) pts += Math.round(GOLDEN_FIRST_GAP * Math.pow(1.1, k - 1));
+  return pts;
+}
+/** Golden Chef rank for these points (0 before Golden Chef). */
+export function goldenRankOf(points: number): number {
+  if (points < 55000) return 0;
+  let n = 1;
+  while (points >= goldenRankPoints(n + 1)) n++;
+  return n;
+}
 const GOLDEN_STEP = 9;
 
 /** Ladder step index of each rank 2..5. */
@@ -209,6 +229,8 @@ export interface LadderProgress {
   toGo: number;
   /** 0–1 along the way to the next step. */
   frac: number;
+  /** At Golden Chef: the Golden Chef rank and the way to the next one. */
+  golden: { rank: number; next: number; toGo: number; frac: number } | null;
 }
 
 /** Where `points` sit on the ladder (`steps` = steps reached; defaults to what the points reach). */
@@ -219,8 +241,13 @@ export function ladderProgress(points: number, steps: number = stepsForPoints(po
   const stars = last && last.rank === rank ? last.star : 0;
   const next = LADDER[steps] ?? null;
   const from = last?.points ?? 0;
-  if (!next) return { rank, stars, next, from, toGo: 0, frac: 1 };
-  return { rank, stars, next, from, toGo: Math.max(0, next.points - points), frac: Math.min(1, Math.max(0, (points - from) / (next.points - from))) };
+  if (!next) {
+    const g = Math.max(1, goldenRankOf(points));
+    const lo = goldenRankPoints(g);
+    const hi = goldenRankPoints(g + 1);
+    return { rank, stars, next, from, toGo: 0, frac: 1, golden: { rank: g, next: g + 1, toGo: Math.max(0, hi - points), frac: Math.min(1, Math.max(0, (points - lo) / (hi - lo))) } };
+  }
+  return { rank, stars, next, from, toGo: Math.max(0, next.points - points), frac: Math.min(1, Math.max(0, (points - from) / (next.points - from))), golden: null };
 }
 
 /** Short label for a step, e.g. "Cook", "Cook ★★". */

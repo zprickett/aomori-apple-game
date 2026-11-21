@@ -725,3 +725,155 @@ def build_customer_I():
     arms = [arm(P, s_, (s_ * 0.155, -0.04, sh - 0.05), 0.33, 'M_Cloth_Captain', r_top=0.05, r_bot=0.045,
                 sleeve_frac=0.9, cuff_m='M_Gold', hand_r=0.044, splay=7) for s_ in (1, -1)]
     return assemble(P, body, head, eo, None, arms, legs)
+
+
+# ------------------------------------------------------------------ Golden Request visitors (Slice B)
+def _visitor(P, coat, legs_m='M_Cloth_Navy', shoes='M_Black', hair='M_Hair', skin='M_Skin', dress=False,
+             hair_kw=None, sleeve=None, cuff=None, body_extra=None, head_extra=None, eye_iris='M_Hair', lash=False, tall=0.0):
+    """An adult visitor on the Ingrid build: coat or dress, legs, head with hair, arms. `body_extra(b, hip, sh)`
+    and `head_extra(h, C, R)` add the details that make each one."""
+    hip, sh = 0.5 + tall, 0.88 + tall
+    b = MB()
+    if dress:
+        prof = [(0.0, 0.18), (0.24, 0.18), (0.2, hip - 0.05), (0.15, hip + 0.12), (0.15, sh - 0.1),
+                (0.14, sh - 0.01), (0.075, sh + 0.035), (0.0, sh + 0.04)]
+    else:
+        prof = [(0.0, hip - 0.12), (0.16, hip - 0.12), (0.165, hip + 0.02), (0.15, hip + 0.16), (0.155, sh - 0.1),
+                (0.14, sh - 0.01), (0.075, sh + 0.035), (0.0, sh + 0.04)]
+    b.lathe(prof, 12, m=coat, scale=(1, 0.85, 1))
+    if body_extra:
+        body_extra(b, hip, sh)
+    body = b.build(f'{P}_Body')
+    legs = []
+    for s_ in (1, -1):
+        l = MB()
+        x = s_ * 0.072
+        top = 0.2 if dress else hip - 0.12
+        l.cyl(0.05 if dress else 0.06, 0.05, top - 0.04, 8, (x, 0, (top - 0.04) / 2 + 0.04), skin if dress else legs_m)
+        l.box((0.1, 0.17, 0.08), (x, -0.025, 0.04), shoes, bevel=0.022)
+        legs.append(l.build(f'{P}_Leg{"L" if s_ > 0 else "R"}', pivot=(x, 0, hip)))
+    C = (0, -0.05, 1.08 + tall)
+    R = (0.19, 0.175, 0.18)
+    h = MB()
+    face_base(h, C, R, skin=skin, brow_el=0.28, brows=hair, blush_el=-0.28, blush_az=0.62)
+    hk = dict(k=1.07, m=hair, fringe=0.42, side=1.1, bottom=-0.45, back_bottom=-0.6)
+    hk.update(hair_kw or {})
+    if hk.pop('none', False) is False:
+        hair_shell(h, C, R, **hk)
+    if head_extra:
+        head_extra(h, C, R)
+    _head_common(h, C, R, -0.42, 0.05, 0.032)
+    head = h.build(f'{P}_Head', pivot=(0, -0.04, sh + 0.03))
+    e, ec = eyes(C, R, az=0.34, el=-0.06, ew=0.036, eh=0.048, brown=eye_iris == 'M_Hair', lash=lash, iris=eye_iris)
+    eo = e.build(f'{P}_Eyes', pivot=tuple(ec))
+    arms = [arm(P, s_, (s_ * 0.155, -0.04, sh - 0.05), 0.33, sleeve or coat, hand_m=skin, r_top=0.05, r_bot=0.045,
+                sleeve_frac=0.9, cuff_m=cuff or (sleeve or coat), hand_r=0.044, splay=7) for s_ in (1, -1)]
+    return assemble(P, body, head, eo, None, arms, legs)
+
+
+def _glasses(h, C, R, m='M_Black', r=0.048):
+    for s_ in (-1, 1):
+        p, n = surf(C, R, s_ * 0.33, -0.06, 0.016)
+        h.torus(r, 0.006, 12, 4, (0, 0, 0), m, M=align_z(n, p))
+    pb, nb = surf(C, R, 0, -0.04, 0.024)
+    h.cyl(0.005, 0.005, 0.06, 4, tuple(pb), m, (0, 90, 0))
+
+
+def build_visitors():
+    # Mr. Ogane (Tokyo): toy company boss in a grey suit, red tie, round glasses, neat black hair
+    def ogane_body(b, hip, sh):
+        b.box((0.07, 0.02, 0.16), (0, -0.13, sh - 0.12), 'M_Cloth_White')
+        b.prism([(-0.018, 0), (0.018, 0), (0.012, -0.14), (0, -0.16), (-0.012, -0.14)], 0.01, T((0, -0.138, sh - 0.03), (90, 0, 0)), 'M_AppleRed')
+        b.sphere((0.012, 0.006, 0.012), (0.07, -0.13, sh - 0.08), 'M_Gold', 6, 4)
+    def ogane_head(h, C, R):
+        _glasses(h, C, R)
+        for s_ in (-1, 1):
+            p, n = surf(C, R, s_ * 0.12, -0.3, 0.006)
+            h.sphere((0.04, 0.016, 0.018), tuple(p), 'M_HairBlack', 8, 5, rot=(0, s_ * 18, 0))
+    _visitor('Customer_G', 'M_Cloth_Suit', 'M_Cloth_Suit', hair='M_HairBlack', body_extra=ogane_body, head_extra=ogane_head,
+             hair_kw=dict(fringe=0.25, bottom=-0.25, back_bottom=-0.4))
+
+    # Chef Amelie (Paris): chef whites, blue neckerchief, tall toque, brown bob
+    def amelie_body(b, hip, sh):
+        for s_ in (-1, 1):
+            for z in (sh - 0.2, sh - 0.12):
+                b.sphere((0.012, 0.008, 0.012), (s_ * 0.05, -0.133, z), 'M_Cloth_Blue', 6, 4)
+        b.sphere((0.03, 0.022, 0.026), (0, -0.075, sh + 0.02), 'M_Cloth_Blue', 8, 5)
+    def amelie_head(h, C, R):
+        tm = T((C[0], C[1] + 0.01, C[2] + R[2] * 0.55), (-6, 0, 0))
+        h.lathe([(0.178, -0.01), (0.182, 0.06), (0.205, 0.1), (0.23, 0.17), (0.225, 0.24), (0.19, 0.29), (0.1, 0.31), (0.0, 0.315)],
+                14, m='M_Cloth_White', M=tm, scale=(1, 0.98, 1))
+    _visitor('Customer_F', 'M_Cloth_White', 'M_Cloth_Charcoal', hair='M_Hair', body_extra=amelie_body, head_extra=amelie_head,
+             eye_iris='M_Cloth_Blue', lash=True, hair_kw=dict(fringe=0.5, bottom=-0.5, back_bottom=-0.55))
+
+    # Commander Leila (space station): white flight suit, blue patches, collar ring, headset
+    def leila_body(b, hip, sh):
+        b.torus(0.085, 0.022, 12, 5, (0, 0, sh + 0.02), 'M_Metal')
+        b.box((0.09, 0.03, 0.06), (0, -0.135, sh - 0.2), 'M_Cloth_Navy', bevel=0.008)
+        for i, m in enumerate(('M_AppleRed', 'M_JuiceGold', 'M_Leaf')):
+            b.box((0.012, 0.01, 0.012), (-0.025 + i * 0.025, -0.152, sh - 0.2), m)
+        b.sphere((0.03, 0.01, 0.03), (0.09, -0.12, sh - 0.08), 'M_Cloth_Blue', 8, 5)
+        b.box((0.32, 0.02, 0.03), (0, 0, hip + 0.02), 'M_Cloth_Orange')
+    def leila_head(h, C, R):
+        p, n = surf(C, R, 1.25, -0.05, 0.02)
+        h.sphere((0.03, 0.03, 0.03), tuple(p), 'M_Black', 8, 5)
+        h.tube([p, (p[0] - 0.06, p[1] - 0.12, p[2] - 0.08)], 0.006, 4, 'M_Black')
+        h.torus(0.2, 0.01, 14, 4, (C[0], C[1] + 0.01, C[2] + 0.02), 'M_Black', (0, 90, 0))
+    _visitor('Customer_L', 'M_Cloth_White', 'M_Cloth_White', shoes='M_MetalDark', hair='M_HairBlack', skin='M_SkinMid',
+             body_extra=leila_body, head_extra=leila_head, hair_kw=dict(fringe=0.35, bottom=-0.3, back_bottom=-0.45))
+
+    # Carer Mia (Queensland): khaki shirt, green shorts, bush hat, auburn ponytail
+    def mia_body(b, hip, sh):
+        for s_ in (-1, 1):
+            b.box((0.06, 0.012, 0.05), (s_ * 0.06, -0.132, sh - 0.12), 'M_Cloth_Khaki', bevel=0.004)
+        b.box((0.32, 0.02, 0.035), (0, 0, hip - 0.05), 'M_Wood')
+    def mia_head(h, C, R):
+        hm = T((C[0], C[1], C[2] + R[2] * 0.6), (-5, 0, 0))
+        h.cyl(0.28, 0.28, 0.012, 16, (0, 0, 0), 'M_Cloth_Khaki', M=hm)
+        h.lathe([(0.17, 0.0), (0.16, 0.08), (0.12, 0.12), (0.0, 0.13)], 14, m='M_Cloth_Khaki', M=hm)
+        h.torus(0.17, 0.012, 14, 4, (0, 0, 0.02), 'M_Wood', M=hm)
+        p, n = surf(C, R, 3.0, 0.0, 0.02)
+        for i in range(3):
+            h.sphere((0.04, 0.035, 0.045), (p[0], p[1] + 0.03 + i * 0.03, p[2] - 0.05 - i * 0.06), 'M_HairAuburn', 8, 5)
+    _visitor('Customer_M', 'M_Cloth_Khaki', 'M_Cloth_Green', shoes='M_WoodDark', hair='M_HairAuburn', body_extra=mia_body,
+             head_extra=mia_head, eye_iris='M_Leaf', lash=True, hair_kw=dict(fringe=0.4, bottom=-0.35, back_bottom=-0.5))
+
+    # Princess Amara (Rosevale): pink gown, gold tiara, long dark curls
+    def amara_body(b, hip, sh):
+        b.torus(0.2, 0.014, 14, 4, (0, 0, 0.3), 'M_Gold', scale=(1, 0.85, 1))
+        b.sphere((0.025, 0.012, 0.025), (0, -0.13, sh - 0.06), 'M_AppleRed', 8, 5)
+    def amara_head(h, C, R):
+        tm = T((C[0], C[1] + 0.01, C[2] + R[2] * 0.78), (-12, 0, 0))
+        h.torus(0.13, 0.012, 14, 4, (0, 0, 0), 'M_Gold', M=tm)
+        for i, a in enumerate((-40, -20, 0, 20, 40)):
+            ar = math.radians(a)
+            h.cyl(0.014, 0.0, 0.05 if a == 0 else 0.035, 4, (0.13 * math.sin(ar), -0.13 * math.cos(ar), 0.0), 'M_Gold', M=tm, base=True)
+        h.sphere((0.014, 0.01, 0.014), (0, -0.135, 0.02), 'M_Cloth_Pink', 6, 4, M=tm)
+    _visitor('Customer_P', 'M_Cloth_Pink', hair='M_HairBlack', skin='M_SkinDeep', dress=True, body_extra=amara_body,
+             head_extra=amara_head, lash=True, shoes='M_Gold', hair_kw=dict(k=1.12, fringe=0.45, side=1.2, bottom=-0.75, back_bottom=-1.0))
+
+    # The Head Butler (London): black tailcoat, white shirt front, bow tie, white gloves, grey hair
+    def butler_body(b, hip, sh):
+        b.box((0.08, 0.02, 0.24), (0, -0.13, sh - 0.14), 'M_Cloth_White')
+        b.sphere((0.03, 0.012, 0.014), (-0.02, -0.142, sh - 0.03), 'M_Black', 6, 4)
+        b.sphere((0.03, 0.012, 0.014), (0.02, -0.142, sh - 0.03), 'M_Black', 6, 4)
+        for s_ in (-1, 1):
+            b.box((0.08, 0.03, 0.32), (s_ * 0.08, 0.1, hip - 0.1), 'M_Black', (8, 0, 0))
+    def butler_head(h, C, R):
+        pass
+    _visitor('Customer_H', 'M_Black', 'M_Black', hair='M_HairGrey', body_extra=butler_body, head_extra=butler_head,
+             sleeve='M_Black', cuff='M_Cloth_White', tall=0.06, hair_kw=dict(fringe=0.2, bottom=-0.25, back_bottom=-0.45))
+
+    # Grandma Rosa (New York): lavender cardigan, grey bun, glasses, string of pearls
+    def rosa_body(b, hip, sh):
+        for i in range(4):
+            b.sphere((0.01, 0.008, 0.01), (0, -0.132, sh - 0.08 - i * 0.07), 'M_Cream', 6, 4)
+        b.torus(0.07, 0.008, 14, 4, (0, -0.02, sh - 0.0), 'M_White', (-20, 0, 0))
+    def rosa_head(h, C, R):
+        _glasses(h, C, R, 'M_AppleRed')
+        h.sphere((0.08, 0.075, 0.07), (C[0], C[1] + 0.07, C[2] + R[2] * 0.95), 'M_HairGrey', 10, 6)
+    _visitor('Customer_R', 'M_Cloth_Lavender', 'M_Cloth_Charcoal', shoes='M_WoodDark', hair='M_HairGrey', skin='M_SkinMid',
+             body_extra=rosa_body, head_extra=rosa_head, hair_kw=dict(fringe=0.38, bottom=-0.35, back_bottom=-0.45))
+
+
+VISITOR_ROOTS = ['Customer_G', 'Customer_F', 'Customer_L', 'Customer_M', 'Customer_P', 'Customer_H', 'Customer_R']

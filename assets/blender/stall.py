@@ -318,29 +318,120 @@ def build_upgrades():
 
 
 def build_gifts():
-    """Golden Request gifts: a small shelf on the front of the right post (comes with the first gift)
-    and each gift on it. Separate roots, shown by the game per finished request."""
-    sx, sy, sz = POST_X, POST_YF - 0.17, 1.3
+    """Golden Request gifts: a two-tier shelf on the front of the right post (comes with the first
+    gift) and each gift on its own spot. Separate roots, shown by the game per finished request."""
+    sx, sy = POST_X, POST_YF - 0.17
+    Z1, Z2 = 1.22, 1.48
+    W = 0.74
     sh = MB()
-    sh.box((0.56, 0.16, 0.035), (sx, sy, sz), 'M_WoodLight', bevel=0.008)
-    sh.box((0.58, 0.02, 0.05), (sx, sy - 0.08, sz + 0.01), 'M_WoodDark', bevel=0.004)
-    for dx in (-0.2, 0.2):
-        sh.box((0.03, 0.08, 0.12), (sx + dx, POST_YF - 0.12, sz - 0.075), 'M_WoodDark', (-30, 0, 0), bevel=0.004)
-    sh.build('Gift_Shelf', pivot=(sx, sy, sz))
+    for z in (Z1, Z2):
+        sh.box((W, 0.16, 0.03), (sx, sy, z), 'M_WoodLight', bevel=0.007)
+        sh.box((W + 0.02, 0.02, 0.045), (sx, sy - 0.08, z + 0.008), 'M_WoodDark', bevel=0.004)
+    for dx in (-W / 2 + 0.02, W / 2 - 0.02):
+        sh.box((0.03, 0.16, Z2 - Z1 + 0.05), (sx + dx, sy, (Z1 + Z2) / 2), 'M_WoodDark', bevel=0.004)
+    sh.build('Gift_Shelf', pivot=(sx, sy, Z1))
+    t1, t2 = Z1 + 0.015, Z2 + 0.015
 
-    # Captain Ingrid's little wooden longship, on the left of the shelf
+    def finish(g, name, c, k=1.0):
+        c = Vector(c)
+        if k != 1.0:
+            g.V = [c + (Vector(v) - c) * k for v in g.V]
+        g.build(name, pivot=tuple(c))
+
+    # 1 Captain Ingrid: a little wooden longship
     g = MB()
-    gx, gy, gz = sx, sy, sz + 0.0175
+    gx, gy, gz = sx - 0.19, sy, t1
     hull = [(-0.11, 0.035), (-0.08, 0.0), (0.08, 0.0), (0.11, 0.035)]
     g.prism(hull, 0.05, T((gx, gy + 0.025, gz), (90, 0, 0)), 'M_Wood')
     g.box((0.2, 0.052, 0.008), (gx, gy, gz + 0.035), 'M_WoodDark')
-    for k in range(4):  # round shields along the side
+    for k in range(4):
         g.cyl(0.011, 0.011, 0.004, 8, (gx - 0.06 + k * 0.04, gy - 0.027, gz + 0.028), ['M_AppleRed', 'M_AppleYellow'][k % 2], (90, 0, 0))
     g.tube([(gx + 0.105, gy, gz + 0.035), (gx + 0.125, gy, gz + 0.065), (gx + 0.115, gy, gz + 0.08)], 0.008, 5, 'M_Wood')
     g.tube([(gx - 0.105, gy, gz + 0.035), (gx - 0.125, gy, gz + 0.06)], 0.007, 5, 'M_Wood')
     g.cyl(0.004, 0.004, 0.13, 5, (gx, gy, gz + 0.035), 'M_WoodDark', base=True)
-    for i in range(4):  # red and white striped sail
+    for i in range(4):
         g.box((0.1, 0.004, 0.022), (gx, gy - 0.006, gz + 0.075 + i * 0.022), 'M_AppleRed' if i % 2 == 0 else 'M_White')
-    c = Vector((gx, gy, gz))
-    g.V = [c + (Vector(v) - c) * 1.7 for v in g.V]
-    g.build('Gift_Longship', pivot=(gx, gy, gz))
+    finish(g, 'Gift_Longship', (gx, gy, gz), 1.2)
+
+    # 2 Mr. Ogane: a golden lucky cat with a raised paw
+    g = MB()
+    gx, gz = sx + 0.03, t1
+    g.sphere((0.045, 0.04, 0.05), (gx, sy, gz + 0.05), 'M_Gold', 12, 8)
+    g.sphere((0.04, 0.036, 0.036), (gx, sy - 0.005, gz + 0.12), 'M_Gold', 12, 8)
+    for s_ in (-1, 1):
+        g.cyl(0.014, 0.0, 0.025, 4, (gx + s_ * 0.022, sy, gz + 0.148), 'M_Gold', base=True)
+    g.cyl(0.012, 0.012, 0.05, 6, (gx + 0.04, sy - 0.01, gz + 0.11), 'M_Gold', base=True)
+    g.sphere((0.016, 0.014, 0.014), (gx + 0.04, sy - 0.01, gz + 0.162), 'M_Gold', 8, 5)
+    g.cyl(0.02, 0.02, 0.006, 10, (gx, sy - 0.04, gz + 0.06), 'M_AppleRed', (90, 0, 0))
+    for s_ in (-1, 1):
+        g.sphere((0.006, 0.003, 0.008), (gx + s_ * 0.015, sy - 0.036, gz + 0.125), 'M_Black', 6, 4)
+    finish(g, 'Gift_LuckyCat', (gx, sy, gz))
+
+    # 3 Chef Amelie: a shiny copper pan, hanging on a hook at the shelf end
+    g = MB()
+    gx, gz = sx + 0.29, t1
+    g.lathe([(0.0, 0.0), (0.06, 0.0), (0.07, 0.03), (0.066, 0.031), (0.055, 0.006), (0.0, 0.006)], 14, m='M_Copper',
+            M=T((gx, sy - 0.02, gz + 0.075), (90, 0, 0)))
+    g.box((0.014, 0.012, 0.09), (gx, sy - 0.03, gz + 0.17), 'M_Copper')
+    finish(g, 'Gift_CopperPan', (gx, sy, gz))
+
+    # 4 Commander Leila: a framed photo of Earth from space
+    g = MB()
+    gx, gz = sx - 0.24, t2
+    g.box((0.14, 0.012, 0.12), (gx, sy, gz + 0.065), 'M_WoodDark', (-8, 0, 0), bevel=0.004)
+    g.box((0.12, 0.004, 0.1), (gx, sy - 0.008, gz + 0.065), 'M_Black', (-8, 0, 0))
+    g.sphere((0.035, 0.004, 0.035), (gx, sy - 0.012, gz + 0.065), 'M_Photo', 12, 6)
+    g.sphere((0.016, 0.003, 0.012), (gx - 0.008, sy - 0.016, gz + 0.072), 'M_Leaf', 8, 4)
+    g.box((0.02, 0.01, 0.1), (gx, sy + 0.03, gz + 0.05), 'M_WoodDark', (30, 0, 0))
+    finish(g, 'Gift_EarthPhoto', (gx, sy, gz))
+
+    # 5 Carer Mia: a little flying fox hanging upside down from a twig
+    g = MB()
+    gx, gz = sx + 0.27, t2
+    g.cyl(0.006, 0.006, 0.16, 5, (gx, sy, gz + 0.14), 'M_Wood', (0, 90, 0))
+    for s_ in (-1, 1):
+        g.cyl(0.005, 0.005, 0.03, 4, (gx + s_ * 0.075, sy, gz + 0.065), 'M_WoodDark', base=True)
+    g.sphere((0.03, 0.026, 0.045), (gx, sy, gz + 0.09), 'M_Bat', 10, 6)
+    g.sphere((0.024, 0.022, 0.022), (gx, sy - 0.005, gz + 0.04), 'M_Bat', 10, 6)
+    for s_ in (-1, 1):
+        g.cyl(0.008, 0.0, 0.02, 4, (gx + s_ * 0.014, sy, gz + 0.022), 'M_Bat', (180, 0, 0), base=True)
+        g.sphere((0.004, 0.003, 0.005), (gx + s_ * 0.008, sy - 0.024, gz + 0.042), 'M_Black', 6, 4)
+        g.tube([(gx + s_ * 0.01, sy, gz + 0.13), (gx + s_ * 0.008, sy, gz + 0.14)], 0.003, 4, 'M_Black')
+    finish(g, 'Gift_FlyingFox', (gx, sy, gz), 1.3)
+
+    # 6 Princess Amara: a pink paper lantern
+    g = MB()
+    gx, gz = sx - 0.08, t2
+    g.lathe([(0.0, 0.0), (0.03, 0.0), (0.05, 0.03), (0.055, 0.07), (0.05, 0.11), (0.03, 0.14), (0.0, 0.14)], 12, m='M_Cloth_Pink',
+            M=T((gx, sy, gz + 0.012)))
+    for z in (0.035, 0.07, 0.105):
+        g.torus(0.054 if z == 0.07 else 0.05, 0.003, 12, 3, (gx, sy, gz + 0.012 + z), 'M_AppleRed')
+    g.cyl(0.032, 0.032, 0.012, 10, (gx, sy, gz), 'M_Black', base=True)
+    g.cyl(0.032, 0.032, 0.012, 10, (gx, sy, gz + 0.15), 'M_Black', base=True)
+    finish(g, 'Gift_PinkLantern', (gx, sy, gz))
+
+    # 7 The Head Butler: a tiny silver teapot
+    g = MB()
+    gx, gz = sx + 0.15, t1
+    g.lathe([(0.0, 0.0), (0.03, 0.0), (0.045, 0.03), (0.04, 0.06), (0.02, 0.07), (0.0, 0.072)], 12, m='M_Silver', M=T((gx, sy, gz)))
+    g.sphere((0.008, 0.008, 0.008), (gx, sy, gz + 0.078), 'M_Silver', 6, 4)
+    g.tube([(gx + 0.04, sy, gz + 0.03), (gx + 0.065, sy, gz + 0.06)], 0.006, 5, 'M_Silver')
+    g.torus(0.022, 0.005, 10, 4, (gx - 0.048, sy, gz + 0.04), 'M_Silver', (90, 0, 0))
+    finish(g, 'Gift_Teapot', (gx, sy, gz))
+
+    # 8 Grandma Rosa: a little yellow taxi
+    g = MB()
+    gx, gz = sx + 0.09, t2
+    g.box((0.13, 0.06, 0.035), (gx, sy, gz + 0.03), 'M_Taxi', bevel=0.008)
+    g.box((0.07, 0.055, 0.03), (gx - 0.005, sy, gz + 0.06), 'M_Taxi', bevel=0.008)
+    g.box((0.06, 0.057, 0.018), (gx - 0.005, sy, gz + 0.062), 'M_Glass')
+    g.box((0.03, 0.02, 0.012), (gx - 0.005, sy, gz + 0.082), 'M_White', bevel=0.002)
+    for dx in (-0.04, 0.04):
+        for s_ in (-1, 1):
+            g.cyl(0.014, 0.014, 0.012, 10, (gx + dx, sy + s_ * 0.03, gz + 0.014), 'M_Black', (90, 0, 0))
+    g.box((0.13, 0.062, 0.008), (gx, sy, gz + 0.03), 'M_Black')
+    finish(g, 'Gift_Taxi', (gx, sy, gz))
+
+
+GIFT_ROOTS = ['Gift_Shelf', 'Gift_Longship', 'Gift_LuckyCat', 'Gift_CopperPan', 'Gift_EarthPhoto', 'Gift_FlyingFox',
+              'Gift_PinkLantern', 'Gift_Teapot', 'Gift_Taxi']

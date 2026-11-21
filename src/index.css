@@ -1280,3 +1280,43 @@ button.cab-card { font: inherit; color: inherit; cursor: pointer; }
 .pp-place { font-weight: 900; color: var(--red); text-transform: uppercase; font-size: 0.75rem; }
 .pp-title { font-weight: 800; font-size: 0.82rem; }
 .pp-seal { font-weight: 900; font-size: 0.72rem; color: #8a6200; background: #fff4c8; border-radius: 999px; padding: 1px 8px; }
+
+/* Golden Chef rank card */
+.golden-rank { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(43, 29, 22, 0.45); cursor: pointer; }
+.gr-card { width: min(86%, 360px); background: radial-gradient(circle at 50% 30%, #fff8d6 0 45%, #f4c954 100%); border: 3px solid #8a6200; border-radius: 18px;
+  box-shadow: 0 6px 0 #8a6200, 0 14px 30px rgba(0,0,0,0.25); padding: 18px 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  animation: rp-stamp 0.45s cubic-bezier(.2,1.8,.4,1) both; }
+.gr-title { font-size: 1.6rem; font-weight: 900; color: #8a4d00; line-height: 1.1; }
+.gr-line { font-weight: 800; color: var(--ink); }
+.gr-tap { font-size: 0.8rem; font-weight: 800; color: var(--ink-soft); margin-top: 4px; }
+.golden-rank.still .gr-card { animation: none; }
+.lb-track.golden i { background: linear-gradient(90deg, #e8b230, #ffe08a); }
+
+/* menu strip round, menu points */
+.ms-dish { position: relative; }
+.ms-round { position: absolute; right: -6px; bottom: -4px; font-size: 0.62rem; font-weight: 900; background: var(--red); color: #fff; border-radius: 999px; padding: 0 4px; }
+.rr-points { flex-basis: 100%; text-align: center; font-weight: 800; color: var(--ink-soft); }
+.rr-points b { color: var(--red); font-size: 1.1rem; }
+
+/* crews by kind (the visitor's guests in the tasting panel) */
+.c-staff .crew { background: #c9463a; }
+.c-staff .crew::after { top: -20px; height: 6px; background: #fff; border-radius: 3px; }
+.c-brigade .crew { background: #f4f1ea; border: 2px solid #1d130e; }
+.c-brigade .crew::after { top: -46px; left: 6px; width: 32px; height: 26px; border-radius: 12px 12px 3px 3px; background: #fff; }
+.p-astronauts { background: radial-gradient(circle, #fff 0 1px, transparent 1.5px) 0 0 / 22px 22px, linear-gradient(#1c2350, #3b3f8f) !important; }
+.c-astronauts .crew { background: #eef0f4; border: 2px solid #1d130e; }
+.c-astronauts .crew::after { top: -36px; left: 0; width: 44px; height: 44px; border-radius: 50%; background: rgba(160, 210, 255, 0.35); border: 3px solid #eef0f4; }
+.p-bats { background: linear-gradient(#ffb36b 0 55%, #f08a4b 55%) !important; }
+.c-bats { align-items: flex-start; padding-top: 10px; border-top: 6px solid #6b4a2c; }
+.c-bats .crew { transform: rotate(180deg); background: #4a3328; border-radius: 22px 22px 18px 18px; width: 40px; animation-name: bat-swing; }
+.c-bats .crew::before { background: radial-gradient(circle at 34% 48%, #1d130e 0 2.2px, transparent 2.8px), radial-gradient(circle at 66% 48%, #1d130e 0 2.2px, transparent 2.8px), #8a5a3b; }
+.c-bats .crew::after { top: -36px; left: 5px; width: 34px; height: 12px; background: transparent; border: none;
+  border-left: 10px solid #8a5a3b; border-right: 10px solid #8a5a3b; border-radius: 0; }
+@keyframes bat-swing { from { transform: rotate(172deg); } to { transform: rotate(188deg); } }
+.c-royals .crew { background: #f08fae; border-radius: 22px 22px 14px 14px; }
+.c-royals .crew::after { top: -40px; left: 10px; width: 24px; height: 12px; border-radius: 2px; background: #e8b230;
+  clip-path: polygon(0 100%, 0 20%, 25% 60%, 50% 0, 75% 60%, 100% 20%, 100% 100%); border: none; }
+.c-footmen .crew { background: linear-gradient(90deg, #2b2b33 0 38%, #fff 38% 62%, #2b2b33 62%); }
+.c-footmen .crew::after { top: -34px; height: 12px; background: #e9e4da; border-radius: 10px 10px 4px 4px; }
+.c-family .crew:nth-child(1) { background: #4a78b8; } .c-family .crew:nth-child(2) { background: #e8b64a; } .c-family .crew:nth-child(3) { background: #4f9a5a; }
+.c-family .crew::after { top: -32px; height: 12px; background: #4a3326; border-radius: 12px 12px 2px 2px; }

@@ -98,6 +98,11 @@ export const REGULARS: readonly Regular[] = Object.freeze(STORY.regulars);
 export const NEWS: readonly NewsItem[] = Object.freeze([...STORY.news].sort((a, b) => a.rank - b.rank));
 /** Ojiichan comes home for the Golden Chef ceremony as a customer (model 'O'). */
 export const OJIICHAN_VISIT = Object.freeze({ ...STORY.ojiichanVisit });
+/** After Golden Chef: which regular brings each journey recipe, and what they say. */
+export const RECIPE_INTROS: Readonly<Record<string, { who: string; line: string }>> = Object.freeze(
+  Object.fromEntries(Object.entries((STORY as unknown as { recipeIntros: Record<string, unknown> }).recipeIntros).filter(([k]) => !k.startsWith('_'))) as Record<string, { who: string; line: string }>);
+/** The Golden Chef rank card. */
+export const GOLDEN_RANK_CARD = Object.freeze({ ...(STORY as unknown as { goldenRank: { title: string; line: string } }).goldenRank });
 
 export function newsFor(rank: Rank): NewsItem | null {
   return NEWS.find((n) => n.rank === rank) ?? null;

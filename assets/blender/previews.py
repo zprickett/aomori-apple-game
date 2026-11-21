@@ -270,7 +270,8 @@ def render_all(prev, icons_dir, only=None, icons=True):
                     P('hero_upgrades_customer'))
     if want('gifts'):
         R.look(cam, (0.4, -3.2, 1.6), (1.25, -0.3, 1.3), 30)
-        _render(['Stall', 'Gift_Shelf', 'Gift_Longship'], P('gift_shelf'), (600, 600))
+        _render(['Stall', 'Gift_Shelf', 'Gift_Longship', 'Gift_LuckyCat', 'Gift_CopperPan', 'Gift_EarthPhoto', 'Gift_FlyingFox',
+                 'Gift_PinkLantern', 'Gift_Teapot', 'Gift_Taxi'], P('gift_shelf'), (700, 700))
     if want('ranks'):
         # The stall at each rank, from the same front view (parts per src/game/stallPieces.ts).
         base = ['Stall_Frame', 'Crate', 'Greenery', 'Ground']
@@ -292,7 +293,8 @@ def render_all(prev, icons_dir, only=None, icons=True):
             R.look(cam, (0.5, -4.6, 1.0), (0.38, 0, 0.72), 40)
             _render(['Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Chef'], P('characters_lineup'),
                     (900, 500))
-        for n in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O', 'Customer_I'):
+        for n in ('Chef', 'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O', 'Customer_I', 'Customer_G', 'Customer_F',
+                  'Customer_L', 'Customer_M', 'Customer_P', 'Customer_H', 'Customer_R'):
             R.auto_cam(cam, [n], yaw=-25, pitch=8, fill=0.95, lens=50)
             _render([n], P(n.lower()), (500, 600))
     if want('chef_styles'):
@@ -369,7 +371,8 @@ def render_all(prev, icons_dir, only=None, icons=True):
     if want('icons') or want('portraits'):
         ports = {'Chef': (1.37, 0.0), 'Customer_A': (0.87, 0.0), 'Customer_B': (0.86, 0.0),
                  'Customer_C': (1.08, -0.06), 'Customer_D': (0.84, 0.0), 'Customer_O': (1.12, -0.05),
-                 'Customer_I': (1.1, -0.05)}
+                 'Customer_I': (1.1, -0.05), 'Customer_G': (1.1, -0.05), 'Customer_F': (1.1, -0.05), 'Customer_L': (1.1, -0.05),
+                 'Customer_M': (1.1, -0.05), 'Customer_P': (1.1, -0.05), 'Customer_H': (1.16, -0.05), 'Customer_R': (1.1, -0.05)}
         for n, (hz, hy) in ports.items():
             fn = 'chef_portrait.png' if n == 'Chef' else f'customer_{n[-1]}_portrait.png'
             s = 1.0 if n == 'Chef' else 0.9

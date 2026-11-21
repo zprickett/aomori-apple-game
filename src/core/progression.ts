@@ -4,7 +4,7 @@
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
 import { TYPICAL_LADDER, isJourneyRecipe, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel } from './ranks.ts';
-import { OJIICHAN_VISIT, REGULARS, nextDayStart } from './story.ts';
+import { OJIICHAN_VISIT, RECIPE_INTROS, REGULARS, nextDayStart } from './story.ts';
 
 /**
  * Apple unlocks: completed-order threshold → ids. Five starters, then one new apple after every
@@ -383,7 +383,15 @@ export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, 
     order.line = lines[Math.floor(rand(seed, orderNumber, 2) * lines.length)];
   }
   if (entry.intro) order.intro = true;
-  const visit = storyVisits(seed, ladder).get(orderNumber);
+  // After Golden Chef a regular comes back with each new recipe they found.
+  const herald = entry.intro ? RECIPE_INTROS[recipeId] : undefined;
+  if (herald) {
+    const r = REGULARS.find((x) => x.customer === herald.who)!;
+    order.customerId = r.customer as CustomerId;
+    order.line = herald.line;
+    order.visit = { who: r.id, visitorName: r.name, tagline: 'Found a new recipe!', color: r.color, customerId: order.customerId, step: 0, of: 0 };
+  }
+  const visit = herald ? undefined : storyVisits(seed, ladder).get(orderNumber);
   if (visit?.kind === 'ojiichan') {
     order.customerId = OJIICHAN_VISIT.customer as CustomerId;
     order.line = withDish(OJIICHAN_VISIT.line, recipeId);

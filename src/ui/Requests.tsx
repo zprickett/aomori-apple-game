@@ -5,7 +5,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import {
-  APPLE_ORDER, REQUESTS, STAGE2_INTRO, apple, appleMatch, menuCombo, requestById, withName,
+  APPLE_ORDER, REQUESTS, STAGE2_INTRO, apple, appleMatch, menuCombo, menuPlan, menuPoints, requestById, withName,
   type ClueKey, type GameAction, type GameState, type GoldenRequest, type StatKey, type TwistRule,
 } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
@@ -217,11 +217,14 @@ export function MenuStrip({ state }: { state: GameState }) {
   const req = requestById(run.id);
   const live = state.cook ? [...run.steps, state.cook.stepResults] : run.steps;
   const combo = menuCombo(live);
+  const plan = menuPlan(req);
+  const now = plan[run.dishIndex];
   return (
     <div className="menu-strip" data-testid="menu-strip">
       {req.dishes.map((d, i) => (
-        <span key={d.name} className={`ms-dish ${i < run.dishIndex ? 'done' : i === run.dishIndex ? 'now' : ''}`}>
+        <span key={d.name} className={`ms-dish ${i < now.dish ? 'done' : i === now.dish ? 'now' : ''}`}>
           <img src={dishIcon(d.recipe)} alt={d.name} />
+          {i === now.dish && req.twist.kind === 'bigParty' && <b className="ms-round">{now.round}/{req.twist.rounds ?? 2}</b>}
         </span>
       ))}
       <span className={`ms-combo ${combo > 0 ? 'on' : ''}`}>🔥 {combo}</span>
@@ -243,13 +246,16 @@ function RequestReveal({ state, req, reduced, dispatch }: { state: GameState; re
         <img className="rr-face big" src={portrait(req.customer)} alt="" />
         <div className="rr-say big">{req.tasting[1]}</div>
       </div>
-      <div className="rr-panel rr-3">
-        <div className="rr-crew" aria-hidden>{[0, 1, 2, 3].map((i) => <span key={i} className="crew" style={{ ['--i' as string]: i }}><i /></span>)}</div>
+      <div className={`rr-panel rr-3 p-${req.crew.kind}`}>
+        <div className={`rr-crew c-${req.crew.kind}`} aria-hidden>
+          {Array.from({ length: req.crew.count }, (_, i) => <span key={i} className="crew" style={{ ['--i' as string]: i }}><i /></span>)}
+        </div>
         <div className="rr-song">{req.tasting[2]}</div>
       </div>
       <div className="rr-score">
         {run.evaluations.map((e, i) => {
-          const gold = appleMatch(run.apples[i]!, req.dishes[i], req.twist.rule).gold;
+          const dish = menuPlan(req)[i].dish;
+          const gold = appleMatch(run.apples[dish]!, req.dishes[dish], req.twist.rule).gold;
           return (
             <div key={i} className="rr-row">
               <img src={dishIcon(e.recipeId)} alt="" />
@@ -259,6 +265,9 @@ function RequestReveal({ state, req, reduced, dispatch }: { state: GameState; re
           );
         })}
         {run.seal && <div className="rr-seal" data-testid="golden-seal">GOLDEN<br />SEAL</div>}
+        <div className="rr-points" data-testid="menu-points">
+          {(() => { const m = menuPoints(run.evaluations.map((e) => e.score.total), run.seal); return <>⭐ {m.base.toLocaleString()} × {m.mult} = <b>{m.total.toLocaleString()}</b></>; })()}
+        </div>
       </div>
       <button className="btn primary huge" data-testid="request-next" onClick={() => { tap(); dispatch({ type: 'REQUEST_NEXT' }); }}>Next</button>
     </div>

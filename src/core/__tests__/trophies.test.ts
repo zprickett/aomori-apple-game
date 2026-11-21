@@ -40,9 +40,10 @@ describe('trophy stats', () => {
 });
 
 describe('trophies', () => {
-  it('eight trophies, each needing the step before', () => {
+  it('eleven trophies, each needing the step before', () => {
     expect(TROPHIES.map((t) => t.name)).toEqual([
       'Golden Peeler', 'Hop-Hop Warren', 'Golden Spoon', 'Perfect Streak', 'Rainbow Basket', 'Apple Encyclopedia', 'Big and Small', "Regulars' Friend",
+      'World Traveller', 'Golden Seal Master', 'Apple Detective',
     ]);
     const t = trophy('warren');
     expect([4, 5, 24, 25, 100].map((n) => trophyTier(t, input({ stats: { ...fresh(), rabbitPlates: n } })))).toEqual([0, 1, 1, 2, 3]);

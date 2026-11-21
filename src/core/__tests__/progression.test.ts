@@ -79,9 +79,9 @@ describe('unlock schedule', () => {
     expect(unlocksEarnedAt(5).recipes).toEqual(['apple_jam']);
     expect(unlocksEarnedAt(14).recipes).toEqual(['ringo_ame']);
     expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });
-    // Journey recipes: one every 3 orders from 8 orders after Golden Chef (order 51 on the typical ladder).
+    // Journey recipes: 8 orders after Golden Chef (order 51 on the typical ladder), then every 3–5 orders.
     expect(unlocksEarnedAt(59).recipes).toEqual(['apple_kinton']);
-    expect(unlocksEarnedAt(89).recipes).toEqual(['festival_pie']);
+    expect(unlocksEarnedAt(99).recipes).toEqual(['festival_pie']);
     expect(unlocksEarnedAt(4)).toEqual({ apples: [], recipes: [] });
   });
 
