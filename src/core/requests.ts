@@ -11,9 +11,9 @@ import type { StepResult } from './scoring.ts';
 
 export type ClueKey = 'crisp' | 'redSkin' | 'yellowSkin' | 'greenSkin' | 'tart' | 'sweet' | 'extraJuicy' | 'aromatic' | 'pinkInside' | 'tiny' | 'big';
 /** The apple rule of a twist ('none' for Big party and Rush order, which change the cooking). */
-export type TwistRule = 'none' | 'notVerySweet' | 'naturallySweet' | 'lightSkin' | 'pinkInside' | 'tiny' | 'big';
+export type TwistRule = 'none' | 'crisp' | 'notVerySweet' | 'naturallySweet' | 'lightSkin' | 'pinkInside' | 'tiny' | 'big';
 export type TwistKind = 'picky' | 'colour' | 'size' | 'bigParty' | 'rush';
-export type CrewKind = 'sailors' | 'staff' | 'brigade' | 'astronauts' | 'bats' | 'royals' | 'footmen' | 'family';
+export type CrewKind = 'sailors' | 'staff' | 'brigade' | 'astronauts' | 'bats' | 'royals' | 'footmen' | 'family' | 'penguins' | 'cousins' | 'rangers' | 'drummers';
 
 export interface RequestDish {
   recipe: RecipeId;
@@ -103,6 +103,7 @@ export function clueHolds(a: AppleInfo, clue: ClueKey): boolean {
 export function twistHolds(a: AppleInfo, rule: TwistRule): boolean {
   switch (rule) {
     case 'none': return true;
+    case 'crisp': return a.stats.raw_firmness >= 4;
     case 'notVerySweet': return a.stats.sweetness < 5;
     case 'naturallySweet': return a.stats.sweetness >= 4;
     case 'lightSkin': return skinFamily(a) !== 'red';

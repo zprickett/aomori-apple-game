@@ -49,6 +49,8 @@ PALETTE = {
     'M_SkinMid': '#E0AE84', 'M_SkinDeep': '#A8704C', 'M_HairAuburn': '#9A4A2A', 'M_Cloth_Lavender': '#A894C8',
     'M_Cloth_Suit': '#4A4E57', 'M_Cloth_Orange': '#E8833A', 'M_Copper': '#C46A3A', 'M_Silver': '#C9CED6',
     'M_Taxi': '#F2C230', 'M_Bat': '#5A3E30', 'M_Photo': '#2C5E9E',
+    'M_Cloth_Parka': '#D9502F', 'M_Fur': '#EDE6DA', 'M_Cloth_Jade': '#3FA68A', 'M_Cloth_Olive': '#6B7A3A', 'M_Cloth_Samba': '#1F9E6E',
+    'M_Moon': '#F6DE86', 'M_Goggle': '#7FC4E8',
     # player chef (recoloured at runtime)
     'M_ChefIris': '#6B3E26', 'M_ChefButton': '#D94232', 'M_ChefSkirt': '#D94232', 'M_ChefHat': '#D94232',
 }

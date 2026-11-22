@@ -84,7 +84,7 @@ export function RequestLetterButton({ req, onOpen }: { req: GoldenRequest; onOpe
 // ---------------------------------------------------------------------------
 
 const CLUE_STAT: Partial<Record<ClueKey, StatKey>> = { crisp: 'raw_firmness', tart: 'tartness', sweet: 'sweetness', extraJuicy: 'juiciness', aromatic: 'aroma' };
-const TWIST_STAT: Partial<Record<TwistRule, StatKey>> = { notVerySweet: 'sweetness' };
+const TWIST_STAT: Partial<Record<TwistRule, StatKey>> = { notVerySweet: 'sweetness', crisp: 'raw_firmness' };
 const STAT_WORD: Record<StatKey, string> = { raw_firmness: 'Crisp', tartness: 'Tart', sweetness: 'Sweet', juiciness: 'Juicy', aroma: 'Smell' };
 
 export function RequestScreen({ state, dispatch, name, reduced }: { state: GameState; dispatch: D; name: string; reduced: boolean }) {
@@ -310,6 +310,7 @@ const LAND: number[][][] = [
   [[40, 45], [40, 66], [60, 70], [80, 73], [110, 76], [140, 72], [170, 68], [180, 66], [160, 58], [142, 50], [135, 43], [122, 40], [122, 30], [110, 20], [105, 10], [98, 15], [92, 22], [80, 8], [72, 20], [60, 25], [50, 30], [36, 36], [28, 41]],
   [[130, 31], [135, 34], [141, 38], [142, 43], [145, 44], [141, 45], [139, 40], [136, 36], [130, 33]],
   [[114, -22], [122, -17], [131, -12], [137, -12], [142, -11], [146, -19], [153, -26], [150, -37], [141, -38], [131, -31], [115, -34]],
+  [[-180, -63], [-120, -62], [-75, -60], [-55, -63], [0, -62], [60, -61], [120, -62], [180, -63], [180, -72], [-180, -72]],
 ];
 const AOMORI = { lat: 40.8, lon: 140.7 };
 const xy = (lon: number, lat: number) => [lon + 180, 90 - lat] as const;

@@ -1320,3 +1320,28 @@ button.cab-card { font: inherit; color: inherit; cursor: pointer; }
 .c-footmen .crew::after { top: -34px; height: 12px; background: #e9e4da; border-radius: 10px 10px 4px 4px; }
 .c-family .crew:nth-child(1) { background: #4a78b8; } .c-family .crew:nth-child(2) { background: #e8b64a; } .c-family .crew:nth-child(3) { background: #4f9a5a; }
 .c-family .crew::after { top: -32px; height: 12px; background: #4a3326; border-radius: 12px 12px 2px 2px; }
+/* crews for visitors 9–12 */
+.p-penguins { background: linear-gradient(#cfe9f6 0 62%, #f4f9fc 62%) !important; }
+.c-penguins .crew { width: 40px; border-radius: 20px 20px 16px 16px; background: radial-gradient(ellipse 13px 19px at 50% 60%, #fff 0 95%, transparent 100%), #1f2430; }
+.c-penguins .crew::before { left: 5px; background: radial-gradient(ellipse 10px 9px at 50% 62%, #fff 0 95%, transparent 100%), radial-gradient(circle at 34% 42%, #1d130e 0 2.2px, transparent 2.8px), radial-gradient(circle at 66% 42%, #1d130e 0 2.2px, transparent 2.8px), #1f2430; }
+.c-penguins .crew::after { top: -10px; left: 15px; width: 10px; height: 6px; border: none; border-radius: 0 0 6px 6px; background: #f0a030; z-index: 2; }
+.c-penguins .crew i { display: none; }
+.p-cousins { background: radial-gradient(circle at 78% 22%, #fff3b0 0 16px, #f4d35e 17px 22px, transparent 23px), linear-gradient(#2b2f6b 0 66%, #6b4a2c 66%) !important; }
+.c-cousins { gap: 6px; }
+.c-cousins .crew { width: 36px; height: 44px; }
+.c-cousins .crew:nth-child(1) { background: #e0457b; } .c-cousins .crew:nth-child(2) { background: #f4c64a; } .c-cousins .crew:nth-child(3) { background: #3e8fc4; }
+.c-cousins .crew:nth-child(4) { background: #4f9a5a; } .c-cousins .crew:nth-child(5) { background: #9a5cc4; }
+.c-cousins .crew::before { left: 3px; }
+.c-cousins .crew::after { left: 1px; top: -30px; width: 30px; height: 10px; background: #2b1d16; border-radius: 12px 12px 2px 2px; }
+.c-cousins .crew i { left: 14px; }
+.p-rangers { background: linear-gradient(#ffcf7a 0 55%, #e7a34a 55% 66%, #b7894a 66%) !important; }
+.c-rangers .crew { background: #6b7a3a; }
+.c-rangers .crew::after { left: -2px; top: -32px; width: 44px; height: 10px; background: #c9a86a; border-radius: 10px 10px 3px 3px; }
+.c-rangers .crew:last-child { width: 58px; height: 46px; border-radius: 26px 26px 10px 10px; background: #8d8f96; }
+.c-rangers .crew:last-child::before { left: 12px; top: -22px; background: radial-gradient(circle at 34% 48%, #1d130e 0 2.2px, transparent 2.8px), radial-gradient(circle at 66% 48%, #1d130e 0 2.2px, transparent 2.8px), #a2a4ab; }
+.c-rangers .crew:last-child::after { left: 0; top: -26px; width: 58px; height: 24px; border-radius: 50%; background: #8d8f96; z-index: -1; }
+.c-rangers .crew:last-child i { left: 24px; top: -2px; width: 10px; height: 22px; border-radius: 5px; background: #a2a4ab; border: 2px solid #1d130e; }
+.p-drummers { background: repeating-linear-gradient(135deg, #1f9e6e 0 14px, #f4c64a 14px 28px) !important; }
+.c-drummers .crew { background: linear-gradient(#fff 0 40%, #1f9e6e 40% 52%, #fff 52%); }
+.c-drummers .crew::after { top: -34px; height: 8px; background: #f4c64a; border-radius: 4px; }
+.c-drummers .crew i { left: 6px; top: 26px; width: 30px; height: 20px; border-radius: 4px; background: linear-gradient(#e0e0e0 0 20%, #c9463a 20% 80%, #e0e0e0 80%); border: 2px solid #1d130e; }

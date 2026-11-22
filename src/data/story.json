@@ -806,6 +806,264 @@
         "kind": "family",
         "count": 3
       }
+    },
+    {
+      "id": "penguins",
+      "title": "Warm Treats for the Penguin Team",
+      "visitor": "Dr. Kiri",
+      "place": "Antarctica",
+      "stamp": "🐧",
+      "customer": "K",
+      "color": "#3E8FC4",
+      "pin": {
+        "lat": -65,
+        "lon": 78
+      },
+      "letter": [
+        "Hello from the ice, Chef {name}! I'm Dr. Kiri, a penguin scientist in Antarctica.",
+        "Emperor penguins huddle together in big groups to keep warm in the winter storms!",
+        "My team counts penguins all day in the snow. Could you send us warm treats? Small ones, so they fit in our backpacks!"
+      ],
+      "dishes": [
+        {
+          "recipe": "baked_apple",
+          "name": "Snowball Baked Apple",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart, so it bakes well"
+        },
+        {
+          "recipe": "apple_compote",
+          "name": "Hot Compote Mugs",
+          "clue": [
+            "crisp"
+          ],
+          "clueText": "Firm, so the wedges stay whole"
+        },
+        {
+          "recipe": "rabbit_apples",
+          "name": "Penguin Wedges",
+          "clue": [
+            "redSkin"
+          ],
+          "clueText": "Red skin, bright on the snow"
+        }
+      ],
+      "twist": {
+        "kind": "size",
+        "rule": "tiny",
+        "name": "Tiny apples",
+        "text": "Only tiny apples (S size), so they fit in our backpacks!"
+      },
+      "matchGood": "Just the right size!",
+      "matchMiss": "Hmm, that one won't fit in a backpack.",
+      "tasting": [
+        "Brrr… let's warm up… mmm!",
+        "Warm and cosy, even in the snow!",
+        "♪ Waddle, waddle, hooray! ♪"
+      ],
+      "thanks": "Thank you, Chef {name}! This little toy penguin is from our research station.",
+      "gift": {
+        "name": "Little toy penguin",
+        "node": "Gift_Penguin"
+      },
+      "crew": {
+        "kind": "penguins",
+        "count": 4
+      }
+    },
+    {
+      "id": "chuseok",
+      "title": "Chuseok Family Feast",
+      "visitor": "Halmeoni Ji-woo",
+      "place": "Seoul",
+      "stamp": "🌕",
+      "customer": "J",
+      "color": "#C2456B",
+      "pin": {
+        "lat": 37.5,
+        "lon": 127
+      },
+      "letter": [
+        "Annyeong, Chef {name}! I'm Ji-woo. My grandchildren call me Halmeoni: that means Grandma in Korean.",
+        "Chuseok is Korea's harvest festival. Families visit each other and share apples, pears and rice cakes!",
+        "All my grandchildren are coming home this year. There are so many of them, please cook every dish twice!"
+      ],
+      "dishes": [
+        {
+          "recipe": "rabbit_apples",
+          "name": "Harvest Moon Wedges",
+          "clue": [
+            "sweet"
+          ],
+          "clueText": "Sweet, for the grandchildren"
+        },
+        {
+          "recipe": "apple_jam",
+          "name": "Halmeoni's Jam",
+          "clue": [
+            "aromatic"
+          ],
+          "clueText": "Lovely smelling"
+        }
+      ],
+      "twist": {
+        "kind": "bigParty",
+        "rule": "none",
+        "rounds": 2,
+        "name": "Big party",
+        "text": "Cook each dish twice. The second round is faster!"
+      },
+      "matchGood": "Wonderful! Just right!",
+      "matchMiss": "Hmm, Halmeoni would pick another.",
+      "tasting": [
+        "Everyone, come and eat!",
+        "Round and sweet, like the harvest moon!",
+        "♪ Happy Chuseok! ♪"
+      ],
+      "thanks": "Thank you, Chef {name}! In Korea, children look for a rabbit in the full moon. Here is a little moon rabbit for you.",
+      "gift": {
+        "name": "Little moon rabbit",
+        "node": "Gift_MoonRabbit"
+      },
+      "crew": {
+        "kind": "cousins",
+        "count": 5
+      }
+    },
+    {
+      "id": "elephants",
+      "title": "Thank-you Treats for the Keepers",
+      "visitor": "Ranger Amani",
+      "place": "Kenya",
+      "stamp": "🐘",
+      "customer": "N",
+      "color": "#B5702E",
+      "pin": {
+        "lat": -1.3,
+        "lon": 36.8
+      },
+      "letter": [
+        "Jambo, Chef {name}! I'm Ranger Amani, from an elephant orphanage in Kenya.",
+        "Elephants use their trunks to drink, smell, hug and even say hello!",
+        "Our keepers sleep next to the baby elephants every night. Will you cook them a thank-you treat? They love a good crunch!"
+      ],
+      "dishes": [
+        {
+          "recipe": "ringo_ame",
+          "name": "Sunset Candy Apple",
+          "clue": [
+            "redSkin"
+          ],
+          "clueText": "Red skin, like the sunset"
+        },
+        {
+          "recipe": "hirosaki_pie",
+          "name": "Keeper's Pie",
+          "clue": [
+            "tart"
+          ],
+          "clueText": "Tart"
+        },
+        {
+          "recipe": "fresh_juice",
+          "name": "Watering Hole Juice",
+          "clue": [
+            "sweet"
+          ],
+          "clueText": "Sweet"
+        }
+      ],
+      "twist": {
+        "kind": "picky",
+        "rule": "crisp",
+        "name": "Picky guest",
+        "text": "Crunchy apples only! The keepers love a good crunch."
+      },
+      "matchGood": "Crunchy and perfect!",
+      "matchMiss": "Hmm, that one isn't crunchy enough.",
+      "tasting": [
+        "Let's taste… crunch!",
+        "Even the baby elephants want a sniff!",
+        "★ Asante sana! ★"
+      ],
+      "thanks": "Asante, Chef {name}! That means thank you in Swahili. This carved wooden elephant is for your stall.",
+      "gift": {
+        "name": "Carved wooden elephant",
+        "node": "Gift_Elephant"
+      },
+      "crew": {
+        "kind": "rangers",
+        "count": 3
+      }
+    },
+    {
+      "id": "carnival",
+      "title": "Carnival Snacks for the Samba School",
+      "visitor": "Lucas",
+      "place": "Rio de Janeiro",
+      "stamp": "🥁",
+      "customer": "S",
+      "color": "#1F9E6E",
+      "pin": {
+        "lat": -22.9,
+        "lon": -43.2
+      },
+      "letter": [
+        "Olá, Chef {name}! I'm Lucas, a drummer in a samba school in Rio de Janeiro, Brazil.",
+        "At Carnival, thousands of dancers and drummers parade through the city!",
+        "We practise all night and we're hungry. The parade starts soon, so quick, chef: only one retry!"
+      ],
+      "dishes": [
+        {
+          "recipe": "jam_toast",
+          "name": "Samba Jam Toast",
+          "clue": [
+            "sweet"
+          ],
+          "clueText": "Sweet"
+        },
+        {
+          "recipe": "ringo_ame",
+          "name": "Carnival Candy Apple",
+          "clue": [
+            "redSkin"
+          ],
+          "clueText": "Red skin, for the parade"
+        },
+        {
+          "recipe": "fresh_juice",
+          "name": "Drummer's Juice",
+          "clue": [
+            "extraJuicy"
+          ],
+          "clueText": "Extra juicy"
+        }
+      ],
+      "twist": {
+        "kind": "rush",
+        "rule": "none",
+        "retries": 1,
+        "name": "Rush order",
+        "text": "The parade starts soon! Only one \"Try again\" for the whole menu."
+      },
+      "matchGood": "Perfeito! Just right!",
+      "matchMiss": "Hmm, that one's out of rhythm.",
+      "tasting": [
+        "Boom-ba-da-boom… crunch!",
+        "Delicious! Now we can drum all night!",
+        "♪ Samba, samba, obrigado! ♪"
+      ],
+      "thanks": "Obrigado, Chef {name}! Take this tiny samba drum and keep the beat!",
+      "gift": {
+        "name": "Tiny samba drum",
+        "node": "Gift_SambaDrum"
+      },
+      "crew": {
+        "kind": "drummers",
+        "count": 4
+      }
     }
   ],
   "recipeIntros": {

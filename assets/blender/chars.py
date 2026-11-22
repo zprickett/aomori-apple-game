@@ -875,5 +875,69 @@ def build_visitors():
     _visitor('Customer_R', 'M_Cloth_Lavender', 'M_Cloth_Charcoal', shoes='M_WoodDark', hair='M_HairGrey', skin='M_SkinMid',
              body_extra=rosa_body, head_extra=rosa_head, hair_kw=dict(fringe=0.38, bottom=-0.35, back_bottom=-0.45))
 
+    # Dr. Kiri (Antarctica): red parka with a fur-trimmed hood, snow goggles up on the hood, dark trousers, big boots
+    def kiri_body(b, hip, sh):
+        b.box((0.03, 0.02, 0.34), (0, -0.135, sh - 0.2), 'M_MetalDark')
+        b.box((0.33, 0.02, 0.05), (0, 0, hip - 0.08), 'M_Fur')
+        for s_ in (-1, 1):
+            b.box((0.07, 0.014, 0.06), (s_ * 0.075, -0.13, hip + 0.06), 'M_Cloth_Parka', bevel=0.006)
+        b.box((0.05, 0.012, 0.03), (-0.07, -0.135, sh - 0.12), 'M_Cloth_Navy')
+    def kiri_head(h, C, R):
+        hair_shell(h, C, R, k=1.28, m='M_Cloth_Parka', fringe=0.62, side=1.25, bottom=-0.75, back_bottom=-0.95)
+        h.torus(0.2, 0.04, 18, 6, (C[0], C[1] - 0.12, C[2] - 0.01), 'M_Fur', (90, 0, 0), scale=(1.0, 1.15, 1))
+        for s_ in (-1, 1):
+            p, n = surf(C, R, s_ * 0.3, 0.72, 0.07)
+            h.cyl(0.038, 0.038, 0.03, 10, (0, 0, 0), 'M_Goggle', M=align_z(n, p))
+        p, n = surf(C, R, 0, 0.72, 0.06)
+        h.box((0.3, 0.03, 0.02), tuple(p), 'M_Black', (-40, 0, 0))
+    _visitor('Customer_K', 'M_Cloth_Parka', 'M_Cloth_Navy', shoes='M_Black', hair='M_HairBlack', skin='M_SkinMid',
+             body_extra=kiri_body, head_extra=kiri_head, sleeve='M_Cloth_Parka', cuff='M_Fur',
+             hair_kw=dict(fringe=0.45, bottom=-0.3, back_bottom=-0.4))
 
-VISITOR_ROOTS = ['Customer_G', 'Customer_F', 'Customer_L', 'Customer_M', 'Customer_P', 'Customer_H', 'Customer_R']
+    # Halmeoni Ji-woo (Seoul): hanbok with a short pink jacket, red bow and a jade skirt, grey bun with a gold hairpin
+    def jiwoo_body(b, hip, sh):
+        b.lathe([(0.0, sh - 0.2), (0.165, sh - 0.2), (0.16, sh - 0.08), (0.145, sh - 0.01), (0.075, sh + 0.04), (0.0, sh + 0.045)], 12,
+                m='M_Cloth_Pink', scale=(1.02, 0.88, 1))
+        b.box((0.32, 0.03, 0.03), (0, -0.005, sh - 0.2), 'M_White')
+        b.sphere((0.035, 0.015, 0.025), (0.03, -0.142, sh - 0.12), 'M_Cloth_Red', 8, 5)
+        for s_ in (0.3, -0.25):
+            b.box((0.024, 0.01, 0.14), (0.03 + s_ * 0.06, -0.142, sh - 0.2), 'M_Cloth_Red', (0, s_ * 20, 0))
+    def jiwoo_head(h, C, R):
+        h.sphere((0.085, 0.075, 0.07), (C[0], C[1] + 0.15, C[2] - 0.02), 'M_HairGrey', 10, 6)
+        h.cyl(0.008, 0.008, 0.26, 6, (C[0], C[1] + 0.2, C[2] - 0.02), 'M_Gold', (0, 90, 0))
+    _visitor('Customer_J', 'M_Cloth_Jade', hair='M_HairGrey', dress=True, body_extra=jiwoo_body, head_extra=jiwoo_head,
+             sleeve='M_Cloth_Pink', cuff='M_White', shoes='M_White', lash=True, hair_kw=dict(fringe=0.3, bottom=-0.3, back_bottom=-0.45))
+
+    # Ranger Amani (Kenya): olive ranger shirt and cap, khaki trousers, binoculars round the neck
+    def amani_body(b, hip, sh):
+        for s_ in (-1, 1):
+            b.box((0.06, 0.012, 0.05), (s_ * 0.06, -0.132, sh - 0.12), 'M_Cloth_Olive', bevel=0.004)
+            b.cyl(0.022, 0.022, 0.06, 8, (s_ * 0.026, -0.16, sh - 0.2), 'M_Black', (90, 0, 0))
+        b.tube([(-0.05, -0.15, sh - 0.18), (-0.07, -0.11, sh), (0, -0.07, sh + 0.04), (0.07, -0.11, sh), (0.05, -0.15, sh - 0.18)], 0.006, 4, 'M_WoodDark')
+        b.box((0.32, 0.02, 0.035), (0, 0, hip - 0.05), 'M_WoodDark')
+        b.box((0.05, 0.01, 0.03), (0.07, -0.135, sh - 0.06), 'M_Gold')
+    def amani_head(h, C, R):
+        hm = T((C[0], C[1] + 0.01, C[2] + R[2] * 0.55), (-8, 0, 0))
+        h.lathe([(0.19, 0.0), (0.185, 0.06), (0.14, 0.12), (0.0, 0.14)], 14, m='M_Cloth_Olive', M=hm)
+        h.box((0.2, 0.12, 0.012), (0, -0.2, 0.005), 'M_Cloth_Olive', M=hm)
+    _visitor('Customer_N', 'M_Cloth_Olive', 'M_Cloth_Khaki', shoes='M_WoodDark', hair='M_HairBlack', skin='M_SkinDeep',
+             body_extra=amani_body, head_extra=amani_head, hair_kw=dict(k=1.04, fringe=0.15, bottom=-0.25, back_bottom=-0.35))
+
+    # Lucas (Rio de Janeiro): white shirt with a green and yellow sash, samba drum at the hip, curly black hair
+    def lucas_body(b, hip, sh):
+        b.tube([(-0.12, -0.12, sh - 0.02), (0.0, -0.15, sh - 0.2), (0.13, -0.12, hip + 0.02)], 0.028, 6, 'M_Cloth_Samba')
+        b.tube([(-0.12, -0.13, sh - 0.06), (0.0, -0.155, sh - 0.24), (0.13, -0.13, hip - 0.02)], 0.014, 6, 'M_Cloth_Yellow')
+        b.cyl(0.1, 0.1, 0.2, 14, (0.12, -0.17, hip - 0.02), 'M_Silver', (0, 90, 0))
+        for dx in (-0.1, 0.1):
+            b.cyl(0.104, 0.104, 0.012, 14, (0.12 + dx, -0.17, hip - 0.02), 'M_White', (0, 90, 0))
+        b.cyl(0.006, 0.006, 0.2, 5, (-0.03, -0.24, hip + 0.06), 'M_Wood', (0, 60, 0))
+    def lucas_head(h, C, R):
+        for i in range(11):
+            az = -1.6 + i * 0.32
+            p, n = surf(C, R, az, 0.55 - abs(az) * 0.08, 0.03)
+            h.sphere((0.05, 0.05, 0.045), tuple(p), 'M_HairBlack', 8, 5)
+    _visitor('Customer_S', 'M_Cloth_White', 'M_Cloth_Navy', shoes='M_White', hair='M_HairBlack', skin='M_SkinMid',
+             body_extra=lucas_body, head_extra=lucas_head, hair_kw=dict(k=1.1, fringe=0.3, bottom=-0.3, back_bottom=-0.45))
+
+VISITOR_ROOTS = ['Customer_G', 'Customer_F', 'Customer_L', 'Customer_M', 'Customer_P', 'Customer_H', 'Customer_R',
+                 'Customer_K', 'Customer_J', 'Customer_N', 'Customer_S']

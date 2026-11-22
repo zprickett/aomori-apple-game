@@ -321,16 +321,16 @@ def build_gifts():
     """Golden Request gifts: a two-tier shelf on the front of the right post (comes with the first
     gift) and each gift on its own spot. Separate roots, shown by the game per finished request."""
     sx, sy = POST_X, POST_YF - 0.17
-    Z1, Z2 = 1.22, 1.48
+    Z1, Z2, Z3 = 1.22, 1.48, 1.74
     W = 0.74
     sh = MB()
-    for z in (Z1, Z2):
+    for z in (Z1, Z2, Z3):
         sh.box((W, 0.16, 0.03), (sx, sy, z), 'M_WoodLight', bevel=0.007)
         sh.box((W + 0.02, 0.02, 0.045), (sx, sy - 0.08, z + 0.008), 'M_WoodDark', bevel=0.004)
     for dx in (-W / 2 + 0.02, W / 2 - 0.02):
-        sh.box((0.03, 0.16, Z2 - Z1 + 0.05), (sx + dx, sy, (Z1 + Z2) / 2), 'M_WoodDark', bevel=0.004)
+        sh.box((0.03, 0.16, Z3 - Z1 + 0.05), (sx + dx, sy, (Z1 + Z3) / 2), 'M_WoodDark', bevel=0.004)
     sh.build('Gift_Shelf', pivot=(sx, sy, Z1))
-    t1, t2 = Z1 + 0.015, Z2 + 0.015
+    t1, t2, t3 = Z1 + 0.015, Z2 + 0.015, Z3 + 0.015
 
     def finish(g, name, c, k=1.0):
         c = Vector(c)
@@ -432,6 +432,57 @@ def build_gifts():
     g.box((0.13, 0.062, 0.008), (gx, sy, gz + 0.03), 'M_Black')
     finish(g, 'Gift_Taxi', (gx, sy, gz))
 
+    # 9 Dr. Kiri: a little toy penguin
+    g = MB()
+    gx, gz = sx - 0.24, t3
+    g.sphere((0.04, 0.036, 0.06), (gx, sy, gz + 0.06), 'M_Black', 12, 8)
+    g.sphere((0.03, 0.012, 0.045), (gx, sy - 0.03, gz + 0.055), 'M_White', 10, 6)
+    g.sphere((0.032, 0.03, 0.03), (gx, sy, gz + 0.13), 'M_Black', 10, 6)
+    for s_ in (-1, 1):
+        g.sphere((0.006, 0.003, 0.007), (gx + s_ * 0.012, sy - 0.027, gz + 0.137), 'M_White', 6, 4)
+        g.sphere((0.012, 0.02, 0.006), (gx + s_ * 0.018, sy - 0.02, gz + 0.004), 'M_Cloth_Orange', 6, 4)
+        g.sphere((0.008, 0.02, 0.035), (gx + s_ * 0.04, sy, gz + 0.06), 'M_Black', 6, 4, rot=(0, s_ * 15, 0))
+    g.cyl(0.01, 0.0, 0.022, 6, (gx, sy - 0.035, gz + 0.125), 'M_Cloth_Orange', (90, 0, 0))
+    finish(g, 'Gift_Penguin', (gx, sy, gz), 1.2)
+
+    # 10 Halmeoni Ji-woo: a little moon rabbit sitting in front of a full moon
+    g = MB()
+    gx, gz = sx - 0.07, t3
+    g.cyl(0.075, 0.075, 0.014, 18, (gx, sy + 0.03, gz + 0.085), 'M_Moon', (90, 0, 0))
+    g.box((0.03, 0.03, 0.02), (gx, sy + 0.03, gz + 0.01), 'M_WoodDark')
+    g.sphere((0.03, 0.026, 0.032), (gx, sy - 0.02, gz + 0.035), 'M_White', 10, 6)
+    g.sphere((0.022, 0.02, 0.02), (gx, sy - 0.025, gz + 0.075), 'M_White', 10, 6)
+    for s_ in (-1, 1):
+        g.sphere((0.007, 0.005, 0.025), (gx + s_ * 0.009, sy - 0.022, gz + 0.11), 'M_White', 6, 4, rot=(0, s_ * 12, 0))
+        g.sphere((0.004, 0.003, 0.004), (gx + s_ * 0.008, sy - 0.044, gz + 0.078), 'M_Black', 6, 4)
+    g.cyl(0.012, 0.016, 0.03, 8, (gx + 0.03, sy - 0.03, gz + 0.015), 'M_Wood', base=True)
+    finish(g, 'Gift_MoonRabbit', (gx, sy, gz), 1.1)
+
+    # 11 Ranger Amani: a carved wooden elephant
+    g = MB()
+    gx, gz = sx + 0.1, t3
+    g.sphere((0.06, 0.035, 0.04), (gx, sy, gz + 0.07), 'M_Wood', 12, 8)
+    for dx in (-0.035, 0.035):
+        for dy in (-0.015, 0.015):
+            g.cyl(0.012, 0.012, 0.05, 6, (gx + dx, sy + dy, gz + 0.025), 'M_Wood')
+    g.sphere((0.03, 0.028, 0.03), (gx + 0.065, sy, gz + 0.095), 'M_Wood', 10, 6)
+    g.tube([(gx + 0.09, sy, gz + 0.09), (gx + 0.1, sy, gz + 0.05), (gx + 0.11, sy, gz + 0.03)], 0.009, 6, 'M_Wood')
+    for s_ in (-1, 1):
+        g.sphere((0.006, 0.032, 0.028), (gx + 0.05, sy + s_ * 0.03, gz + 0.1), 'M_WoodDark', 8, 5)
+        g.sphere((0.004, 0.003, 0.004), (gx + 0.085, sy + s_ * 0.016, gz + 0.105), 'M_Black', 6, 4)
+    g.tube([(gx - 0.06, sy, gz + 0.08), (gx - 0.075, sy, gz + 0.05)], 0.003, 4, 'M_WoodDark')
+    finish(g, 'Gift_Elephant', (gx, sy, gz), 1.2)
+
+    # 12 Lucas: a tiny samba drum with two sticks
+    g = MB()
+    gx, gz = sx + 0.27, t3
+    g.cyl(0.045, 0.045, 0.06, 14, (gx, sy, gz + 0.045), 'M_Cloth_Samba')
+    for z in (0.015, 0.075):
+        g.cyl(0.047, 0.047, 0.008, 14, (gx, sy, gz + z), 'M_Cloth_Yellow')
+    g.cyl(0.043, 0.043, 0.004, 14, (gx, sy, gz + 0.08), 'M_White')
+    for s_ in (-1, 1):
+        g.cyl(0.004, 0.004, 0.1, 5, (gx + s_ * 0.02, sy - 0.01, gz + 0.1), 'M_Wood', (0, s_ * 60, 0))
+    finish(g, 'Gift_SambaDrum', (gx, sy, gz), 1.1)
 
 GIFT_ROOTS = ['Gift_Shelf', 'Gift_Longship', 'Gift_LuckyCat', 'Gift_CopperPan', 'Gift_EarthPhoto', 'Gift_FlyingFox',
-              'Gift_PinkLantern', 'Gift_Teapot', 'Gift_Taxi']
+              'Gift_PinkLantern', 'Gift_Teapot', 'Gift_Taxi', 'Gift_Penguin', 'Gift_MoonRabbit', 'Gift_Elephant', 'Gift_SambaDrum']

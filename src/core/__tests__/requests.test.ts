@@ -187,12 +187,12 @@ describe('Slice B: the long-term loop', () => {
     return { ...s, progress: { ...s.progress, completedOrders: s.progress.completedOrders + n } };
   };
 
-  it('eight visitors, each with a crew, a gift and enough gold apples', () => {
-    expect(REQUESTS.map((r) => r.visitor)).toEqual(['Captain Ingrid', 'Mr. Ōgane', 'Chef Amélie', 'Commander Leila', 'Carer Mia', 'Princess Amara', 'The Head Butler', 'Grandma Rosa']);
-    expect(new Set(REQUESTS.map((r) => r.customer)).size).toBe(8);
-    expect(new Set(REQUESTS.map((r) => r.gift.node)).size).toBe(8);
+  it('twelve visitors, each with a crew, a gift and enough gold apples', () => {
+    expect(REQUESTS.map((r) => r.visitor)).toEqual(['Captain Ingrid', 'Mr. Ōgane', 'Chef Amélie', 'Commander Leila', 'Carer Mia', 'Princess Amara', 'The Head Butler', 'Grandma Rosa', 'Dr. Kiri', 'Halmeoni Ji-woo', 'Ranger Amani', 'Lucas']);
+    expect(new Set(REQUESTS.map((r) => r.customer)).size).toBe(12);
+    expect(new Set(REQUESTS.map((r) => r.gift.node)).size).toBe(12);
     REQUESTS.forEach((r, i) => {
-      const have = unlockedApples(56 + i * 6);
+      const have = unlockedApples(56 + i * 4);
       for (const d of r.dishes) expect(have.filter((a) => appleMatch(a, d, r.twist.rule).gold).length, `${r.id}: ${d.name}`).toBeGreaterThanOrEqual(2);
     });
   });
@@ -213,7 +213,7 @@ describe('Slice B: the long-term loop', () => {
       s = playRequest(s, r.id);
       seen.push(r.id);
     }
-    expect(seen).toHaveLength(8);
+    expect(seen).toHaveLength(12);
     // Then returning visitors, never the same one twice in a row.
     let last = s.progress.requestClock.last;
     for (let k = 0; k < 6; k++) {
