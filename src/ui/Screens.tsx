@@ -279,8 +279,8 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
       </div>
       <div className="res-grades">
         {(res?.grades ?? pr?.grades ?? []).map((g, i) => (
-          <button key={g.stepId} type="button" className={`chip ${GRADE_CLASS[g.grade]} ${info === `g${i}` ? 'on' : ''}`}
-            onClick={() => setInfo(info === `g${i}` ? null : `g${i}`)}>{i + 1}. {g.grade}</button>
+          <button key={g.stepId} type="button" className={`chip ${GRADE_CLASS[g.grade]} ${info === `step${i}` ? 'on' : ''}`}
+            onClick={() => setInfo(info === `step${i}` ? null : `step${i}`)}>{i + 1}. {g.grade}</button>
         ))}
         {score && <button type="button" className={`chip apple-x f-${score.fit} ${info === 'apple' ? 'on' : ''}`} onClick={() => setInfo(info === 'apple' ? null : 'apple')}>🍎 ×{score.appleMultiplier}</button>}
         {score && score.combo > 0 && <button type="button" className={`chip combo-chip ${info === 'combo' ? 'on' : ''}`} onClick={() => setInfo(info === 'combo' ? null : 'combo')}>🔥 +{score.combo}</button>}
@@ -288,9 +288,9 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
       </div>
       {info && (
         <div className="chip-info" role="status" data-testid="chip-info" onClick={() => setInfo(null)}>
-          {info.startsWith('g') && (() => {
-            const g = (res?.grades ?? pr?.grades ?? [])[Number(info.slice(1))];
-            return <><b>Action {Number(info.slice(1)) + 1}: {g?.grade}</b> Perfect scores 100, Good 70, OK 40. Bigger recipes multiply them.</>;
+          {info.startsWith('step') && (() => {
+            const g = (res?.grades ?? pr?.grades ?? [])[Number(info.slice(4))];
+            return <><b>Action {Number(info.slice(4)) + 1}: {g?.grade}</b> Perfect scores 100, Good 70, OK 40. Bigger recipes multiply them.</>;
           })()}
           {info === 'apple' && score && <><b>Apple bonus ×{score.appleMultiplier}</b> {a?.nameEn.replace(' (Jonathan)', '')} is {fitWord[score.fit]} for {r.name}. The best apples double your points!</>}
           {info === 'combo' && score && <><b>🔥 Combo +{score.combo}</b> Perfect actions in a row add bonus points.</>}
