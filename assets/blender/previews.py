@@ -268,6 +268,11 @@ def render_all(prev, icons_dir, only=None, icons=True):
             R.look(cam, (3.4, -6.0, 2.3), (0.1, 0, 1.15), 36)
             _render(['Stall', 'Chef', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Customer_A'],
                     P('hero_upgrades_customer'))
+    if want('intro'):
+        # Opening intro: Ojiichan seated in his plane (feet at intro.SEAT_Z), and his letter.
+        with Pose(loc={'Customer_O': ((0, 0.05, 0.22), 0), 'Intro_Letter': ((1.7, -1.3, 0.4), 0)}):
+            R.look(cam, (4.6, -5.6, 2.8), (0.2, 0, 0.6), 34)
+            _render(['Intro_Plane', 'Customer_O', 'Intro_Letter'], P('intro_plane'), (900, 700))
     if want('gifts'):
         R.look(cam, (0.4, -3.2, 1.6), (1.25, -0.3, 1.3), 30)
         _render(['Stall', 'Gift_Shelf', 'Gift_Longship', 'Gift_LuckyCat', 'Gift_CopperPan', 'Gift_EarthPhoto', 'Gift_FlyingFox',

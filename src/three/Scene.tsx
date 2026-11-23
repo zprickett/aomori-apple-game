@@ -58,7 +58,7 @@ const BG = '#FCF8F0';
 // ---------------------------------------------------------------------------
 interface Pose { pos: THREE.Vector3; look: THREE.Vector3; fov: number }
 
-function poseFor(view: ViewMode, aspect: number): Pose {
+export function poseFor(view: ViewMode, aspect: number): Pose {
   const fov = view === 'cook' ? 50 : 34;
   const tanH = Math.tan(THREE.MathUtils.degToRad(fov / 2)) * aspect;
   if (view === 'cook') {
@@ -134,7 +134,7 @@ function CameraRig({ view, reduced }: { view: ViewMode; reduced: boolean }) {
 const NOREN_LENGTH = 0.55;
 
 /** `pop`: the ladder step whose pieces drop in now (stall-upgrade moment), or null. */
-function Stall({ steps, reduced, view, backdrop, pop }: { steps: number; reduced: boolean; view: ViewMode; backdrop: boolean; pop: number | null }) {
+export function Stall({ steps, reduced, view, backdrop, pop }: { steps: number; reduced: boolean; view: ViewMode; backdrop: boolean; pop: number | null }) {
   const lib = getLib();
   const stall = useMemo(() => lib.clone('Stall'), [lib]);
   const upgrades = useMemo(() => STALL_PIECES.filter((p) => !p.inStall).map((p) => [lib.clone(p.node), p.step] as const), [lib]);

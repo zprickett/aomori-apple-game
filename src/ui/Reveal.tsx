@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { GOLDEN_RANK_CARD, LADDER, RECIPES, apple, fitStars, recipe, stepLabel, withName, type GameAction, type GameState } from '../core/index.ts';
+import { APPLES, FIRST_NEW_APPLE, GOLDEN_RANK_CARD, LADDER, RECIPES, apple, fitStars, recipe, stepLabel, withName, type GameAction, type GameState } from '../core/index.ts';
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
@@ -29,7 +29,9 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
     ...(d.rank !== null ? [] : d.recipes.map((id) => ({ kind: 'recipe' as const, id }))),
   ];
   const [i, setI] = useState(0);
-  const [stage, setStage] = useState<'intro' | 'overview'>('intro');
+  const [stage, setStage] = useState<'intro' | 'overview' | 'journey'>('intro');
+  // The very first new apple comes alone and opens the apple journey (an extra how-it-works card).
+  const firstApple = d.apples.length === 1 && d.apples[0] === FIRST_NEW_APPLE;
   /**
    * Before the unlocks: Ojiichan's tasting and the group photo, or the rank-up page and its
    * notebook page, or a "Stall upgrade!" card for a ★ step that brings no recipe.
@@ -79,6 +81,7 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
   if (!item) return null;
   const next = () => {
     sfx.tap();
+    if (firstApple && item.kind === 'apple' && stage === 'overview') { setStage('journey'); return; }
     if (last) dispatch({ type: 'DELIVERY_DONE' });
     else {
       // The rest of an apple batch skips straight to its card (the batch intro showed them all).
@@ -90,8 +93,9 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
 
   if (stage === 'intro') {
     const batch = item.kind === 'apple' && d.apples.length > 1 ? d.apples : undefined;
-    return <MangaIntro key={`${i}`} item={item} batch={batch} reduced={reduced} onSkip={() => setStage('overview')} />;
+    return <MangaIntro key={`${i}`} item={item} batch={batch} first={firstApple && item.kind === 'apple'} reduced={reduced} onSkip={() => setStage('overview')} />;
   }
+  if (stage === 'journey') return <AppleJourney found={state.progress.unlockedApples.length} last={last} onNext={next} />;
   return (
     <div className="reveal overview" role="dialog" aria-label="New unlock" data-testid="delivery-card"
       style={{ ['--hue' as string]: item.kind === 'apple' ? apple(item.id).skin.base : '#E8A92A' }}>
@@ -109,14 +113,14 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
       <div className="ov-foot">
         {items.length > 1 && <div className="ov-dots">{items.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>}
         <button className="btn primary huge" data-testid={last ? 'delivery-done' : 'reveal-next'} onClick={next}>
-          {last ? 'Back to the shop' : 'Next'}
+          {last && !(firstApple && item.kind === 'apple') ? 'Back to the shop' : 'Next'}
         </button>
       </div>
     </div>
   );
 }
 
-function MangaIntro({ item, batch, reduced, onSkip }: { item: ShowcaseItem; batch?: readonly string[]; reduced: boolean; onSkip: () => void }) {
+function MangaIntro({ item, batch, first = false, reduced, onSkip }: { item: ShowcaseItem; batch?: readonly string[]; first?: boolean; reduced: boolean; onSkip: () => void }) {
   const isApple = item.kind === 'apple';
   const name = batch ? batch.map((id) => shortName(apple(id).nameEn)).join(' · ') : isApple ? shortName(apple(item.id).nameEn) : recipe(item.id).name;
   const ja = isApple ? apple(item.id).nameJa : recipe(item.id).nameJa;
@@ -128,10 +132,18 @@ function MangaIntro({ item, batch, reduced, onSkip }: { item: ShowcaseItem; batc
       <div className="mg-dots" />
       <div className="mg-slash" />
       {!batch && <div className="mg-ja" lang="ja" aria-hidden>{ja}</div>}
-      <div className="mg-shout">
-        <span className={`mg-kick ${batch ? 'long' : ''}`}>{batch ? `${batch.length} NEW APPLES!` : isApple ? 'NEW APPLE!' : 'NEW RECIPE!'}</span>
-        <span className="mg-kick-ja" lang="ja" aria-hidden>{isApple ? '新しいりんご！' : '新メニュー！'}</span>
-      </div>
+      {first ? (
+        <div className="mg-shout first" data-testid="first-apple">
+          <span className="mg-kick">WOW!</span>
+          <span className="mg-kick long">Your first new apple!</span>
+          <span className="mg-kick-ja" lang="ja" aria-hidden>はじめての新しいりんご！</span>
+        </div>
+      ) : (
+        <div className="mg-shout">
+          <span className={`mg-kick ${batch ? 'long' : ''}`}>{batch ? `${batch.length} NEW APPLES!` : isApple ? 'NEW APPLE!' : 'NEW RECIPE!'}</span>
+          <span className="mg-kick-ja" lang="ja" aria-hidden>{isApple ? '新しいりんご！' : '新メニュー！'}</span>
+        </div>
+      )}
       <Showcase item={item} items={batch?.map((id) => ({ kind: 'apple' as const, id }))} reduced={reduced} punch className={`mg-canvas ${batch ? 'batch' : ''}`} />
       {batch ? (
         <div className="mg-batch">
@@ -145,6 +157,36 @@ function MangaIntro({ item, batch, reduced, onSkip }: { item: ShowcaseItem; batc
         <div className="mg-name">{name}</div>
       )}
       <div className="mg-skip">Tap to continue</div>
+    </div>
+  );
+}
+
+/**
+ * After the very first new apple: the apple journey. Aomori's apples are there to be found, how new
+ * apples arrive, why the apple matters, and where the collection is.
+ */
+function AppleJourney({ found, last, onNext }: { found: number; last: boolean; onNext: () => void }) {
+  useEffect(() => { [0, 1, 2].forEach((k) => window.setTimeout(() => sfx.star(k), 250 + k * 160)); }, []);
+  const total = APPLES.length;
+  return (
+    <div className="reveal overview journey" role="dialog" aria-label="Your apple journey" data-testid="apple-journey">
+      <div className="aj-head">
+        <span className="aj-kick">Your apple journey begins!</span>
+        <span className="aj-ja" lang="ja">りんごの旅、スタート！</span>
+      </div>
+      <p className="aj-lead">Aomori grows lots of different apples. <b>{total} of them</b> are waiting for you to discover!</p>
+      <div className="aj-progress" aria-label={`${found} of ${total} apples found`}>
+        <div className="aj-bar"><i style={{ width: `${(found / total) * 100}%` }} /></div>
+        <span>🍎 {found} / {total} found</span>
+      </div>
+      <ul className="aj-how">
+        <li><span className="aj-ic" aria-hidden>🚚</span><span><b>New apples arrive as you cook.</b> Keep serving customers to find more.</span></li>
+        <li><span className="aj-ic" aria-hidden>⭐</span><span><b>Each apple suits some dishes best.</b> More ★ in the apple picker means more points.</span></li>
+        <li><span className="aj-ic" aria-hidden>📖</span><span><b>Tap 🍎 {found}/{total} at the top</b> to see every apple you’ve found.</span></li>
+      </ul>
+      <div className="ov-foot">
+        <button className="btn primary huge" data-testid={last ? 'delivery-done' : 'reveal-next'} onClick={onNext}>Let’s find them all!</button>
+      </div>
     </div>
   );
 }

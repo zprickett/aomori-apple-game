@@ -6,8 +6,7 @@
 import { useContext, useState } from 'react';
 import {
   GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
-  type GameState, type NewsItem, type NotebookPage, type Rank, FIRST_LETTER, PROLOGUE, DEFAULT_LOOK, type ChefLook } from '../core/index.ts';
-import { ChefPreview } from '../three/ChefPreview.tsx';
+  type GameState, type NewsItem, type NotebookPage, type Rank, FIRST_LETTER } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { BACKGROUNDS } from '../game/backgrounds.ts';
 import { dishIcon, portrait } from './icons.tsx';
@@ -69,11 +68,26 @@ export function NotebookPageView({ page, name, unlocked }: { page: NotebookPage;
   );
 }
 
-/** Onboarding, right after the chef maker: Ojiichan's letter, then notebook page 1. */
-export function GrandpaLetter({ name, look, onDone }: { name: string; look?: ChefLook; onDone: () => void }) {
-  const [step, setStep] = useState<'prologue' | 'letter' | 'page'>('prologue');
+/** The letter's sign-off, with a little taped-on photo of Ojiichan beside it. */
+export function LetterSign({ signoff, signature }: { signoff: string; signature: string }) {
+  return (
+    <div className="lt-sign">
+      <figure className="lt-photo">
+        <img src={portrait('O')} alt="Ojiichan" />
+        <span className="lt-tape" aria-hidden />
+      </figure>
+      <p>{signoff}<br /><b>{signature}</b><br /><span lang="ja">{GRANDPA.nameJa}</span></p>
+    </div>
+  );
+}
+
+/**
+ * Ojiichan's letter and notebook page 1, for a chef added later (a new player reads the letter at
+ * the end of the intro instead, src/ui/Intro.tsx).
+ */
+export function GrandpaLetter({ name, onDone }: { name: string; onDone: () => void }) {
+  const [step, setStep] = useState<'letter' | 'page'>('letter');
   const l = letterFor(name);
-  if (step === 'prologue') return <Prologue name={name} look={look} onDone={() => setStep('letter')} />;
   return (
     <div className="onb letter-screen" data-testid="grandpa-letter">
       <div className="onb-sky" />
@@ -88,7 +102,7 @@ export function GrandpaLetter({ name, look, onDone }: { name: string; look?: Che
           <div className="lt-stamp" aria-hidden>🍎</div>
           <p className="lt-greet">{l.greeting}</p>
           {l.body.map((b) => <p key={b}>{b}</p>)}
-          <p className="lt-sign">{l.signoff}<br /><b>{l.signature}</b> <span lang="ja">{GRANDPA.nameJa}</span></p>
+          <LetterSign signoff={l.signoff} signature={l.signature} />
         </div>
       ) : (
         <div className="lt-notebook" key="page">
@@ -102,39 +116,6 @@ export function GrandpaLetter({ name, look, onDone }: { name: string; look?: Che
           <button className="btn primary huge" data-testid="letter-done" onClick={() => { tap(); onDone(); }}>Let’s cook!</button>
         )}
       </div>
-    </div>
-  );
-}
-
-/**
- * The opening, a three-panel manga page before the letter: Ojiichan flies off, the chef arrives at
- * the empty stall, and a note waits on the counter (tap it to read the letter).
- */
-function Prologue({ name, look, onDone }: { name: string; look?: ChefLook; onDone: () => void }) {
-  return (
-    <div className="onb prologue" data-testid="prologue">
-      <div className="pr-panel pr-1">
-        <div className="pr-sky" />
-        <span className="pr-plane" aria-hidden>✈️</span>
-        <img className="pr-oji" src={portrait('O')} alt="Ojiichan" />
-        <span className="pr-case" aria-hidden>🧳</span>
-        <div className="pr-say">{PROLOGUE.byeSay}</div>
-        <div className="pr-cap">{PROLOGUE.bye}</div>
-      </div>
-      <div className="pr-panel pr-2" style={{ backgroundImage: `url(${BACKGROUNDS.aomori_city.url})` }}>
-        <ChefPreview look={look ?? DEFAULT_LOOK} className="pr-chef" />
-        <div className="pr-sfx">{PROLOGUE.arriveSay}</div>
-        <div className="pr-cap">{withName(PROLOGUE.arrive, name)}</div>
-      </div>
-      <button type="button" className="pr-panel pr-3" data-testid="prologue-note" onClick={() => { tap(); onDone(); }}>
-        <div className="pr-note">
-          <span className="pr-pin" aria-hidden />
-          <span className="pr-note-to">{withName(PROLOGUE.noteTo, name)}</span>
-          <span aria-hidden>🍎</span>
-        </div>
-        <div className="pr-cap">{PROLOGUE.note}</div>
-        <div className="pr-tap">Tap the note!</div>
-      </button>
     </div>
   );
 }

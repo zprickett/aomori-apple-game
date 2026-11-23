@@ -12,6 +12,11 @@ export function unlockAudio() {
   } catch { ctx = null; }
 }
 
+/** The running AudioContext for the music player, or null while sound is off or locked. */
+export function audioContext(): AudioContext | null {
+  return enabled && ctx && ctx.state === 'running' ? ctx : null;
+}
+
 export function suspendAudio() { try { void ctx?.suspend(); } catch { /* ignore */ } }
 
 function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.15, delay = 0, slide = 0) {

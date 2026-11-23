@@ -97,8 +97,8 @@ describe('save store', () => {
     expect(data.settings).toEqual(defaultSave().settings);
     expect(data.unlockedApples).toEqual(unlockedApples(7));
     expect(data.unlockedApples).toEqual(expect.arrayContaining(['a094']));
-    expect(data.unlockedApples).not.toContain('a091'); // arrives after order 9
-    expect(data.unlockedApples).toHaveLength(8);
+    expect(data.unlockedApples).not.toContain('a091'); // arrives after order 11
+    expect(data.unlockedApples).toHaveLength(9);
     // A v2 save gets the old earliest rank history on the ladder: Apprentice at 5 (jam), candy apple not until 8.
     expect(data.ladder).toEqual([5]);
     expect(data.waiting).toBeNull();
@@ -303,15 +303,15 @@ describe('idempotent completion through save/reload', () => {
   it('reloading on the result / delivery screen never double counts or re-grants rewards', () => {
     const storage = new FakeStorage();
     let store = createSaveStore(storage);
-    // Fast-forward to 2 completed orders.
-    let state = initialStateFromSave({ ...defaultSave(), completedOrders: 2, completedOrderIds: ['o-0001', 'o-0002'], seenUnlockRewards: ['recipe:rabbit_apples'] });
+    // Fast-forward to 1 completed order: order 2 brings the first new apple.
+    let state = initialStateFromSave({ ...defaultSave(), completedOrders: 1, completedOrderIds: ['o-0001'] });
     state = play(state, [{ type: 'ACCEPT_ORDER' }, { type: 'PREVIEW_APPLE', appleId: 'a048' }, { type: 'CONFIRM_APPLE' }]);
     state = cookAll(state);
     expect(state.phase).toBe('serve');
     state = gameReducer(state, { type: 'SERVE_DONE' });
     expect(state.phase).toBe('result');
-    expect(state.progress.completedOrders).toBe(3);
-    expect(state.delivery?.apples).toEqual(['a045', 'a020', 'a094']); // the first batch of three
+    expect(state.progress.completedOrders).toBe(2);
+    expect(state.delivery?.apples).toEqual(['a094']); // the first new apple, on its own
     store.save(toSaveData(state));
 
     // Second SERVE_DONE / COMPLETE_ORDER is a no-op.
@@ -324,9 +324,9 @@ describe('idempotent completion through save/reload', () => {
       const loaded = store.load();
       const re = initialStateFromSave(loaded.data, loaded.notice);
       expect(re.phase).toBe('result');
-      expect(re.progress.completedOrders).toBe(3);
+      expect(re.progress.completedOrders).toBe(2);
       expect(re.result).toEqual(state.result);
-      expect(re.delivery?.apples).toEqual(['a045', 'a020', 'a094']);
+      expect(re.delivery?.apples).toEqual(['a094']);
       store.save(toSaveData(re));
     }
 
@@ -338,12 +338,12 @@ describe('idempotent completion through save/reload', () => {
     expect(state.phase).toBe('delivery');
     state = gameReducer(state, { type: 'DELIVERY_DONE' });
     expect(state.phase).toBe('shop');
-    expect(state.order.orderNumber).toBe(4);
+    expect(state.order.orderNumber).toBe(3);
     expect(state.progress.seenUnlockRewards).toContain('apple:a094');
     store.save(toSaveData(state));
     const after = initialStateFromSave(createSaveStore(storage).load().data);
     expect(after.phase).toBe('shop');
-    expect(after.progress.completedOrders).toBe(3);
+    expect(after.progress.completedOrders).toBe(2);
     expect(after.delivery).toBeNull();
   });
 

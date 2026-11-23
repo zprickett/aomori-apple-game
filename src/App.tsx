@@ -4,6 +4,7 @@ import { LADDER, REQUESTS, createProfileStore, requestById, saveKeyFor, selector
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
 import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
 import { GrandpaLetter, NewsCard } from './ui/Notebook.tsx';
+import { Intro } from './ui/Intro.tsx';
 import { devPlayParams, useGame } from './game/useGame.ts';
 import { recipeStages, type PropSpec } from './game/stations.ts';
 import { emitCue } from './game/bus.ts';
@@ -47,39 +48,62 @@ function safeStorage(): Storage | null {
   try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; }
 }
 
-type Screen = 'welcome' | 'create' | 'letter' | 'who' | 'play' | 'edit';
+type Screen = 'intro' | 'welcome' | 'create' | 'letter' | 'who' | 'play' | 'edit';
 
-/** Onboarding + profiles around the game. Each chef has their own save. */
+/** The opening intro plays once per device (Settings → Watch the intro replays it). `?intro` forces it. */
+const INTRO_KEY = 'aomori-intro-seen';
+const FORCE_INTRO = typeof location !== 'undefined' && new URLSearchParams(location.search).has('intro');
+function introSeen(storage: Storage | null): boolean {
+  try { return storage?.getItem(INTRO_KEY) === '1'; } catch { return false; }
+}
+function markIntroSeen(storage: Storage | null) {
+  try { storage?.setItem(INTRO_KEY, '1'); } catch { /* private mode: it just plays again next time */ }
+}
+
+/** Onboarding + profiles around the game. Each chef has their own save.
+ *  First visit: intro (ending on Ojiichan's letter to the family, opened from the stall) → make your chef → the stall. */
 function Root() {
-  const store = useMemo(() => createProfileStore(safeStorage()), []);
+  const storage = useMemo(safeStorage, []);
+  const store = useMemo(() => createProfileStore(storage), [storage]);
   const [idx, setIdx] = useState(() => store.load());
-  const [screen, setScreen] = useState<Screen>(() => (idx.profiles.length ? 'who' : 'welcome'));
+  const [screen, setScreen] = useState<Screen>(() => (FORCE_INTRO || (!idx.profiles.length && !introSeen(storage)) ? 'intro'
+    : idx.profiles.length ? 'who' : 'welcome'));
   const [chef, setChef] = useState<Profile | null>(null);
+  // The family letter was read before the chef maker, so the new chef goes straight to the stall.
+  const [letterRead, setLetterRead] = useState(false);
+  const [replay, setReplay] = useState(false);
   const refresh = () => setIdx(store.load());
   const play = (p: Profile) => { store.setActive(p.id); refresh(); setChef(p); setScreen('play'); };
 
+  if (screen === 'intro') {
+    const fresh = !idx.profiles.length;
+    return <Intro doneLabel={fresh ? 'Make your chef' : 'Let’s go!'}
+      onDone={() => { markIntroSeen(storage); setLetterRead(fresh); setScreen(fresh ? 'create' : 'who'); }} />;
+  }
   if (screen === 'play' && chef) {
     return (
       <ChefContext.Provider value={chef}>
-        <Game key={chef.id} saveKey={saveKeyFor(chef.id)} onSwitchChef={() => { refresh(); setScreen('who'); }} onEditChef={() => setScreen('edit')} />
+        <Game key={chef.id} saveKey={saveKeyFor(chef.id)} onSwitchChef={() => { refresh(); setScreen('who'); }} onEditChef={() => setScreen('edit')}
+          onWatchIntro={() => setReplay(true)} />
+        {replay && <div className="intro-overlay"><Intro replay doneLabel="Back to my stall" onDone={() => setReplay(false)} /></div>}
       </ChefContext.Provider>
     );
   }
   let body;
   if (screen === 'welcome') body = <Welcome onStart={() => setScreen('create')} />;
   else if (screen === 'create') {
-    // A new chef reads Ojiichan's letter before the first order.
-    body = <ChefMaker mode="create" onBack={() => setScreen(idx.profiles.length ? 'who' : 'welcome')}
-      onDone={(name: string, look: ChefLook) => { const p = store.create(name, look); refresh(); setChef(p); setScreen('letter'); }} />;
+    // A new chef reads Ojiichan's letter before the first order (unless it was just read after the intro).
+    body = <ChefMaker mode="create" onBack={idx.profiles.length || !letterRead ? () => setScreen(idx.profiles.length ? 'who' : 'welcome') : undefined}
+      onDone={(name: string, look: ChefLook) => { const p = store.create(name, look); refresh(); setChef(p); if (letterRead) play(p); else setScreen('letter'); }} />;
   } else if (screen === 'letter' && chef) {
-    body = <GrandpaLetter name={chef.name} look={chef.look} onDone={() => play(chef)} />;
+    body = <GrandpaLetter name={chef.name} onDone={() => play(chef)} />;
   } else if (screen === 'edit' && chef) {
     body = <ChefMaker mode="edit" initial={chef} onBack={() => setScreen('play')}
       onDone={(name: string, look: ChefLook) => { const p = store.update(chef.id, { name, look }); refresh(); setChef(p); setScreen('play'); }} />;
   } else {
     body = <WhoIsCooking profiles={idx.profiles} activeId={idx.activeId}
       onPlay={(id) => { const p = idx.profiles.find((x) => x.id === id); if (p) play(p); }}
-      onNew={() => setScreen('create')}
+      onNew={() => { setLetterRead(false); setScreen('create'); }}
       onDelete={(id) => { store.remove(id); const next = store.load(); setIdx(next); if (!next.profiles.length) setScreen('welcome'); }} />;
   }
   return <div className="frame onb-frame">{body}</div>;
@@ -100,7 +124,7 @@ function Fallback({ title, body, loading }: { title: string; body: string; loadi
   );
 }
 
-function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitchChef?: () => void; onEditChef?: () => void }) {
+function Game({ saveKey, onSwitchChef, onEditChef, onWatchIntro }: { saveKey?: string; onSwitchChef?: () => void; onEditChef?: () => void; onWatchIntro?: () => void }) {
   const { state, dispatch, persistent, reducedMotion } = useGame(saveKey);
   const chef = useContext(ChefContext) ?? DEFAULT_CHEF;
   // `?play=`: leaving practice returns to the review page on the same recipe (dev).
@@ -228,7 +252,7 @@ function Game({ saveKey, onSwitchChef, onEditChef }: { saveKey?: string; onSwitc
       <Notice text={state.notice} onClose={() => dispatch({ type: 'DISMISS_NOTICE' })} />
       {!persistent && <div className="save-warn" role="status">Progress cannot be saved on this device</div>}
       {sheet && <Sheet kind={sheet} state={state} dispatch={dispatch} onClose={() => setSheet(null)} persistent={persistent}
-        chefName={chef.name} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
+        chefName={chef.name} onSwitchChef={onSwitchChef} onEditChef={onEditChef} onWatchIntro={onWatchIntro} />}
     </div>
   );
 }

@@ -113,7 +113,7 @@ describe('full order loop', () => {
     expect(deliveries[2].recipes).toEqual(['rabbit_apples']);
     expect(Object.values(deliveries).map((d) => d.rank).filter(Boolean)).toEqual([2, 3].slice(0, rankOf(state.progress.ladder) - 1));
     expect(state.progress.completedOrders).toBe(15);
-    expect(state.progress.unlockedApples).toHaveLength(14);
+    expect(state.progress.unlockedApples).toHaveLength(12);
     expect(state.progress.unlockedRecipes.length).toBeGreaterThanOrEqual(5);
     expect(selectors.collectionComplete(state)).toBe(false);
     expect(selectors.stallLevel(state)).toBe(3);
@@ -304,11 +304,11 @@ describe('settings and reset', () => {
     const s = play(initialStateFromSave(at(14)), [{ type: 'ACCEPT_ORDER' }]);
     expect(s.order).toMatchObject({ recipeId: 'ringo_ame', suggestedAppleId: 'a091' }); // candy apple intro with the Alps Otome demo
     const cards = selectors.appleCards(s);
-    expect(cards).toHaveLength(12);
+    expect(cards).toHaveLength(13);
     expect(cards[0]).toMatchObject({ unlocked: true, fitStars: 3 });
     expect(cards[0].apple.id).toBe('a091');
     expect(cards.filter((c) => !c.unlocked)).toHaveLength(1);
-    expect(cards[11]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 15 orders' });
+    expect(cards[12]).toMatchObject({ unlocked: false, unlockText: 'Arrives after 17 orders' });
     expect(selectors.bridgeText(startCooking(initialState(), 'a048'))).toMatch(/Chef washes/);
   });
 });
@@ -343,12 +343,12 @@ describe('two customers, the finale and pop-up limits', () => {
   });
 
   it('a rank-up order keeps its apples for the next order', () => {
-    // Apprentice reached at order 3 (the first apple batch).
-    const save = { ...defaultSave(), completedOrders: 2, completedOrderIds: [], ladder: [], totalPoints: LADDER[0].points - 10 };
+    // Apprentice reached at order 2 (the first new apple).
+    const save = { ...defaultSave(), completedOrders: 1, completedOrderIds: [], ladder: [], totalPoints: LADDER[0].points - 10 };
     const done = cookAll(play(initialStateFromSave(save), [{ type: 'ACCEPT_ORDER' }]));
     expect(done.delivery).toMatchObject({ rank: 2, apples: [] });
     const next = cookAll(play(gameReducer(gameReducer(done, { type: 'RESULT_DONE' }), { type: 'DELIVERY_DONE' }), [{ type: 'ACCEPT_ORDER' }]));
-    expect(next.delivery?.apples).toEqual(['a045', 'a020', 'a094']);
+    expect(next.delivery?.apples).toEqual(['a094']);
   });
 
   it("Ojiichan's order brings the tasting and photo, then he helps at the stall", () => {

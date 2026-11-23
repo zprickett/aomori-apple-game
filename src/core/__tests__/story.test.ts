@@ -15,7 +15,7 @@ export function lad(...ranks: number[]): number[] {
   });
   return out.slice(0, 10);
 }
-import { GRANDPA, NEWS, NOTEBOOK, REGULARS, STORY_BACKDROPS, backdropForRank, letterFor, notebookPage, openPages, withName } from '../story.ts';
+import { GRANDPA, INTRO, NEWS, NOTEBOOK, REGULARS, STORY_BACKDROPS, backdropForRank, letterFor, notebookPage, openPages, withName } from '../story.ts';
 
 describe('story data', () => {
   it('has exactly one notebook page per rank', () => {
@@ -45,9 +45,10 @@ describe('story data', () => {
     expect(notebookPage(5).title).toBe('The last page');
   });
 
-  it('letter and pages use the chef name and never he/she for the chef', () => {
+  it('the letter is to the family (read before the chef is made); pages use the chef name and never he/she', () => {
     const l = letterFor('Mika');
-    expect(l.greeting).toBe('Dear Mika,');
+    expect(l.greeting).toBe('Dear Family,');
+    expect(INTRO.tap).toBeTruthy();
     expect(withName('{name}!', '  ')).toBe('Chef!');
     expect(withName(notebookPage(5).where!, 'Mika')).toContain('Mika');
     const text = JSON.stringify({ l, NOTEBOOK });
@@ -57,6 +58,13 @@ describe('story data', () => {
 });
 
 describe('regulars, news and Ojiichan', () => {
+  it('the game opens with a plain Fresh Apple Juice order, then Sota\'s first story visit', () => {
+    const [first, second, third] = [1, 2, 3].map((n) => orderForIndex(n, DEFAULT_SEED, []));
+    expect(first.recipeId).toBe('fresh_juice');
+    expect(first.visit).toBeUndefined();
+    expect(second.visit?.who).toBe('sota');
+    expect(third.customerId).not.toBe(second.customerId);
+  });
   const orders = (ladder: number[], n = 60, seed = 3) => Array.from({ length: n }, (_, i) => orderForIndex(i + 1, seed, ladder));
 
   it('four regulars, four visits each, on their own models, in order', () => {

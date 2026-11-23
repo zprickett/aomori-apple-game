@@ -6,7 +6,7 @@
     "gloss": "Grandpa"
   },
   "letter": {
-    "greeting": "Dear {name},",
+    "greeting": "Dear Family,",
     "body": [
       "Our apple stall is yours now! I'm off to see the world.",
       "Instead of a cookbook, I left you my notebook of riddles. Each new page brings a new dish.",
@@ -120,7 +120,7 @@
       "visits": [
         {
           "rank": 1,
-          "after": 4,
+          "after": 1,
           "line": "Hi! I'm Sota. I'm going to be a chef too! Can I watch you make {dish}?"
         },
         {
@@ -273,13 +273,13 @@
     "tagline": "Your grandpa, home from his travels!",
     "color": "#E8A92A"
   },
-  "prologue": {
-    "bye": "Ojiichan is off to see the world!",
+  "intro": {
+    "_comment": "The opening (src/ui/Intro.tsx): Ojiichan flies over Aomori and drops his letter onto the empty stall.",
+    "letsGo": "Let's Go!",
+    "letsGoJa": "さあ、いこう！",
     "byeSay": "Bye-bye, Aomori!",
-    "arrive": "Next morning, {name} arrives at the apple stall by Aomori Bay...",
-    "arriveSay": "It's empty!?",
-    "note": "There's a note on the counter!",
-    "noteTo": "To: {name}"
+    "byeSay2": "Time to see the world!",
+    "tap": "Open letter"
   },
   "firstLetter": "When your stall does well, people send you notes, newspapers and invitations. Keep them all in your Scrapbook (in My chef).",
   "stage2Intro": {

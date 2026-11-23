@@ -33,6 +33,9 @@ body {
   width: min(100vw, 480px);
   height: 100%;
   overflow: hidden;
+  /* clip, not just hidden: the zoomed backdrop is taller than the frame, and a hidden overflow can
+     still be scrolled by focus, which pushed reveal cards up under the top edge. */
+  overflow: clip;
   background: var(--bg);
   box-shadow: 0 0 40px rgba(74, 51, 38, 0.18);
 }
@@ -745,8 +748,14 @@ body:has(.review) { overflow: auto; user-select: text; -webkit-user-select: text
 .lt-paper p { margin: 0 0 30px; font-size: 1.05rem; font-weight: 700; line-height: 30px; }
 .lt-paper p:last-child { margin-bottom: 0; }
 .lt-greet { font-weight: 900 !important; font-size: 1.2rem !important; margin-bottom: 0 !important; }
-.lt-sign { margin-top: 0 !important; }
+.lt-sign { margin-top: 0 !important; display: flex; align-items: flex-start; gap: 14px; }
+.lt-sign p { margin: 0 !important; flex: 1; min-width: 0; }
 .lt-sign span { color: var(--ink-soft); font-weight: 800; font-size: 0.9rem; }
+/* Ojiichan's photo, taped beside the sign-off: the letter is from someone the kid can see. */
+.lt-photo { order: 2; flex: none; margin: 4px 0 0; width: 96px; padding: 6px 6px 16px; background: #fff; border: 2px solid #d9c7a6;
+  box-shadow: 0 4px 10px rgba(74, 51, 38, 0.2); transform: rotate(5deg); position: relative; }
+.lt-photo img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: linear-gradient(#cfe6fa, #fff3d9); }
+.lt-tape { position: absolute; top: -9px; left: 50%; width: 46px; height: 16px; margin-left: -23px; background: rgba(244, 201, 84, 0.65); transform: rotate(-6deg); }
 .lt-stamp { position: absolute; top: -14px; right: 16px; font-size: 1.7rem; background: #fff; border: 2px dashed var(--red); border-radius: 6px; padding: 2px 6px; transform: rotate(8deg); }
 .lt-notebook { margin: calc(env(safe-area-inset-top, 0px) + 4vh) 16px 0; animation: ov-in 0.4s cubic-bezier(.2,.9,.3,1) both; }
 
@@ -1081,34 +1090,6 @@ button.cab-card { font: inherit; color: inherit; cursor: pointer; }
 .rec-sub { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.9rem; }
 .rec-sub img { width: 28px; height: 28px; }
 
-/* ---- Opening manga page (before Ojiichan's letter) ---- */
-.prologue { background: #2b1d16; padding: calc(env(safe-area-inset-top, 0px) + 10px) 10px calc(env(safe-area-inset-bottom, 0px) + 10px); display: grid;
-  grid-template-rows: 30fr 38fr 32fr; gap: 0; overflow: hidden; }
-.pr-panel { position: relative; overflow: hidden; border: 3px solid #1d130e; background: #fffdf7; animation: rp-in-left 0.45s cubic-bezier(.2,1.3,.4,1) both; }
-.pr-1 { clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%); margin-bottom: -3%; }
-.pr-2 { clip-path: polygon(0 8%, 100% 0, 100% 92%, 0 100%); background-size: cover; background-position: center 35%; animation-name: rp-in-right; animation-delay: 1.4s; }
-.pr-3 { clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 100%); margin-top: -3%; animation-delay: 2.8s; font: inherit; color: inherit; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding-top: 6%;
-  background: repeating-linear-gradient(#fffdf6 0 25px, #ece2d0 25px 26px); }
-.pr-sky { position: absolute; inset: 0; background: linear-gradient(#9fd0f5, #e8f4fd); }
-.pr-plane { position: absolute; top: 22%; left: -20%; font-size: 2.2rem; animation: pr-fly 3s 0.5s ease-in-out infinite; }
-@keyframes pr-fly { from { left: -20%; transform: rotate(-12deg); } to { left: 110%; transform: rotate(-20deg) translateY(-30px); } }
-.pr-oji { position: absolute; left: 8%; bottom: 16%; width: 96px; height: 96px; border-radius: 50%; border: 3px solid #1d130e; background: #fffaf0; }
-.pr-case { position: absolute; left: 33%; bottom: 17%; font-size: 2.2rem; }
-.pr-say { position: absolute; right: 6%; top: 34%; background: #fff; border: 2.5px solid #1d130e; border-radius: 18px; padding: 6px 12px; font-weight: 900;
-  box-shadow: 2px 3px 0 #1d130e; animation: pop 0.4s 0.6s both; }
-.pr-cap { position: absolute; left: 0; right: 0; bottom: 0; background: #1d130e; color: #fff; font-weight: 800; font-size: 0.95rem; padding: 4px 12px 6px; text-align: center; line-height: 1.3; }
-.pr-1 .pr-cap { top: 0; bottom: auto; background: rgba(29,19,14,0.85); }
-.pr-2 .pr-cap { bottom: 9%; }
-.pr-chef { position: absolute; inset: 6% 20% 18%; }
-.pr-sfx { position: absolute; right: 6%; top: 14%; font-size: clamp(1.6rem, 8vw, 2.2rem); font-weight: 900; font-style: italic; color: #fff; -webkit-text-stroke: 3px #1d130e;
-  paint-order: stroke; transform: rotate(8deg); animation: rp-stamp 0.4s 2s cubic-bezier(.2,1.8,.4,1) both; }
-.pr-note { position: relative; display: flex; align-items: center; gap: 10px; background: #fff7e0; border: 2.5px solid #c9a46a; padding: 14px 20px; font-weight: 900; font-size: 1.2rem;
-  transform: rotate(-3deg); box-shadow: 3px 4px 0 rgba(0,0,0,0.2); animation: note-drop 0.7s 3s cubic-bezier(.3,1.4,.5,1) both; }
-.pr-pin { position: absolute; top: -10px; left: 50%; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a8a, #d94232 60%); }
-.pr-3 .pr-cap { position: static; background: none; color: var(--ink); font-size: 1.05rem; }
-.pr-tap { font-weight: 900; color: #fff; background: var(--red); border-radius: 999px; padding: 4px 16px; animation: fo-bounce 1.2s 3.6s ease-in-out infinite both; }
-.reduced .prologue *, .reduced .prologue { animation: none !important; }
 /* first letter explainer on the news card */
 .news-first { background: #e9f4ff; border: 2px dashed #7fb2d8; border-radius: 12px; padding: 6px 10px; font-size: 0.85rem; font-weight: 700; line-height: 1.35; text-align: left; }
 .news-first b { display: block; font-weight: 900; }
@@ -1345,3 +1326,128 @@ button.cab-card { font: inherit; color: inherit; cursor: pointer; }
 .c-drummers .crew { background: linear-gradient(#fff 0 40%, #1f9e6e 40% 52%, #fff 52%); }
 .c-drummers .crew::after { top: -34px; height: 8px; background: #f4c64a; border-radius: 4px; }
 .c-drummers .crew i { left: 6px; top: 26px; width: 30px; height: 20px; border-radius: 4px; background: linear-gradient(#e0e0e0 0 20%, #c9463a 20% 80%, #e0e0e0 80%); border: 2px solid #1d130e; }
+
+/* ---------- the opening intro (src/ui/Intro.tsx) ---------- */
+.intro { background: #7FBEFD; touch-action: manipulation; }
+.intro-bg { position: absolute; inset: 0; will-change: transform; }
+.intro-bg .scene-bg { transition: none; }
+/* The sky above the painting: its bottom colour is the painting's own top sky. */
+.intro-sky { position: absolute; left: 0; right: 0; height: 260%; background: linear-gradient(#4E9BEA 0%, #6CB0F4 45%, #7FBEFD 100%); }
+.intro-clouds { position: absolute; inset: 0; width: 100%; height: 100%; }
+.intro-bubble { position: absolute; z-index: 5; left: 50%; top: 30%; display: grid; gap: 2px; white-space: nowrap; pointer-events: none;
+  background: #FFFAF0; border: 3px solid var(--wood-d); border-radius: 22px; padding: 10px 16px; font-weight: 800; font-size: 1rem;
+  box-shadow: 0 4px 0 rgba(104, 69, 46, 0.25); transform: translate(-20%, calc(-100% - 22px)) scale(0); transform-origin: 20% 120%;
+  transition: transform 0.35s cubic-bezier(.2, 1.6, .4, 1); }
+.intro-bubble.on { transform: translate(-20%, calc(-100% - 22px)) scale(1); }
+.intro-bubble b { font-size: 1.35rem; font-weight: 900; color: var(--red); }
+.intro-bubble::after { content: ""; position: absolute; left: 18%; bottom: -16px; border: 9px solid transparent; border-top: 12px solid var(--wood-d); border-bottom: 0; }
+.intro-logo { position: absolute; z-index: 6; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 5%); translate: -50% 0; pointer-events: none; }
+.intro-hint { position: absolute; z-index: 6; left: 50%; top: 70%; transform: translate(-50%, calc(-100% - 40px)); opacity: 0; pointer-events: none;
+  font: inherit; font-weight: 900; font-size: 1.15rem; color: #fff; background: var(--red); border: 3px solid var(--wood-d); border-radius: 18px;
+  padding: 10px 18px; box-shadow: 0 4px 0 #8f2419; white-space: nowrap; cursor: pointer; transition: opacity 0.3s; }
+.intro-hint::after { content: ""; position: absolute; left: 50%; bottom: -15px; margin-left: -9px; border: 9px solid transparent; border-top: 12px solid var(--wood-d); border-bottom: 0; }
+.intro-hint.on { opacity: 1; pointer-events: auto; animation: intro-bob 1.1s ease-in-out infinite; }
+@keyframes intro-bob { 50% { translate: 0 -8px; } }
+.intro-skip { position: absolute; z-index: 7; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 12px); background: rgba(255, 250, 240, 0.88); }
+.intro-go { position: absolute; inset: 0; z-index: 10; border: 0; margin: 0; padding: 0; font: inherit; color: var(--ink); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px;
+  background: radial-gradient(circle at 50% 42%, #fff 0%, transparent 55%),
+              repeating-conic-gradient(from 0deg at 50% 42%, rgba(217, 66, 50, 0.06) 0deg 10deg, transparent 10deg 20deg), var(--bg); }
+.intro-go-apple { position: relative; width: min(62vw, 270px); aspect-ratio: 240 / 250; display: grid; place-items: center; animation: intro-pulse 1s ease-in-out infinite; }
+.intro-go-apple svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 10px 0 rgba(104, 69, 46, 0.2)); }
+.intro-go-text { position: relative; margin-top: 14%; font-size: clamp(2rem, 11vw, 3rem); font-weight: 900; color: #fff; white-space: nowrap;
+  -webkit-text-stroke: 7px #7a2018; paint-order: stroke fill; transform: rotate(-4deg); }
+.intro-go-ring { position: absolute; left: 50%; top: 56%; width: 86%; aspect-ratio: 1; border-radius: 50%; border: 8px solid var(--gold);
+  translate: -50% -50%; animation: intro-ring 1s ease-out infinite; }
+.intro-go-ring.r2 { animation-delay: 0.5s; }
+.intro-go-ja { font-size: clamp(1.7rem, 9vw, 2.3rem); font-weight: 900; color: var(--red); letter-spacing: 0.06em; }
+@keyframes intro-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.07; } }
+@keyframes intro-ring { from { scale: 0.85; opacity: 0.8; } to { scale: 1.45; opacity: 0; } }
+.intro.reduced .intro-go-apple, .intro.reduced .intro-go-ring, .intro.reduced .intro-hint.on { animation: none; }
+.intro.reduced .intro-go-ring { opacity: 0.5; }
+
+/* ---------- the manga name logo (src/ui/Logo.tsx) ---------- */
+.logo { position: relative; display: grid; justify-items: center; width: min(88vw, 400px); padding: 16px 0 14px; }
+.logo-burst { position: absolute; left: -4%; top: -8%; width: 108%; height: 116%; z-index: 0; filter: drop-shadow(0 6px 0 rgba(104, 69, 46, 0.22)); }
+.logo > span { position: relative; z-index: 1; }
+.logo-ja { background: var(--red); color: #fff; font-weight: 900; letter-spacing: 0.14em; font-size: clamp(0.8rem, 3.6vw, 1rem); padding: 3px 14px;
+  border-radius: 6px; border: 3px solid var(--wood-d); transform: rotate(-3deg); box-shadow: 0 3px 0 var(--wood-d); margin-bottom: 2px; }
+.logo-a { display: flex; align-items: flex-end; font-size: clamp(3rem, 15vw, 4.5rem); line-height: 0.95; font-weight: 900; color: var(--red);
+  -webkit-text-stroke: 8px var(--wood-d); paint-order: stroke fill; text-shadow: 0 6px 0 rgba(104, 69, 46, 0.25); }
+.logo-b { display: flex; font-size: clamp(1.7rem, 8.6vw, 2.6rem); line-height: 1; font-weight: 900; color: var(--gold); white-space: pre;
+  -webkit-text-stroke: 7px var(--wood-d); paint-order: stroke fill; text-shadow: 0 5px 0 rgba(104, 69, 46, 0.25); transform: rotate(-3deg); margin-top: 2px; }
+.logo-ch { display: inline-block; }
+.logo-a .logo-ch:nth-child(odd) { transform: rotate(-6deg); }
+.logo-a .logo-ch:nth-child(even) { transform: rotate(5deg) translateY(-5px); }
+.logo-b .logo-ch:nth-child(odd) { transform: translateY(-2px); }
+.logo-o svg { display: block; width: 0.86em; height: 0.92em; margin: 0 0.02em 0.04em; }
+.logo.slam { animation: logo-slam 0.5s cubic-bezier(.2, 1.5, .4, 1) both; }
+.logo.slam .logo-ch { animation: logo-pop 0.45s cubic-bezier(.2, 1.8, .4, 1) both; animation-delay: calc(0.2s + var(--i) * 45ms); }
+.logo.slam .logo-ja { animation: logo-pop 0.45s 0.95s cubic-bezier(.2, 1.8, .4, 1) both; }
+@keyframes logo-slam { from { scale: 2.4; opacity: 0; } 50% { opacity: 1; } to { scale: 1; } }
+@keyframes logo-pop { from { scale: 0.2; opacity: 0; } to { scale: 1; opacity: 1; } }
+.reduced .logo.slam, .reduced .logo.slam .logo-ch, .reduced .logo.slam .logo-ja { animation: none; }
+.logo.sm { width: min(70vw, 280px); padding: 10px 0 8px; }
+.logo.sm .logo-a { font-size: clamp(2.1rem, 10vw, 2.9rem); -webkit-text-stroke-width: 6px; }
+.logo.sm .logo-b { font-size: clamp(1.2rem, 5.8vw, 1.7rem); -webkit-text-stroke-width: 5px; }
+.logo.sm .logo-ja { font-size: 0.72rem; padding: 2px 10px; border-width: 2px; }
+.who-title .logo, .wl-title .logo { margin: 0 auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.intro-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; background: #f4ede0; }
+
+/* Opening the letter from the stall (Intro.tsx OpenLetter): the envelope flies up from the counter,
+   the seal pops, the flap opens, the letter slides out and the envelope drops away. */
+.io { position: absolute; inset: 0; z-index: 8; }
+.io-veil { position: absolute; inset: 0; background: rgba(252, 248, 240, 0.35); backdrop-filter: blur(1.5px); animation: io-fade 0.5s both; }
+.io-back, .io-front { position: absolute; left: 50%; top: 46%; width: 300px; height: 200px;
+  animation: io-fly 0.75s cubic-bezier(.3, 1.2, .4, 1) both, io-drop 0.5s 1.85s ease-in forwards; }
+.io-back { z-index: 1; background: #EBDCBF; border: 3px solid var(--wood-d); border-radius: 8px; perspective: 700px; }
+.io-flap { position: absolute; left: -3px; right: -3px; top: -3px; height: 62%; background: #F4E6CB; border-top: 3px solid var(--wood-d);
+  clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: 50% 0; animation: io-flap 0.4s 0.85s ease-in-out forwards; }
+.io-front { z-index: 3; pointer-events: none; }
+.io-pocket { position: absolute; inset: 0; background: #F7EBD3; border: 3px solid var(--wood-d); border-radius: 8px;
+  clip-path: polygon(0 0, 50% 60%, 100% 0, 100% 100%, 0 100%); }
+.io-seal { position: absolute; left: 50%; top: 62%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #ff8a7a, var(--red) 55%, #9e2e22); border: 3px solid #7a2018;
+  animation: io-seal 0.35s 0.75s ease-in forwards; }
+.io-seal::after { content: "🍎"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 26px; filter: grayscale(1) brightness(2.2); opacity: 0.9; }
+.io-paper.lt-paper { position: absolute; z-index: 2; left: 50%; top: 46%; margin: 0; width: min(88vw, 370px);
+  animation: io-rise 0.65s 1.15s ease-out both, io-grow 0.6s 2.05s cubic-bezier(.2, 1.25, .4, 1) forwards; }
+.io-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; animation: io-fade 0.4s 2.6s both; }
+@keyframes io-fade { from { opacity: 0; } }
+@keyframes io-fly { from { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.22) rotate(-12deg); }
+  to { transform: translate(-50%, -50%) scale(1); } }
+@keyframes io-drop { from { transform: translate(-50%, -50%); opacity: 1; } 45% { opacity: 0; } to { transform: translate(-50%, 70vh) rotate(10deg); opacity: 0; } }
+@keyframes io-flap { to { transform: rotateX(180deg); } }
+@keyframes io-seal { 40% { transform: scale(1.35); } to { transform: scale(0.2) translateY(-40px); opacity: 0; } }
+@keyframes io-rise { 0% { opacity: 0; transform: translate(-50%, -38%) scale(0.74); clip-path: inset(-30px -30px 72% -30px); }
+  12% { opacity: 1; } to { opacity: 1; transform: translate(-50%, -82%) scale(0.74); clip-path: inset(-30px -30px 40% -30px); } }
+@keyframes io-grow { from { transform: translate(-50%, -82%) scale(0.74); clip-path: inset(-30px -30px 40% -30px); } to { transform: translate(-50%, -50%) scale(1); clip-path: inset(-30px -30px -30px -30px); } }
+.intro.reduced .io *, .intro.reduced .io { animation-duration: 0.01s !important; animation-delay: 0s !important; }
+
+/* ---------- the very first new apple: the apple journey (Reveal.tsx) ---------- */
+.mg-shout.first .mg-kick { font-size: clamp(3.4rem, 18vw, 4.6rem); }
+.mg-shout.first .mg-kick.long { font-size: clamp(1.6rem, 8.4vw, 2.3rem); margin-top: 4px; }
+.mg-shout.first .mg-kick-ja { margin-top: 12px; }
+.reveal.overview.journey { padding: calc(env(safe-area-inset-top, 0px) + 18px) 0 0; overflow-y: auto;
+  background: radial-gradient(circle at 50% 18%, #fff 0%, transparent 50%),
+              repeating-conic-gradient(from 0deg at 50% 18%, rgba(217, 66, 50, 0.05) 0deg 10deg, transparent 10deg 20deg), var(--paper); }
+.aj-head { display: grid; justify-items: center; gap: 4px; padding: 6px 18px 0; text-align: center; }
+.aj-kick { font-size: clamp(1.8rem, 9vw, 2.4rem); line-height: 1.05; font-weight: 900; color: var(--red);
+  -webkit-text-stroke: 6px var(--wood-d); paint-order: stroke fill; text-shadow: 0 5px 0 rgba(104, 69, 46, 0.22);
+  animation: rp-stamp 0.45s cubic-bezier(.2, 1.8, .4, 1) both; }
+.aj-ja { font-weight: 900; color: var(--wood-d); letter-spacing: 0.1em; font-size: 0.95rem; }
+.aj-lead { margin: 14px 22px 0; text-align: center; font-size: 1.15rem; font-weight: 800; line-height: 1.4; }
+.aj-lead b { color: var(--red); font-weight: 900; }
+.aj-progress { margin: 16px 22px 0; display: grid; gap: 6px; justify-items: center; font-weight: 900; }
+.aj-bar { width: 100%; height: 18px; border-radius: 999px; background: #efe3cc; border: 2.5px solid var(--wood-d); overflow: hidden; }
+.aj-bar i { display: block; height: 100%; min-width: 14px; background: linear-gradient(90deg, var(--red), #f07a5f); border-radius: 999px;
+  animation: aj-grow 0.9s 0.3s cubic-bezier(.2, 1.2, .4, 1) both; }
+@keyframes aj-grow { from { width: 0; } }
+.aj-how { list-style: none; margin: 18px 18px 8px; padding: 0; display: grid; gap: 10px; flex: 1; align-content: start; }
+.aj-how li { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; background: #fff; border: 2.5px solid #e6d6bb;
+  border-radius: 16px; padding: 10px 12px; font-weight: 700; line-height: 1.3; animation: mg-up 0.4s cubic-bezier(.2, 1.4, .4, 1) both; }
+.aj-how li:nth-child(1) { animation-delay: 0.5s; } .aj-how li:nth-child(2) { animation-delay: 0.7s; } .aj-how li:nth-child(3) { animation-delay: 0.9s; }
+.aj-how b { display: block; font-weight: 900; }
+.aj-ic { font-size: 1.7rem; text-align: center; }
+.reduced .aj-kick, .reduced .aj-bar i, .reduced .aj-how li { animation: none; }

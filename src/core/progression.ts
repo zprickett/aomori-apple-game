@@ -22,6 +22,9 @@ export const APPLE_UNLOCKS: ReadonlyArray<{ at: number; ids: readonly AppleId[] 
 const DEFAULT_LADDER = TYPICAL_LADDER;
 
 /** All 100 apples collected. */
+/** The very first new apple (after order 3), delivered on its own and celebrated: the start of the apple journey. */
+export const FIRST_NEW_APPLE: AppleId = APPLE_UNLOCKS[1].ids[0];
+
 export const COLLECTION_COMPLETE_AT = Math.max(...EXPANSION_DATA.apple_unlocks.map((u) => u.at));
 export const STALL_LEVEL_THRESHOLDS = [5, 10, 15] as const;
 
@@ -405,6 +408,12 @@ export function orderForIndex(orderNumber: number, seed: number = DEFAULT_SEED, 
     order.visit = { who: r.id, visitorName: r.name, tagline: r.tagline, color: r.color, customerId: order.customerId,
       step: visit.visitIndex + 1, of: r.visits.length };
     if (v.giftApple) order.giftAppleId = v.giftApple as AppleId;
+  }
+  // An everyday order right after a story visit never shows that same character again.
+  const before = !order.visit ? storyVisits(seed, ladder).get(orderNumber - 1) : undefined;
+  if (before) {
+    const who = before.kind === 'ojiichan' ? OJIICHAN_VISIT.customer : REGULARS[before.regularIndex].customer;
+    if (who === order.customerId) order.customerId = CUSTOMERS[(CUSTOMERS.indexOf(order.customerId) + 1) % CUSTOMERS.length];
   }
   return order;
 }

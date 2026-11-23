@@ -54,6 +54,17 @@
   "size": "L",
   "size_basis": "ringodaigaku"
  },
+ "a094": {
+  "skin": {
+   "base": "#B3202A",
+   "second": "#8E1520",
+   "pattern": "solid"
+  },
+  "scale": 0.85,
+  "weight_g": 200,
+  "size": "S",
+  "size_basis": "ringodaigaku"
+ },
  "a045": {
   "skin": {
    "base": "#D9473A",
@@ -74,17 +85,6 @@
   "scale": 1.12,
   "weight_g": 350,
   "size": "L",
-  "size_basis": "ringodaigaku"
- },
- "a094": {
-  "skin": {
-   "base": "#B3202A",
-   "second": "#8E1520",
-   "pattern": "solid"
-  },
-  "scale": 0.85,
-  "weight_g": 200,
-  "size": "S",
   "size_basis": "ringodaigaku"
  },
  "a005": {
@@ -109,17 +109,6 @@
   "size": "L",
   "size_basis": "ringodaigaku"
  },
- "a091": {
-  "skin": {
-   "base": "#D93A33",
-   "second": "#F2B35A",
-   "pattern": "blush"
-  },
-  "scale": 0.62,
-  "weight_g": 38,
-  "size": "S",
-  "size_basis": "ringodaigaku"
- },
  "a040": {
   "skin": {
    "base": "#D9473A",
@@ -129,6 +118,17 @@
   "scale": 1.12,
   "weight_g": 350,
   "size": "L",
+  "size_basis": "ringodaigaku"
+ },
+ "a091": {
+  "skin": {
+   "base": "#D93A33",
+   "second": "#F2B35A",
+   "pattern": "blush"
+  },
+  "scale": 0.62,
+  "weight_g": 38,
+  "size": "S",
   "size_basis": "ringodaigaku"
  },
  "a010": {
@@ -142,17 +142,6 @@
   "size": "M",
   "size_basis": "ringodaigaku"
  },
- "a032": {
-  "skin": {
-   "base": "#8DB54A",
-   "second": "#B7CF68",
-   "pattern": "solid"
-  },
-  "scale": 1.0,
-  "weight_g": 300,
-  "size": "M",
-  "size_basis": "prototype research: up to about 300 g"
- },
  "a031": {
   "skin": {
    "base": "#9DBF4E",
@@ -164,6 +153,17 @@
   "size": "M",
   "size_basis": "estimate"
  },
+ "a032": {
+  "skin": {
+   "base": "#8DB54A",
+   "second": "#B7CF68",
+   "pattern": "solid"
+  },
+  "scale": 1.0,
+  "weight_g": 300,
+  "size": "M",
+  "size_basis": "prototype research: up to about 300 g"
+ },
  "a069": {
   "skin": {
    "base": "#D2342E",
@@ -173,6 +173,17 @@
   "scale": 0.85,
   "weight_g": 225,
   "size": "S",
+  "size_basis": "ringodaigaku"
+ },
+ "a017": {
+  "skin": {
+   "base": "#F2CC4E",
+   "second": "#F0A060",
+   "pattern": "blush"
+  },
+  "scale": 1.12,
+  "weight_g": 400,
+  "size": "L",
   "size_basis": "ringodaigaku"
  },
  "a058": {
@@ -187,17 +198,6 @@
   "size": "L",
   "size_basis": "ringodaigaku"
  },
- "a017": {
-  "skin": {
-   "base": "#F2CC4E",
-   "second": "#F0A060",
-   "pattern": "blush"
-  },
-  "scale": 1.12,
-  "weight_g": 400,
-  "size": "L",
-  "size_basis": "ringodaigaku"
- },
  "a067": {
   "skin": {
    "base": "#D9473A",
@@ -209,17 +209,6 @@
   "size": "L",
   "size_basis": "ringodaigaku"
  },
- "a086": {
-  "skin": {
-   "base": "#CF3A3A",
-   "second": "#E8B850",
-   "pattern": "streak"
-  },
-  "scale": 1.0,
-  "weight_g": 300,
-  "size": "M",
-  "size_basis": "ringodaigaku"
- },
  "a073": {
   "skin": {
    "base": "#D9503F",
@@ -228,6 +217,17 @@
   },
   "scale": 1.0,
   "weight_g": 250,
+  "size": "M",
+  "size_basis": "ringodaigaku"
+ },
+ "a086": {
+  "skin": {
+   "base": "#CF3A3A",
+   "second": "#E8B850",
+   "pattern": "streak"
+  },
+  "scale": 1.0,
+  "weight_g": 300,
   "size": "M",
   "size_basis": "ringodaigaku"
  },

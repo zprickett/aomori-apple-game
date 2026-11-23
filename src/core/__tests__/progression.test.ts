@@ -12,24 +12,29 @@ import {
   unlockedApples,
   unlockedRecipes,
   unlocksEarnedAt,
+  FIRST_NEW_APPLE,
 } from '../progression.ts';
 import { JOURNEY_RECIPES } from '../ranks.ts';
 
 describe('unlock schedule', () => {
-  it('5 starter apples, then 3 new apples every 6 orders from order 3', () => {
+  it('5 starter apples, Kogyoku alone after order 2, 3 more after order 5, then 3 every 6 orders', () => {
     expect(unlockedApples(0)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006']);
-    expect(unlockedApples(2)).toHaveLength(5);
-    expect(unlockedApples(3)).toHaveLength(8);
-    expect(unlockedApples(3)).toContain('a094'); // Kogyoku, for the jam demo
-    expect(unlockedApples(8)).toHaveLength(8);
-    expect(unlockedApples(9)).toContain('a091'); // Alps Otome
-    expect(unlockedApples(9)).toHaveLength(11);
-    expect(unlockedApples(15)).toContain('a032');
-    expect(unlockedApples(21)).toContain('a058');
-    expect(unlockedApples(26)).not.toContain('a086');
-    expect(unlockedApples(27)).toContain('a086');
-    expect(unlockedApples(188)).toHaveLength(98);
-    expect(unlockedApples(189)).toHaveLength(100);
+    expect(unlockedApples(1)).toHaveLength(5);
+    expect(unlockedApples(2)).toHaveLength(6);
+    expect(unlockedApples(2)).toContain('a094'); // Kogyoku, the first new apple, for the jam demo
+    expect(FIRST_NEW_APPLE).toBe('a094');
+    expect(unlocksEarnedAt(2).apples).toEqual(['a094']);
+    expect(unlockedApples(4)).toHaveLength(6);
+    expect(unlockedApples(5)).toHaveLength(9);
+    expect(unlockedApples(10)).toHaveLength(9);
+    expect(unlockedApples(11)).toHaveLength(12);
+    expect(unlockedApples(11)).toContain('a091'); // Alps Otome, before the candy apple intro (order 15)
+    expect(unlockedApples(17)).toContain('a032');
+    expect(unlockedApples(23)).toContain('a058');
+    expect(unlockedApples(28)).not.toContain('a086');
+    expect(unlockedApples(29)).toContain('a086');
+    expect(unlockedApples(190)).toHaveLength(99);
+    expect(unlockedApples(191)).toHaveLength(100);
     expect(unlockedApples(999)).toHaveLength(100);
   });
 
@@ -66,8 +71,8 @@ describe('unlock schedule', () => {
     for (let c = 0; c <= 200; c++) {
       const u = unlocksEarnedAt(c);
       seen.push(...u.apples, ...u.recipes);
-      const batch = c >= 3 && c <= 189 && (c - 3) % 6 === 0;
-      expect(u.apples).toHaveLength(batch ? (c === 189 ? 2 : 3) : 0);
+      const batch = c >= 11 && c <= 191 && (c - 11) % 6 === 0;
+      expect(u.apples).toHaveLength(c === 2 ? 1 : c === 5 ? 3 : !batch ? 0 : c === 191 ? 1 : 3);
     }
     expect(seen.filter((x) => /^a\d{3}$/.test(x))).toHaveLength(95);
     expect(seen.filter((x) => !/^a\d{3}$/.test(x)).sort()).toEqual(
@@ -75,7 +80,7 @@ describe('unlock schedule', () => {
         ...JOURNEY_RECIPES.map((j) => j.id)].sort(),
     );
     expect(new Set(seen).size).toBe(seen.length);
-    expect(unlocksEarnedAt(3).apples).toContain('a094');
+    expect(unlocksEarnedAt(2).apples).toContain('a094');
     expect(unlocksEarnedAt(5).recipes).toEqual(['apple_jam']);
     expect(unlocksEarnedAt(14).recipes).toEqual(['ringo_ame']);
     expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });
@@ -87,9 +92,9 @@ describe('unlock schedule', () => {
 
   it('stall level and collection completion', () => {
     expect([0, 4, 5, 9, 10, 14, 15, 40].map(stallLevel)).toEqual([0, 0, 1, 1, 2, 2, 3, 3]);
-    expect(isCollectionComplete(188)).toBe(false);
-    expect(isCollectionComplete(189)).toBe(true);
-    expect(unlockConditionText('a091')).toBe('Arrives after 9 orders');
+    expect(isCollectionComplete(190)).toBe(false);
+    expect(isCollectionComplete(191)).toBe(true);
+    expect(unlockConditionText('a091')).toBe('Arrives after 11 orders');
   });
 });
 

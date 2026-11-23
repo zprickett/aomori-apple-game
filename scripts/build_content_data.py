@@ -150,12 +150,16 @@ PROTO_VISUALS = {
     'a086': {'skin': {'base': '#CF3A3A', 'second': '#E8B850', 'pattern': 'streak'}},
 }
 
-# Unlock order. The prototype schedule is kept (5 starters; Kogyoku after order 3, Alps Otome 6,
-# Bramley 9, Kurenai no Yume 12, Chiyuki 15). Every other completed order delivers one new apple,
-# taken from this list in turn: a curated opening run, then the rest in poster order.
+# Unlock order. 5 starters, then Kogyoku alone as the very first new apple (ready for the Apple Jam
+# intro on order 6). The other prototype apples arrive before their demo orders (Alps Otome after
+# order 11, Bramley 17, Kurenai no Yume 23, Chiyuki 29). The rest come from this list in turn: a
+# curated opening run, then the rest in poster order.
 STARTERS = ['a048', 'a081', 'a023', 'a066', 'a006']
-PROTO_FIXED = {3: 'a094', 6: 'a091', 9: 'a032', 12: 'a058', 15: 'a086'}
-BATCH, BATCH_EVERY, BATCH_FIRST = 3, 6, 3
+PROTO_FIXED = {1: 'a094', 7: 'a091', 10: 'a032', 13: 'a058', 16: 'a086'}
+# Arrivals (user decisions, 2026-11-23): 1 apple after order 2 (celebrated on its own), 3 after
+# order 5, then BATCH apples every BATCH_EVERY orders from order BATCH_FIRST (11, 17, 23, ...).
+OPENING = [(2, 1), (5, 3)]
+BATCH, BATCH_EVERY, BATCH_FIRST = 3, 6, 11
 CARD_RE = re.compile(r'## (\d{3}): (.+?) / (.+?)\n\n(.+?)\n\n\[Apple evidence\]\((.+?)\) · Game unlock (\d+) · Delivery tier (\d+)')
 
 
@@ -244,10 +248,12 @@ def main():
         order.append(PROTO_FIXED[pos] if pos in PROTO_FIXED else queue.pop(0))
         pos += 1
     assert len(order) == 100 and len(set(order)) == 100
-    # ...and arrives in batches of BATCH apples every BATCH_EVERY orders, the first after order
-    # BATCH_FIRST (3, 9, 15, ...): about one new apple per two orders (user decision, Nov 2026).
+    # ...and arrives in the OPENING deliveries, then in batches (about one new apple per two orders).
     unlocks = [{'at': 0, 'ids': list(STARTERS)}]
     rest = order[len(STARTERS):]
+    for at, n in OPENING:
+        unlocks.append({'at': at, 'ids': rest[:n]})
+        rest = rest[n:]
     for k in range(0, len(rest), BATCH):
         unlocks.append({'at': BATCH_FIRST + BATCH_EVERY * (k // BATCH), 'ids': rest[k:k + BATCH]})
 

@@ -6,6 +6,7 @@ import {
 } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { ChefPreview } from '../three/ChefPreview.tsx';
+import { Logo } from './Logo.tsx';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
 
@@ -15,8 +16,8 @@ export function Welcome({ onStart }: { onStart: () => void }) {
     <div className="onb welcome" data-testid="welcome">
       <div className="onb-sky" />
       <div className="wl-title">
-        <span className="wl-ja" lang="ja">青森りんごキッチン</span>
-        <h1>Aomori<br />Apple Kitchen</h1>
+        <h1 className="sr-only">Aomori Apple Kitchen</h1>
+        <Logo />
       </div>
       <ChefPreview look={DEFAULT_LOOK} className="wl-chef" />
       <div className="wl-apples" aria-hidden>🍎🍏🍎</div>
@@ -114,7 +115,7 @@ export function WhoIsCooking({ profiles, activeId, onPlay, onNew, onDelete }: {
   return (
     <div className="onb who" data-testid="who-is-cooking">
       <div className="who-title">
-        <span className="wl-ja" lang="ja">青森りんごキッチン</span>
+        <Logo className="sm" />
         <h2>Who’s cooking today?</h2>
       </div>
       {p && <ChefPreview look={p.look} className="who-preview" />}

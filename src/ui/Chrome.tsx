@@ -62,9 +62,9 @@ export function Notice({ text, onClose }: { text: string | null; onClose: () => 
   );
 }
 
-export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef }: {
+export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef, onWatchIntro }: {
   kind: SheetKind; state: GameState; dispatch: D; onClose: () => void; persistent: boolean;
-  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
+  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void; onWatchIntro?: () => void;
 }) {
   const title = kind === 'collection' ? 'Apple collection' : kind === 'practice' ? 'Practice kitchen' : kind === 'history' ? 'Past orders'
     : kind === 'player' ? 'My chef' : 'Settings';
@@ -81,7 +81,7 @@ export function Sheet({ kind, state, dispatch, onClose, persistent, chefName, on
           {kind === 'history' && <History state={state} />}
           {kind === 'player' && <PlayerSheet state={state} onReplay={(id) => { onClose(); dispatch({ type: 'OPEN_REQUEST', id }); }} />}
           {kind === 'settings' && <Settings state={state} dispatch={dispatch} onClose={onClose} persistent={persistent}
-            chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} />}
+            chefName={chefName} onSwitchChef={onSwitchChef} onEditChef={onEditChef} onWatchIntro={onWatchIntro} />}
         </div>
       </div>
     </div>
@@ -225,9 +225,9 @@ function Practice({ state, dispatch, onClose }: { state: GameState; dispatch: D;
   );
 }
 
-function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef }: {
+function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef, onEditChef, onWatchIntro }: {
   state: GameState; dispatch: D; onClose: () => void; persistent: boolean;
-  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void;
+  chefName?: string; onSwitchChef?: () => void; onEditChef?: () => void; onWatchIntro?: () => void;
 }) {
   const s = state.settings;
   const [confirm, setConfirm] = useState(false);
@@ -246,6 +246,7 @@ function Settings({ state, dispatch, onClose, persistent, chefName, onSwitchChef
         <span>Easy timing<small>Wider timing windows for every action.</small></span></label>
       <label className="toggle"><input type="checkbox" checked={s.altControls} onChange={(e) => set({ altControls: e.target.checked })} data-testid="set-alt" />
         <span>Button controls<small>Use a big button (or Space) instead of swiping and circling.</small></span></label>
+      {onWatchIntro && <button className="btn" data-testid="watch-intro" onClick={() => { unlockAudio(); onClose(); onWatchIntro(); }}>▶ Watch the intro</button>}
       <p className="muted small-print">{persistent ? 'Progress is saved on this device.' : 'Progress cannot be saved on this device.'}</p>
       {!confirm ? (
         <button className="btn danger" onClick={() => setConfirm(true)} data-testid="reset">Reset progress…</button>

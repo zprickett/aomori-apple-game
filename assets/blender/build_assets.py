@@ -29,13 +29,14 @@ import props  # noqa: E402
 import dishes  # noqa: E402
 import expansion  # noqa: E402
 import expansion2  # noqa: E402
+import intro  # noqa: E402
 
 ROOTS = ['Stall', 'Upgrade_Sign', 'Upgrade_Crate2', 'Upgrade_Banner', 'Chef',
          'Customer_A', 'Customer_B', 'Customer_C', 'Customer_D', 'Customer_O', 'Customer_I',
          'Apple', 'Apple_Peeled', 'Apple_Wedges', 'Rabbit_Wedges', 'Apple_Dice', 'Apple_Slices', 'Apple_Chunks',
          'CuttingBoard', 'Knife', 'Juicer', 'Pot', 'Pan', 'Spoon', 'PieTin', 'Oven', 'SyrupPan', 'CoolingTray',
          'Stick', 'Dish_Juice', 'Dish_Pie', 'Dish_Rabbit', 'Dish_Jam', 'Dish_CandyApple', 'Crate_Delivery',
-         'Sparkle', 'Steam'] + expansion.ROOTS + expansion2.ROOTS + chars.VISITOR_ROOTS + stall.GIFT_ROOTS
+         'Sparkle', 'Steam'] + expansion.ROOTS + expansion2.ROOTS + chars.VISITOR_ROOTS + stall.GIFT_ROOTS + intro.ROOTS
 
 
 def build_all():
@@ -57,6 +58,7 @@ def build_all():
     dishes.build_dishes()
     expansion.build_expansion()
     expansion2.build_expansion2()
+    intro.build_intro()
     props.build_misc()
     bpy.context.view_layer.update()
     names = {o.name for o in bpy.data.objects if o.parent is None}
