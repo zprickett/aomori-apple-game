@@ -14,6 +14,7 @@ import { INTRO_BEAT, playIntroTheme, playOpenJingle, playWaitLoop, type Playing 
 import { Logo } from './Logo.tsx';
 import { LetterSign } from './Notebook.tsx';
 
+/** Reduce Motion only calms decoration here (pulses, the logo slam); the story itself always plays. */
 function prefersReduced(): boolean {
   try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
 }

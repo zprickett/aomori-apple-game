@@ -102,7 +102,9 @@ export function IntroScene({ started, reduced, opened, skipRef, bgRef, bubbleRef
     return { plane, prop: plane.getObjectByName('Intro_Prop'), oji, puppet: new Puppet(oji, 'Customer_O'), letter };
   }, [lib]);
   const ring = useRef<THREE.Mesh>(null);
-  const clock = useRef({ t: reduced ? INTRO_T.ready : 0, start: -1, phase: '' as IntroPhase | '', release: new THREE.Vector3() });
+  // The flight always plays, even with Reduce Motion on: it's the story, the kid starts it with a tap
+  // and can Skip. `reduced` only calms decoration (the ring pulse).
+  const clock = useRef({ t: 0, start: -1, phase: '' as IntroPhase | '', release: new THREE.Vector3() });
   const skyCam = useMemo(() => new THREE.PerspectiveCamera(), []);
   const restCam = useMemo(() => new THREE.PerspectiveCamera(), []);
   const pos = useMemo(() => new THREE.Vector3(), []);
@@ -153,7 +155,7 @@ export function IntroScene({ started, reduced, opened, skipRef, bgRef, bubbleRef
       plane.rotation.z = -0.78 + 0.07 * Math.sin(t * 1.7);
       if (prop) prop.rotation.z = t * 38;
       puppet.base = 'stand';
-      puppet.reduced = reduced;
+      puppet.reduced = false;
       puppet.update(t);
     }
     // Speech bubble follows the plane.
