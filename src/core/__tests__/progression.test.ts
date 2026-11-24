@@ -17,13 +17,13 @@ import {
 import { JOURNEY_RECIPES } from '../ranks.ts';
 
 describe('unlock schedule', () => {
-  it('5 starter apples, Kogyoku alone after order 2, 3 more after order 5, then 3 every 6 orders', () => {
+  it('5 starter apples, Kogyoku alone after order 1, 3 more after order 5, then 3 every 6 orders', () => {
     expect(unlockedApples(0)).toEqual(['a048', 'a081', 'a023', 'a066', 'a006']);
-    expect(unlockedApples(1)).toHaveLength(5);
-    expect(unlockedApples(2)).toHaveLength(6);
-    expect(unlockedApples(2)).toContain('a094'); // Kogyoku, the first new apple, for the jam demo
+    expect(unlockedApples(1)).toHaveLength(6);
+    expect(unlockedApples(1)).toContain('a094'); // Kogyoku, the first new apple, for the jam demo
     expect(FIRST_NEW_APPLE).toBe('a094');
-    expect(unlocksEarnedAt(2).apples).toEqual(['a094']);
+    expect(unlocksEarnedAt(1).apples).toEqual(['a094']);
+    expect(unlocksEarnedAt(2)).toEqual({ apples: [], recipes: ['rabbit_apples'] }); // the first new recipe, on its own
     expect(unlockedApples(4)).toHaveLength(6);
     expect(unlockedApples(5)).toHaveLength(9);
     expect(unlockedApples(10)).toHaveLength(9);
@@ -72,7 +72,7 @@ describe('unlock schedule', () => {
       const u = unlocksEarnedAt(c);
       seen.push(...u.apples, ...u.recipes);
       const batch = c >= 11 && c <= 191 && (c - 11) % 6 === 0;
-      expect(u.apples).toHaveLength(c === 2 ? 1 : c === 5 ? 3 : !batch ? 0 : c === 191 ? 1 : 3);
+      expect(u.apples).toHaveLength(c === 1 ? 1 : c === 5 ? 3 : !batch ? 0 : c === 191 ? 1 : 3);
     }
     expect(seen.filter((x) => /^a\d{3}$/.test(x))).toHaveLength(95);
     expect(seen.filter((x) => !/^a\d{3}$/.test(x)).sort()).toEqual(
@@ -80,7 +80,7 @@ describe('unlock schedule', () => {
         ...JOURNEY_RECIPES.map((j) => j.id)].sort(),
     );
     expect(new Set(seen).size).toBe(seen.length);
-    expect(unlocksEarnedAt(2).apples).toContain('a094');
+    expect(unlocksEarnedAt(1).apples).toContain('a094');
     expect(unlocksEarnedAt(5).recipes).toEqual(['apple_jam']);
     expect(unlocksEarnedAt(14).recipes).toEqual(['ringo_ame']);
     expect(unlocksEarnedAt(0)).toEqual({ apples: [], recipes: [] });

@@ -150,15 +150,15 @@ PROTO_VISUALS = {
     'a086': {'skin': {'base': '#CF3A3A', 'second': '#E8B850', 'pattern': 'streak'}},
 }
 
-# Unlock order. 5 starters, then Kogyoku alone as the very first new apple (ready for the Apple Jam
+# Unlock order. 5 starters, then Kogyoku alone (after order 1) as the very first new apple (ready for the Apple Jam
 # intro on order 6). The other prototype apples arrive before their demo orders (Alps Otome after
 # order 11, Bramley 17, Kurenai no Yume 23, Chiyuki 29). The rest come from this list in turn: a
 # curated opening run, then the rest in poster order.
 STARTERS = ['a048', 'a081', 'a023', 'a066', 'a006']
 PROTO_FIXED = {1: 'a094', 7: 'a091', 10: 'a032', 13: 'a058', 16: 'a086'}
-# Arrivals (user decisions, 2026-11-23): 1 apple after order 2 (celebrated on its own), 3 after
+# Arrivals (user decisions, 2026-11-23): 1 apple after order 1 (celebrated on its own; the first new recipe follows after order 2), 3 after
 # order 5, then BATCH apples every BATCH_EVERY orders from order BATCH_FIRST (11, 17, 23, ...).
-OPENING = [(2, 1), (5, 3)]
+OPENING = [(1, 1), (5, 3)]
 BATCH, BATCH_EVERY, BATCH_FIRST = 3, 6, 11
 CARD_RE = re.compile(r'## (\d{3}): (.+?) / (.+?)\n\n(.+?)\n\n\[Apple evidence\]\((.+?)\) · Game unlock (\d+) · Delivery tier (\d+)')
 

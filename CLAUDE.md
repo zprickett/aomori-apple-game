@@ -47,7 +47,7 @@ These only work in dev, because they are gated by `import.meta.env.DEV`.
   - `recipe_action_overrides.json`: changed action plans, such as the 4-step yogurt parfait.
   - `apples_expansion.json`, `apple_visuals.json`, `fit_matrix.json`: **generated** by `python3 scripts/build_content_data.py` from `src/data/source/` (the 100×20 CSV, the unlock cards, and the size research), plus `DRAFTS` in the script. Edit the script or the sources and re-run it. Never hand-edit the outputs.
 - The 90 non-prototype apples have provisional stats, marked `"provisional": true`.
-- Apple pace (2026-11-23): 5 starters; Kogyoku alone after order 2 (the first new apple: a "WOW! Your first new apple!" intro, then an apple-journey card on how apples work); 3 apples after order 5; then 3 every 6 orders from order 11 (all 100 by order 191). Set in `scripts/build_content_data.py` (`OPENING`, `BATCH*`, `PROTO_FIXED` keeps each demo apple ahead of its demo order). A batch shares one "3 NEW APPLES!" intro.
+- Apple pace (2026-11-24): 5 starters; Kogyoku alone after order 1 (the first new apple: a "WOW! Your first new apple!" intro, then an apple-journey card on how apples work); Rabbit Apples, the first new recipe, after order 2, so each gets its own moment; 3 apples after order 5; then 3 every 6 orders from order 11 (all 100 by order 191). Set in `scripts/build_content_data.py` (`OPENING`, `BATCH*`, `PROTO_FIXED` keeps each demo apple ahead of its demo order). A batch shares one "3 NEW APPLES!" intro.
 - Apple sizes come from research: S ≤ 250 g, M ≤ 350 g, L above that. 3D scale is S 0.85, M 1.0, L 1.12, and apples of 100 g or less use 0.62.
 
 ## 3D assets (Blender)

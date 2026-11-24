@@ -343,8 +343,8 @@ describe('two customers, the finale and pop-up limits', () => {
   });
 
   it('a rank-up order keeps its apples for the next order', () => {
-    // Apprentice reached at order 2 (the first new apple).
-    const save = { ...defaultSave(), completedOrders: 1, completedOrderIds: [], ladder: [], totalPoints: LADDER[0].points - 10 };
+    // Apprentice reached at order 1 (the first new apple).
+    const save = { ...defaultSave(), completedOrders: 0, completedOrderIds: [], ladder: [], totalPoints: LADDER[0].points - 10 };
     const done = cookAll(play(initialStateFromSave(save), [{ type: 'ACCEPT_ORDER' }]));
     expect(done.delivery).toMatchObject({ rank: 2, apples: [] });
     const next = cookAll(play(gameReducer(gameReducer(done, { type: 'RESULT_DONE' }), { type: 'DELIVERY_DONE' }), [{ type: 'ACCEPT_ORDER' }]));
