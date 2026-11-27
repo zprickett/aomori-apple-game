@@ -35,6 +35,8 @@ const POP_WORD: Record<string, string> = { Perfect: 'Perfect!', Good: 'Good!', O
 
 /** Gestures already introduced in this browser session (longer first prompt + hint hand). */
 const seenGestures = new Set<string>();
+/** The Easy timing offer is answered at most once per session. */
+let easyAsked = false;
 
 interface Geo { W: number; left: number; top: number; target: Anchor }
 function useGeometry(): Geo | null {
@@ -74,6 +76,19 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
   const fxId = useRef(0);
   const altCount = useRef(0);
   const [altProgress, setAltProgress] = useState(0);
+
+  // ---- guided first try: a new gesture's first attempt is practice (never scored) ----------------
+  const trial = selectors.needsTrial(state);
+  const trialRef = useRef(trial);
+  trialRef.current = trial;
+  const [trialRes, setTrialRes] = useState<'hit' | 'miss' | null>(null);
+  const endTrial = () => { unlockAudio(); sfx.tap(); setTrialRes(null); setCombo(0); dispatch({ type: 'TRIAL_DONE' }); };
+
+  // ---- repeated misses: offer Easy timing right here (once per session) ------------------------
+  const [misses, setMisses] = useState(0);
+  const [easyOffer, setEasyOffer] = useState<'ask' | 'on' | 'no'>('ask');
+  useEffect(() => { if (sub === 'miss') setMisses((m) => m + 1); }, [sub, cook.attemptId]);
+  const showEasy = sub === 'miss' && misses >= 2 && state.mode === 'order' && !easyAsked && (!state.settings.assistance || easyOffer === 'on');
 
   const targets = useMemo(() => beatTargets(step, cook.attemptId || 'first'), [step, cook.attemptId]);
 
@@ -123,6 +138,10 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
     stepClock.running = false; pointer.active = false;
     const b = beats.current.results.map((r) => r ?? { grade: 'Miss' as const, points: 0, error_ms: null });
     const combined = combineBeats(b);
+    if (trialRef.current) {
+      window.setTimeout(() => setTrialRes(combined.grade === 'Miss' ? 'miss' : 'hit'), 420);
+      return;
+    }
     window.setTimeout(() => dispatch({ type: 'SUBMIT', eventMs: null, graded: { grade: combined.grade, error_ms: combined.error_ms }, assistedInput: altCount.current > 0 }), 260);
   }, [dispatch]);
 
@@ -403,11 +422,22 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
         {sub === 'instruction' && tgt && !coach && (
           <div className="verb-flash" key={cook.attemptId + cook.stepIndex}>
             <span>{VERB[g]}</span>
+            {trial && <em className="trial-tag">Your turn to practise!</em>}
           </div>
         )}
         {sub === 'instruction' && firstTime && tgt && <HintHand gesture={g} x={tgt.x} y={tgt.y} r={R} reduced={reduced} />}
         <div ref={hintRef} className="soft-hint" role="status" aria-live="polite" />
-        {combo >= 2 && sub === 'active' && <div className="combo" key={combo}>Combo ×{combo}</div>}
+        {combo >= 2 && sub === 'active' && !trial && <div className="combo" key={combo}>Combo ×{combo}</div>}
+        {trial && sub === 'active' && !trialRes && <div className="trial-badge" data-testid="trial-badge">Practice try · no score</div>}
+        {trialRes && (
+          <div className="coach trial" role="dialog" aria-label="Practice try" data-testid="trial-card">
+            <div className="coach-card">
+              <div className="coach-title">{trialRes === 'hit' ? 'Nice one!' : 'Good practice!'}</div>
+              <p>{trialRes === 'hit' ? 'You’ve got it. This time it counts!' : HOWTO[g]}</p>
+              <button className="btn primary big" data-testid="trial-done" onClick={endTrial}>Now for real!</button>
+            </div>
+          </div>
+        )}
         {sub === 'feedback' && last && (
           <div className={`grade-pop grade-${cook.helped ? 'help' : last.grade}`} key={cook.attemptId + last.grade} role="status">
             {cook.helped ? 'Helped' : last.grade}
@@ -432,6 +462,17 @@ export function CookOverlay({ state, dispatch, stage, stages, bridgeFrame, setBr
           )}
           {sub === 'miss' && (
             <div className="miss-box" role="dialog" aria-label="Missed step">
+              {showEasy && (easyOffer === 'on' ? (
+                <div className="easy-offer on" data-testid="easy-on">Easy timing is on: the rings are friendlier now. 👍</div>
+              ) : (
+                <div className="easy-offer" data-testid="easy-offer">
+                  <span>Tricky? Make the timing easier.</span>
+                  <div className="row">
+                    <button className="btn small primary" data-testid="easy-yes" onClick={() => { unlockAudio(); sfx.tap(); setEasyOffer('on'); dispatch({ type: 'SET_SETTINGS', settings: { assistance: true } }); }}>Yes please</button>
+                    <button className="btn small" data-testid="easy-no" onClick={() => { sfx.tap(); easyAsked = true; setEasyOffer('no'); }}>No thanks</button>
+                  </div>
+                </div>
+              ))}
               <div className="row">
                 {state.request?.retriesLeft !== 0 && (
                   <button className="btn primary" data-testid="retry" onClick={() => dispatch({ type: 'RETRY_STEP' })}>

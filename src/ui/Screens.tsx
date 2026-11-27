@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, recipe, requestDishName, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
-import { LadderBar } from './Ranks.tsx';
+import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, nextGoal, recipe, requestDishName, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { LadderBar, stepReward } from './Ranks.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
@@ -43,6 +43,7 @@ export function ShopOverlay({ state, dispatch }: { state: GameState; dispatch: D
             <span className="fo-spark" aria-hidden>✨</span> Let’s make your first order! <span className="fo-spark" aria-hidden>✨</span>
           </div>
         )}
+        {!isPractice && !firstOrder && <GoalChip state={state} />}
         {!isPractice && (
           <button className={`btn primary huge ${firstOrder ? 'pulse' : ''}`} data-testid="accept"
             onClick={() => { unlockAudio(); sfx.tap(); dispatch({ type: 'ACCEPT_ORDER' }); }}>
@@ -83,8 +84,39 @@ function ChoosePair({ state, dispatch, name }: { state: GameState; dispatch: D; 
         <div className="cp-kicker">Order {main.orderNumber} · Who will you serve?</div>
         <div className="cp-cards">{card(offer!, 'offer')}{card(main, 'main')}</div>
       </div>
-      <div className="bottom-cta"><div className="cp-tip">Tap a customer to cook their dish!</div></div>
+      <div className="bottom-cta"><GoalChip state={state} /><div className="cp-tip">Tap a customer to cook their dish!</div></div>
     </>
+  );
+}
+
+/** One nearby goal above the cook button: the next apples, recipe or ladder step. */
+export function GoalChip({ state }: { state: GameState }) {
+  const p = state.progress;
+  const g = nextGoal(p.completedOrders, p.totalPoints, p.ladder);
+  if (!g) return null;
+  const serve = (n: number) => `Serve ${n} more ${n === 1 ? 'customer' : 'customers'}`;
+  if (g.kind === 'apples') {
+    return (
+      <div className="goal-chip" data-testid="goal-chip" data-kind="apples">
+        <span className="gc-icons" aria-hidden>{g.ids.map((id) => <img key={id} src={appleIcon(id)} alt="" className="sil" />)}</span>
+        <span>{serve(g.orders)} to find {g.ids.length === 1 ? 'a new apple' : `${g.ids.length} new apples`}!</span>
+      </div>
+    );
+  }
+  if (g.kind === 'recipe') {
+    return (
+      <div className="goal-chip" data-testid="goal-chip" data-kind="recipe">
+        <span className="gc-icons" aria-hidden><img src={dishIcon(g.id)} alt="" className="sil" /></span>
+        <span>{serve(g.orders)} to discover a new recipe!</span>
+      </div>
+    );
+  }
+  const reward = stepReward(g.step);
+  return (
+    <div className="goal-chip" data-testid="goal-chip" data-kind="step">
+      {reward.icon && <span className="gc-icons" aria-hidden><img src={reward.icon} alt="" /></span>}
+      <span><b>{g.toGo.toLocaleString()}</b> pts to {reward.text}</span>
+    </div>
   );
 }
 
@@ -305,7 +337,7 @@ export function ResultCard({ state, dispatch, reduced }: { state: GameState; dis
           : state.delivery?.goldenRank ? 'Golden Chef rank up!'
           : state.delivery && !state.delivery.apples.length && !state.delivery.recipes.length ? 'Stall upgrade!'
           : state.delivery?.recipes.length ? 'New recipe!'
-          : state.delivery ? 'New apples!'
+          : state.delivery ? (state.delivery.apples.length === 1 ? 'New apple!' : 'New apples!')
           : dayEnd ? 'End of the day' : 'Next customer'}
       </button>
     </div>

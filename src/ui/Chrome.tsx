@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  APPLES, GOLDEN_LABEL, RECIPES, apple, fitStars, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
+  APPLES, APPLE_UNLOCKS, GOLDEN_LABEL, RECIPES, apple, fitStars, rankInfo, recipe, recipeLockText, selectors, unlockConditionText,
   type GameAction, type GameState,
 } from '../core/index.ts';
 import { appleIcon, dishIcon, Stars } from './icons.tsx';
@@ -94,18 +94,28 @@ function Collection({ state }: { state: GameState }) {
   const [open, setOpen] = useState<string | null>(null);
   const disc = state.progress.discoveredPairings;
   const cooked = selectors.cookedApples(state);
+  const done = state.progress.completedOrders;
+  const coming = APPLE_UNLOCKS.find((u) => u.at > done);
+  const comingIds: readonly string[] = coming?.ids ?? [];
+  const left = coming ? coming.at - done : 0;
   return (
     <>
+      {coming && (
+        <div className="coll-next" data-testid="coll-next">
+          <div className="cn-head">Coming next · <b>{left === 1 ? 'after your next order!' : `in ${left} orders`}</b></div>
+          <div className="cn-apples">{coming.ids.map((id) => <img key={id} src={appleIcon(id)} alt="" className="sil" />)}</div>
+        </div>
+      )}
       <div className="coll-count">{state.progress.unlockedApples.length} of {APPLES.length} apples collected · <span className="cooked-tick inline" aria-hidden>✓</span> {cooked.size} cooked</div>
       <div className="coll-grid">
         {APPLES.map((a) => {
           const unlocked = state.progress.unlockedApples.includes(a.id);
           return (
-            <button key={a.id} className={`coll-card ${unlocked ? '' : 'locked'} ${open === a.id ? 'sel' : ''}`} disabled={!unlocked} onClick={() => setOpen(open === a.id ? null : a.id)}>
+            <button key={a.id} className={`coll-card ${unlocked ? '' : 'locked'} ${comingIds.includes(a.id) ? 'next' : ''} ${open === a.id ? 'sel' : ''}`} disabled={!unlocked} onClick={() => setOpen(open === a.id ? null : a.id)}>
               {unlocked && cooked.has(a.id) && <span className="cooked-tick" aria-label="Cooked before">✓</span>}
               <img src={appleIcon(a.id)} alt="" className={unlocked ? '' : 'sil'} />
               <span className="nm">{unlocked ? a.nameEn.replace(' (Jonathan)', '') : '???'}</span>
-              {!unlocked && <span className="lock">{unlockConditionText(a.id)}</span>}
+              {!unlocked && <span className="lock">{comingIds.includes(a.id) ? 'Coming next!' : unlockConditionText(a.id)}</span>}
             </button>
           );
         })}

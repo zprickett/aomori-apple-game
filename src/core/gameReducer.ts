@@ -176,6 +176,8 @@ export type GameAction =
   | { type: 'SUBMIT'; eventMs: number | null; assistedInput?: boolean; graded?: { grade: Grade; error_ms: number | null } }
   | { type: 'FEEDBACK_DONE' }
   | { type: 'RETRY_STEP' }
+  /** The guided first try of a new gesture is over (it is never scored): start the real attempt. */
+  | { type: 'TRIAL_DONE' }
   | { type: 'CONTINUE_WITH_HELP' }
   | { type: 'SERVE_DONE' }
   | { type: 'COMPLETE_ORDER' }
@@ -623,6 +625,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, cook: startAttempt(state, state.cook, 'countin') };
     }
 
+    case 'TRIAL_DONE':
+      return withCook(state, 'active', (cook) => {
+        const step = currentStepOf(state);
+        const key = step ? `try:${step.gesture}` : null;
+        const seen = state.progress.seenUnlockRewards;
+        return {
+          ...state,
+          cook: startAttempt(state, cook, 'countin'),
+          progress: key && !seen.includes(key) ? { ...state.progress, seenUnlockRewards: [...seen, key] } : state.progress,
+        };
+      });
+
     case 'CONTINUE_WITH_HELP':
       return withCook(state, 'miss', (cook) => {
         const step = currentStepOf(state)!;
@@ -943,6 +957,20 @@ export interface AppleCard {
 }
 
 export const selectors = {
+  /**
+   * The current step's gesture is new to this chef: its first attempt is a guided, unscored try.
+   * Orders only. A gesture counts as known once tried, or once any served dish used it (older saves
+   * with orders but no history know them all).
+   */
+  needsTrial(state: GameState): boolean {
+    if (state.mode !== 'order' || !state.cook) return false;
+    const step = currentStepOf(state);
+    if (!step) return false;
+    const p = state.progress;
+    if (p.seenUnlockRewards.includes(`try:${step.gesture}`)) return false;
+    if (p.completedOrders > 0 && p.history.length === 0) return false;
+    return !p.history.some((o) => recipe(o.recipeId).steps.some((st) => st.gesture === step.gesture));
+  },
   /** Recipe currently being ordered/practised. */
   activeRecipe(state: GameState): RecipeInfo {
     return recipe(activeRecipeId(state));

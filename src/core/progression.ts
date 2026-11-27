@@ -3,7 +3,7 @@
  * All functions are pure; "completed" = number of completed orders.
  */
 import { APPLE_ORDER, EXPANSION_DATA, RECIPE_ORDER, apple, recipe, type AppleId, type RecipeId } from './content.ts';
-import { TYPICAL_LADDER, isJourneyRecipe, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel } from './ranks.ts';
+import { TYPICAL_LADDER, isJourneyRecipe, ladderProgress, rankReachedAt, recipeStep, recipeUnlockAtFor, stepLabel, type LadderStep } from './ranks.ts';
 import { OJIICHAN_VISIT, RECIPE_INTROS, REGULARS, nextDayStart } from './story.ts';
 
 /**
@@ -77,12 +77,42 @@ export function recipeLockText(recipeId: string, ladder: readonly number[]): str
   const at = recipeUnlockAtFor(recipeId, ladder);
   const step = recipeStep(recipeId);
   if (at === null && isJourneyRecipe(recipeId)) return 'After Golden Chef';
-  return at === null && step ? `At ${stepLabel(step)}` : `After ${at ?? 0} orders`;
+  return at === null && step ? `At ${stepLabel(step)}` : `After ${at ?? 0} ${at === 1 ? 'order' : 'orders'}`;
 }
 /** Child-facing lock text for a locked card, e.g. "Arrives after 6 orders". */
 export function unlockConditionText(appleId: string): string {
   const at = appleUnlockAt(appleId);
-  return at === 0 ? 'Available from the start' : `Arrives after ${at} orders`;
+  return at === 0 ? 'Available from the start' : `Arrives after ${at} ${at === 1 ? 'order' : 'orders'}`;
+}
+
+/** The one nearby goal shown in the shop: the closest thing the next dishes bring. */
+export type NextGoal =
+  | { kind: 'apples'; orders: number; ids: AppleId[] }
+  | { kind: 'recipe'; orders: number; id: RecipeId }
+  | { kind: 'step'; toGo: number; step: LadderStep };
+
+/** Order-count unlocks (apples, orders-driven recipes) this close count as "nearby". */
+export const GOAL_ORDERS = 3;
+
+/**
+ * The nearby goal after `completed` orders with `points` and `ladder`: an apple delivery or a recipe
+ * coming within GOAL_ORDERS orders (the nearest; a recipe wins a tie), else the next ladder step,
+ * else the next apple delivery, else null.
+ */
+export function nextGoal(completed: number, points: number, ladder: readonly number[]): NextGoal | null {
+  const c = count(completed);
+  const apples = APPLE_UNLOCKS.find((u) => u.at > c);
+  let rec: { id: RecipeId; at: number } | null = null;
+  for (const id of RECIPE_ORDER) {
+    const at = recipeUnlockAtFor(id, ladder);
+    if (at !== null && at > c && (!rec || at < rec.at)) rec = { id, at };
+  }
+  if (rec && rec.at - c <= GOAL_ORDERS && (!apples || rec.at <= apples.at)) return { kind: 'recipe', orders: rec.at - c, id: rec.id };
+  if (apples && apples.at - c <= GOAL_ORDERS) return { kind: 'apples', orders: apples.at - c, ids: [...apples.ids] };
+  const lp = ladderProgress(points);
+  if (lp.next) return { kind: 'step', toGo: lp.toGo, step: lp.next };
+  if (apples) return { kind: 'apples', orders: apples.at - c, ids: [...apples.ids] };
+  return null;
 }
 
 /** Stall visual level: 0; 1 at ≥5; 2 at ≥10; 3 at ≥15 completed orders. */

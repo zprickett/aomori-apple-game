@@ -13,8 +13,9 @@ import {
   unlockedRecipes,
   unlocksEarnedAt,
   FIRST_NEW_APPLE,
+  nextGoal,
 } from '../progression.ts';
-import { JOURNEY_RECIPES } from '../ranks.ts';
+import { JOURNEY_RECIPES, LADDER, typicalLadder, typicalPoints } from '../ranks.ts';
 
 describe('unlock schedule', () => {
   it('5 starter apples, Kogyoku alone after order 1, 3 more after order 5, then 3 every 6 orders', () => {
@@ -206,5 +207,23 @@ describe('two customers to choose from', () => {
     expect(waitingAfter(main, offer, offer, null)).toMatchObject({ customerId: main.customerId, recipeId: main.recipeId });
     // No choice this turn: whoever waits keeps waiting.
     expect(waitingAfter(main, null, main, w)).toBe(w);
+  });
+});
+
+describe('nearby goal', () => {
+  it('points at the first apple, then the first recipe, then the 3 apples after order 5', () => {
+    expect(nextGoal(0, 0, [])).toEqual({ kind: 'apples', orders: 1, ids: [FIRST_NEW_APPLE] });
+    expect(nextGoal(1, typicalPoints(1), typicalLadder(1))).toEqual({ kind: 'recipe', orders: 1, id: 'rabbit_apples' });
+    const g = nextGoal(3, typicalPoints(3), typicalLadder(3));
+    expect(g).toMatchObject({ kind: 'apples', orders: 2 });
+    expect(g?.kind === 'apples' && g.ids).toHaveLength(3);
+  });
+  it('falls back to the next ladder step when no unlock is close', () => {
+    const g = nextGoal(6, typicalPoints(6), typicalLadder(6));
+    expect(g?.kind).toBe('step');
+    if (g?.kind === 'step') expect(g.toGo).toBeGreaterThan(0);
+  });
+  it('after every apple and the top of the ladder there is nothing left to chase', () => {
+    expect(nextGoal(400, LADDER[LADDER.length - 1].points + 1e7, typicalLadder(400))).toBeNull();
   });
 });

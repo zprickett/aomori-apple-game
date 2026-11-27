@@ -3,7 +3,7 @@ import { APPLES, FIRST_NEW_APPLE, GOLDEN_RANK_CARD, LADDER, RECIPES, apple, fitS
 import { emitCue } from '../game/bus.ts';
 import { sfx } from '../game/audio.ts';
 import { Showcase, type ShowcaseItem } from '../three/Showcase.tsx';
-import { dishIcon, GestureIcon } from './icons.tsx';
+import { appleIcon, dishIcon, GestureIcon } from './icons.tsx';
 import { RankBadge, RankUpIntro } from './Ranks.tsx';
 import { NotebookReveal } from './Notebook.tsx';
 import { GroupPhoto, OjiichanTasting } from './Finale.tsx';
@@ -19,17 +19,19 @@ const shortName = (n: string) => n.replace(' (Jonathan)', '');
 /**
  * Unlock celebration: a manga-style entrance (speed lines, halftone, slam-in title, the new apple
  * or dish zooming in) followed by a full-screen overview card. One pass per unlocked item, except
- * that a batch of apples shares one intro ("3 NEW APPLES!") and then shows each apple's card.
+ * that a batch of apples shares one intro ("3 NEW APPLES!") and one card (tap an apple to see it).
  */
 export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { state: GameState; dispatch: D; reduced: boolean; onStallMoment?: (step: number | null) => void }) {
   const d = state.delivery!;
   // A recipe that comes with a rank is shown by its notebook page (max two pop-ups).
+  // A batch of apples is one item: one intro, one card with the apples side by side.
   const items: ShowcaseItem[] = [
-    ...d.apples.map((id) => ({ kind: 'apple' as const, id })),
+    ...d.apples.slice(0, 1).map((id) => ({ kind: 'apple' as const, id })),
     ...(d.rank !== null ? [] : d.recipes.map((id) => ({ kind: 'recipe' as const, id }))),
   ];
   const [i, setI] = useState(0);
   const [stage, setStage] = useState<'intro' | 'overview' | 'journey'>('intro');
+  const [pick, setPick] = useState(0);
   // The very first new apple comes alone and opens the apple journey (an extra how-it-works card).
   const firstApple = d.apples.length === 1 && d.apples[0] === FIRST_NEW_APPLE;
   /**
@@ -83,12 +85,7 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
     sfx.tap();
     if (firstApple && item.kind === 'apple' && stage === 'overview') { setStage('journey'); return; }
     if (last) dispatch({ type: 'DELIVERY_DONE' });
-    else {
-      // The rest of an apple batch skips straight to its card (the batch intro showed them all).
-      const sameBatch = item.kind === 'apple' && items[i + 1].kind === 'apple';
-      setI(i + 1);
-      setStage(sameBatch ? 'overview' : 'intro');
-    }
+    else { setI(i + 1); setStage('intro'); }
   };
 
   if (stage === 'intro') {
@@ -96,19 +93,31 @@ export function UnlockReveal({ state, dispatch, reduced, onStallMoment }: { stat
     return <MangaIntro key={`${i}`} item={item} batch={batch} first={firstApple && item.kind === 'apple'} reduced={reduced} onSkip={() => setStage('overview')} />;
   }
   if (stage === 'journey') return <AppleJourney found={state.progress.unlockedApples.length} last={last} onNext={next} />;
+  const batch = item.kind === 'apple' && d.apples.length > 1 ? d.apples : null;
+  const shown: ShowcaseItem = batch ? { kind: 'apple', id: batch[Math.min(pick, batch.length - 1)] } : item;
   return (
     <div className="reveal overview" role="dialog" aria-label="New unlock" data-testid="delivery-card"
-      style={{ ['--hue' as string]: item.kind === 'apple' ? apple(item.id).skin.base : '#E8A92A' }}>
+      style={{ ['--hue' as string]: shown.kind === 'apple' ? apple(shown.id).skin.base : '#E8A92A' }}>
       {d.collectionComplete && last && (
         <div className="complete-banner">🎉 Every apple collected! Free play is open. Keep cooking!</div>
       )}
       <div className="ov-hero">
         <div className="ov-glow" />
-        <Showcase item={item} reduced={reduced} className="ov-canvas" />
-        <div className="ov-tag">{item.kind === 'apple' ? 'New apple' : 'New recipe'}</div>
+        <Showcase item={shown} reduced={reduced} className="ov-canvas" />
+        <div className="ov-tag">{batch ? `${batch.length} new apples` : item.kind === 'apple' ? 'New apple' : 'New recipe'}</div>
       </div>
+      {batch && (
+        <div className="ov-batch" role="tablist" aria-label="New apples">
+          {batch.map((id, k) => (
+            <button key={id} role="tab" aria-selected={k === pick} className={`ov-pick ${k === pick ? 'on' : ''}`} data-testid={`batch-${k}`}
+              onClick={() => { sfx.tap(); setPick(k); }}>
+              <img src={appleIcon(id)} alt="" /><span>{shortName(apple(id).nameEn)}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <div className="ov-body">
-        {item.kind === 'apple' ? <AppleOverview id={item.id} state={state} /> : <RecipeOverview id={item.id} />}
+        {shown.kind === 'apple' ? <AppleOverview key={shown.id} id={shown.id} state={state} /> : <RecipeOverview id={shown.id} />}
       </div>
       <div className="ov-foot">
         {items.length > 1 && <div className="ov-dots">{items.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>}
@@ -193,34 +202,51 @@ function AppleJourney({ found, last, onNext }: { found: number; last: boolean; o
 
 function AppleOverview({ id, state }: { id: string; state: GameState }) {
   const a = apple(id);
+  const [more, setMore] = useState(false);
   const fits = RECIPES.map((r) => ({ r, fit: fitStars(id, r.id), open: state.progress.unlockedRecipes.includes(r.id) }))
     .filter((x) => x.fit >= 2)
     .sort((x, y) => y.fit - x.fit);
+  // The one recipe to try it in first: the best fit the kid can already cook.
+  const top = fits.find((x) => x.open && x.fit === 3) ?? fits.find((x) => x.open);
   return (
     <>
       <h2 className="ov-name">{shortName(a.nameEn)} <span className="ja" lang="ja">{a.nameJa}</span></h2>
       <p className="ov-desc">{a.overviewForKids}</p>
-      <div className="ov-stats">
-        {Object.entries(a.stats).map(([k, v]) => (
-          <div key={k} className="ov-stat">
-            <span>{STAT_LABEL[k] ?? k}</span>
-            <div className="ov-pips">{[1, 2, 3, 4, 5].map((n) => <i key={n} className={n <= v ? 'on' : ''} />)}</div>
-          </div>
-        ))}
-      </div>
-      {fits.length > 0 && (
-        <>
-          <h3 className="ov-h">Great for</h3>
-          <div className="ov-fits">
-            {fits.map(({ r, fit, open }) => (
-              <div key={r.id} className={`ov-fit ${open ? '' : 'locked'}`}>
-                <img src={dishIcon(r.id)} alt="" />
-                <span>{open ? r.name : '???'}</span>
-                <b className={fit === 3 ? 'best' : ''}>{fit === 3 ? 'Best' : 'Good'}</b>
+      {top && (
+        <div className="ov-try" data-testid="ov-try">
+          <img src={dishIcon(top.r.id)} alt="" />
+          <span>Try it in <b>{top.r.name}</b></span>
+          <b className={`ov-try-fit ${top.fit === 3 ? 'best' : ''}`}>{top.fit === 3 ? 'Best' : 'Good'}</b>
+        </div>
+      )}
+      <button type="button" className="ov-more" aria-expanded={more} data-testid="ov-more" onClick={() => { sfx.tap(); setMore(!more); }}>
+        {more ? 'Less ▴' : 'More about this apple ▾'}
+      </button>
+      {more && (
+        <div className="ov-details">
+          <div className="ov-stats">
+            {Object.entries(a.stats).map(([k, v]) => (
+              <div key={k} className="ov-stat">
+                <span>{STAT_LABEL[k] ?? k}</span>
+                <div className="ov-pips">{[1, 2, 3, 4, 5].map((n) => <i key={n} className={n <= v ? 'on' : ''} />)}</div>
               </div>
             ))}
           </div>
-        </>
+          {fits.length > 0 && (
+            <>
+              <h3 className="ov-h">Great for</h3>
+              <div className="ov-fits">
+                {fits.map(({ r, fit, open }) => (
+                  <div key={r.id} className={`ov-fit ${open ? '' : 'locked'}`}>
+                    <img src={dishIcon(r.id)} alt="" />
+                    <span>{open ? r.name : '???'}</span>
+                    <b className={fit === 3 ? 'best' : ''}>{fit === 3 ? 'Best' : 'Good'}</b>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </>
   );

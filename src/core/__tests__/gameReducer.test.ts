@@ -364,3 +364,21 @@ describe('two customers, the finale and pop-up limits', () => {
     expect(selectors.ojiichanHelps(after)).toBe(true);
   });
 });
+
+describe('guided first try', () => {
+  it("a new gesture's first attempt is practice: TRIAL_DONE restarts it unscored and remembers the gesture", () => {
+    const s = toActive(startCooking(initialStateFromSave(defaultSave()), 'a048'));
+    expect(selectors.needsTrial(s)).toBe(true);
+    const g = selectors.currentStep(s)!.gesture;
+    const after = gameReducer(s, { type: 'TRIAL_DONE' });
+    expect(after.cook).toMatchObject({ sub: 'countin', stepIndex: 0, stepResults: [] });
+    expect(after.cook!.attemptId).not.toBe(s.cook!.attemptId);
+    expect(after.progress.seenUnlockRewards).toContain(`try:${g}`);
+    expect(selectors.needsTrial(play(after, [{ type: 'COUNTIN_DONE' }]))).toBe(false);
+    expect(gameReducer(after, { type: 'TRIAL_DONE' })).toBe(after); // only from an active attempt
+  });
+  it('older saves with orders already served know every gesture', () => {
+    const s = toActive(startCooking(initialStateFromSave(at(12)), 'a048'));
+    expect(selectors.needsTrial(s)).toBe(false);
+  });
+});

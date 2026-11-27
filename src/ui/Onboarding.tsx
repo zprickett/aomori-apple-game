@@ -125,7 +125,7 @@ export function WhoIsCooking({ profiles, activeId, onPlay, onNew, onDelete }: {
             onClick={() => { tap(); setSel(x.id); setConfirm(false); }}>
             <i className="who-dot" style={{ background: OUTFIT_COLORS[x.look.outfit].hex }} />
             <span className="who-name">{x.name}</span>
-            <span className="who-meta">{stats[x.id].rank} · {stats[x.id].orders} orders</span>
+            <span className="who-meta">{stats[x.id].rank} · {stats[x.id].orders} {stats[x.id].orders === 1 ? 'order' : 'orders'}</span>
           </button>
         ))}
         {profiles.length < MAX_PROFILES && (

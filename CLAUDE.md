@@ -11,7 +11,7 @@ Always run from `~/Build/aomori`. `~/Build` has its own unrelated Next.js `npm r
 
 ```bash
 npm run dev                # http://localhost:5173
-npm test                   # vitest (186 tests)
+npm test                   # vitest (191 tests)
 npx tsc -b                 # strict type check
 npm run lint               # oxlint
 npm run build
@@ -102,7 +102,8 @@ Customers are `Customer_A..D` plus `Customer_O` (Ojiichan) in `chars.py`. Golden
 - **No** tier labels (Sprout, Blossom and so on). The only badge is **"Golden Recipe"**, given when every action is Perfect. NEW BEST only shows for a real improvement.
 - No hint or feedback line on the result card.
 - Remove UI text that states the obvious.
-- New apples and recipes unlock with a manga-style intro (about 6.3 s), then a full-screen overview with no "Best apples" section. The apple picker shows a one-line reason for each apple's fit (`fitReason` in `content.ts`); the apple descriptions themselves stay as they are.
+- Onboarding helps (2026-11-27): the shop shows one nearby goal above the cook button (`GoalChip`, `nextGoal` in progression.ts: an apple delivery or recipe within 3 orders, else the next ladder step), and the collection highlights the next delivery ("Coming next"). Each gesture's first attempt for a new chef is a guided practice try that never scores (`needsTrial`, `TRIAL_DONE`, seen key `try:<gesture>`); saves that already served dishes skip it. After two misses in a dish, the miss box offers Easy timing (once per session).
+- New apples and recipes unlock with a manga-style intro (about 6.3 s, tap to skip), then a full-screen overview with no "Best apples" section. An apple's card is short: name, description and one "Try it in" recipe; stats and the full "Great for" list sit behind "More about this apple". A batch of apples shares one card with the apples side by side (tap one to see it). The apple picker shows a one-line reason for each apple's fit (`fitReason` in `content.ts`); the apple descriptions themselves stay as they are.
 - Light background (`#FCF8F0`).
 - The cooking action should sit near the vertical centre on mobile.
 - Profiles: up to 6 chefs. Each profile has its own save key, `aomori-kitchen-save:<id>`.
