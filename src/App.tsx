@@ -1,6 +1,6 @@
 import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { LADDER, REQUESTS, createProfileStore, requestById, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
+import { LADDER, REQUESTS, createProfileStore, requestById, requestCustomer, saveKeyFor, selectors, type ChefLook, type Profile, type Rank, type RecipeId } from './core/index.ts';
 import { ChefContext, DEFAULT_CHEF } from './game/chef.ts';
 import { ChefMaker, Welcome, WhoIsCooking } from './ui/Onboarding.tsx';
 import { GrandpaLetter, NewsCard } from './ui/Notebook.tsx';
@@ -156,7 +156,7 @@ function Game({ saveKey, onSwitchChef, onEditChef, onWatchIntro }: { saveKey?: s
   const run = state.request;
   const req = run ? requestById(run.id) : null;
   // A request's gift drops onto the shelf on its first rewards screen (wide 'upgrade' shot).
-  const giftMoment = run?.view === 'rewards' && run.first ? req!.gift.node : null;
+  const giftMoment = run?.view === 'rewards' && run.first && req!.gift.node ? req!.gift.node : null;
   const view: ViewMode = stallMoment !== null || giftMoment ? 'upgrade'
     : state.phase === 'day' ? 'result'
     : state.phase === 'request' ? (run && (run.view === 'reveal' || run.view === 'rewards') ? 'result' : 'shop')
@@ -204,8 +204,8 @@ function Game({ saveKey, onSwitchChef, onEditChef, onWatchIntro }: { saveKey?: s
             <GameScene
               chefLook={chef.look}
               view={view}
-              customerId={req ? req.customer : state.order.customerId}
-              orderKey={run ? `request-${run.id}` : state.order.orderId}
+              customerId={req ? requestCustomer(run!.id, run!.dishIndex) : state.order.customerId}
+              orderKey={run ? `request-${run.id}-${requestCustomer(run.id, run.dishIndex)}` : state.order.orderId}
               props={props}
               appleId={appleId}
               anchor={stage?.anchor ?? null}

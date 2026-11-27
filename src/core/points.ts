@@ -81,9 +81,9 @@ export function maxDishPoints(recipeId: string): number {
 }
 
 /** Score a finished dish from its accepted grades (recipe step order). */
-export function scoreDish(appleId: string, recipeId: string, grades: readonly Grade[]): DishScore {
+export function scoreDish(appleId: string, recipeId: string, grades: readonly Grade[], fitOverride?: FitStars): DishScore {
   const difficulty = recipeDifficulty(recipeId);
-  const fit = fitStars(appleId, recipeId);
+  const fit = fitOverride ?? fitStars(appleId, recipeId);
   const appleMultiplier = APPLE_MULTIPLIER[fit];
   const r = raw(grades, difficulty);
   const base = Math.round((r.cooking + r.combo) * appleMultiplier);

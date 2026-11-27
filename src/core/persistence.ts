@@ -50,6 +50,8 @@ export interface CurrentOrderSave {
   pendingResult?: DishEvaluation | null;
   /** The kid picked the second customer (progression.ts offerFor). */
   pick?: 'offer';
+  /** Festival Pie: its three apples (appleId is the first). */
+  pieApples?: string[];
 }
 
 export interface SaveData {
@@ -237,6 +239,8 @@ function sanitizeCurrent(
   };
   if (typeof v.cueTime === 'number' && Number.isFinite(v.cueTime)) current.cueTime = v.cueTime;
   if (v.pick === 'offer') current.pick = 'offer';
+  if (Array.isArray(v.pieApples) && v.pieApples.length === 3 && new Set(v.pieApples).size === 3
+    && v.pieApples.every((a) => isAppleId(a) && apples.includes(a)) && (phase !== 'cook' || v.pieApples[0] === appleId)) current.pieApples = [...v.pieApples] as string[];
   if (pendingResult) current.pendingResult = pendingResult;
   return { current, notice };
 }

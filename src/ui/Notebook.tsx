@@ -5,13 +5,14 @@
  */
 import { useContext, useState } from 'react';
 import {
-  GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
+  FEAST_ID, GRANDPA, letterFor, notebookPage, openPages, rankInfo, recipe, selectors, unlockedRecipes, withName,
   type GameState, type NewsItem, type NotebookPage, type Rank, FIRST_LETTER } from '../core/index.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { BACKGROUNDS } from '../game/backgrounds.ts';
 import { dishIcon, portrait } from './icons.tsx';
 import { RankBadge } from './Ranks.tsx';
 import { PhotoCard } from './Finale.tsx';
+import { FeastPage, FeastPhoto } from './Requests.tsx';
 import { ChefContext } from '../game/chef.ts';
 
 const tap = () => { unlockAudio(); sfx.tap(); };
@@ -139,18 +140,22 @@ export function NotebookReveal({ rank, state, name, onDone }: { rank: Rank; stat
 export function NotebookBook({ state, name }: { state: GameState; name: string }) {
   const rank = selectors.rank(state);
   const pages = openPages(rank);
-  const [i, setI] = useState(pages.length - 1);
-  const page = pages[Math.min(i, pages.length - 1)];
+  // After the World Apple Feast, the last page is the one Ojiichan wrote for the chef.
+  const feast = state.progress.requests[FEAST_ID]?.done === true;
+  const count = pages.length + (feast ? 1 : 0);
+  const [i, setI] = useState(count - 1);
+  const at = Math.min(i, count - 1);
+  const page = pages[Math.min(at, pages.length - 1)];
   const next = rank < 5 ? rankInfo(rank + 1) : null;
   return (
     <div className="nb-book" data-testid="notebook">
-      <NotebookPageView page={page} name={name} unlocked={state.progress.unlockedRecipes} />
+      {feast && at === pages.length ? <FeastPage name={name} /> : <NotebookPageView page={page} name={name} unlocked={state.progress.unlockedRecipes} />}
       <div className="nb-nav">
-        <button className="btn small" disabled={i <= 0} onClick={() => { tap(); setI(i - 1); }} aria-label="Previous page">‹</button>
-        <span className="nb-count">Page {page.rank} of 5</span>
-        <button className="btn small" disabled={i >= pages.length - 1} onClick={() => { tap(); setI(i + 1); }} aria-label="Next page">›</button>
+        <button className="btn small" disabled={at <= 0} onClick={() => { tap(); setI(at - 1); }} aria-label="Previous page">‹</button>
+        <span className="nb-count">Page {at + 1} of {feast ? 6 : 5}</span>
+        <button className="btn small" disabled={at >= count - 1} onClick={() => { tap(); setI(at + 1); }} aria-label="Next page">›</button>
       </div>
-      {next && i === pages.length - 1 && <div className="nb-locked">🔒 The next page opens at <b>{next.name}</b>.</div>}
+      {next && at === pages.length - 1 && <div className="nb-locked">🔒 The next page opens at <b>{next.name}</b>.</div>}
     </div>
   );
 }
@@ -200,9 +205,11 @@ export function Scrapbook({ state, name }: { state: GameState; name: string }) {
   const items = selectors.seenNews(state);
   const chef = useContext(ChefContext);
   const photo = state.progress.seenUnlockRewards.includes('finale');
+  const feast = state.progress.requests[FEAST_ID]?.done === true;
   if (!items.length) return null;
   return (
     <div className="scrapbook" data-testid="scrapbook">
+      {feast && <FeastPhoto name={name} reduced small />}
       {photo && <PhotoCard name={name} look={chef.look} reduced small />}
       {items.map((n) => (
         <div key={n.rank} className={`scrap n-${n.kind}`}>

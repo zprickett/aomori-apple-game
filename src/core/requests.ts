@@ -6,13 +6,13 @@
  * Text lives in src/data/story.json `requests` and `stage2Intro`.
  */
 import storyData from '../data/story.json';
-import { apple, isRecipeId, type AppleInfo, type RecipeId } from './content.ts';
+import { apple, fitStars, isRecipeId, type AppleInfo, type FitStars, type RecipeId } from './content.ts';
 import type { StepResult } from './scoring.ts';
 
 export type ClueKey = 'crisp' | 'redSkin' | 'yellowSkin' | 'greenSkin' | 'tart' | 'sweet' | 'extraJuicy' | 'aromatic' | 'pinkInside' | 'tiny' | 'big';
 /** The apple rule of a twist ('none' for Big party and Rush order, which change the cooking). */
 export type TwistRule = 'none' | 'crisp' | 'notVerySweet' | 'naturallySweet' | 'lightSkin' | 'pinkInside' | 'tiny' | 'big';
-export type TwistKind = 'picky' | 'colour' | 'size' | 'bigParty' | 'rush';
+export type TwistKind = 'picky' | 'colour' | 'size' | 'bigParty' | 'rush' | 'gentle';
 export type CrewKind = 'sailors' | 'staff' | 'brigade' | 'astronauts' | 'bats' | 'royals' | 'footmen' | 'family' | 'penguins' | 'cousins' | 'rangers' | 'drummers';
 
 export interface RequestDish {
@@ -20,6 +20,8 @@ export interface RequestDish {
   name: string;
   clue: ClueKey[];
   clueText: string;
+  /** World Apple Feast: whose story the dish comes from (Customer letter). */
+  from?: string;
 }
 
 export interface GoldenRequest {
@@ -53,19 +55,40 @@ export interface RequestRecord {
   bestStars: number;
 }
 
-const RAW = storyData as unknown as { requests: GoldenRequest[]; stage2Intro: Record<string, string> };
+/** The World Apple Feast's ending text (story.json `feast.finale`). */
+export interface FeastFinale {
+  cheerTitle: string; cheerJa: string; fireworks: string; map: string;
+  pageTitle: string; page: string[]; pageSign: string; season2: string; photo: string;
+}
 
+const RAW = storyData as unknown as { requests: GoldenRequest[]; stage2Intro: Record<string, string>; feast: GoldenRequest & { finale: FeastFinale } };
+
+/** The twelve visitors' requests (the passport, the map, the gift shelf and the trophies). */
 export const REQUESTS: readonly GoldenRequest[] = Object.freeze(RAW.requests);
+/**
+ * Stage 2's finale: the World Apple Feast. Ojiichan's gold letter arrives once all twelve requests
+ * are done; every visitor returns for the Hirosaki Apple Festival. It plays like a request (five
+ * dishes, the last one Festival Pie with three apples) and ends with fireworks, the map, the last
+ * notebook page and a photo. Replayable from the passport. Not in REQUESTS.
+ */
+export const FEAST: GoldenRequest = Object.freeze(RAW.feast);
+export const FEAST_FINALE: FeastFinale = Object.freeze(RAW.feast.finale);
+export const FEAST_ID = FEAST.id;
+export const isFeast = (id: string) => id === FEAST_ID;
+/** Festival Pie is baked with three different apples. */
+export const PIE_RECIPE: RecipeId = 'festival_pie';
+export const PIE_APPLES = 3;
+const ALL_REQUESTS: readonly GoldenRequest[] = [...REQUESTS, FEAST];
 export const STAGE2_INTRO = Object.freeze({ ...RAW.stage2Intro }) as Readonly<{
   ojiichan1: string; whoosh: string; calling: string; ojiichan2: string; tip: string;
 }>;
 /** Seen-key for the Stage 2 intro. */
 export const STAGE2_KEY = 'stage2';
 
-for (const r of REQUESTS) for (const d of r.dishes) if (!isRecipeId(d.recipe)) throw new Error(`Request ${r.id}: unknown recipe ${d.recipe}`);
+for (const r of ALL_REQUESTS) for (const d of r.dishes) if (!isRecipeId(d.recipe)) throw new Error(`Request ${r.id}: unknown recipe ${d.recipe}`);
 
 export function requestById(id: string): GoldenRequest {
-  const r = REQUESTS.find((x) => x.id === id);
+  const r = ALL_REQUESTS.find((x) => x.id === id);
   if (!r) throw new Error(`Unknown request ${id}`);
   return r;
 }
@@ -127,6 +150,29 @@ export function appleMatch(appleId: string, dish: RequestDish, rule: TwistRule):
   return { clue, twist, gold: clue && twist };
 }
 
+/** Three different apples with one red, one yellow and one green skin: Festival Pie's best mix. */
+export function threeColours(ids: readonly string[]): boolean {
+  return ids.length === PIE_APPLES && new Set(ids).size === PIE_APPLES && new Set(ids.map((id) => skinFamily(apple(id)))).size === PIE_APPLES;
+}
+
+/** Festival Pie's apple fit with three apples: their average fit, +1 for red, yellow and green (top 3). */
+export function pieFit(ids: readonly string[]): FitStars {
+  if (!ids.length) return 0;
+  const mean = ids.reduce((n, id) => n + fitStars(id, PIE_RECIPE), 0) / ids.length;
+  return Math.max(0, Math.min(3, Math.round(mean) + (threeColours(ids) ? 1 : 0))) as FitStars;
+}
+
+/**
+ * Gold matches of a menu, per dish. A Festival Pie dish needs its three apples (`pie`) and they
+ * must be red, yellow and green; every other dish checks its one apple against the clue and twist.
+ */
+export function menuGolds(r: GoldenRequest, apples: readonly (string | null)[], pie: readonly string[] = []): boolean[] {
+  return r.dishes.map((d, i) => (d.recipe === PIE_RECIPE
+    ? threeColours(pie) && twistHoldsAll(pie, r.twist.rule)
+    : apples[i] !== null && appleMatch(apples[i]!, d, r.twist.rule).gold));
+}
+const twistHoldsAll = (ids: readonly string[], rule: TwistRule) => ids.every((id) => twistHolds(apple(id), rule));
+
 /** Menu-long combo: consecutive accepted actions graded Good or Perfect without help. */
 export function comboKept(r: StepResult): boolean {
   return (r.grade === 'Perfect' || r.grade === 'Good') && !r.assisted;
@@ -168,12 +214,14 @@ export const totalPlays = (records: Readonly<Record<string, RequestRecord>>) => 
  * letter every 4–7 orders after the last request was finished. New visitors come first, in story
  * order; once all have visited, a returning visitor (never the same one twice in a row).
  */
-export function waitingRequest(seen: readonly string[], records: Readonly<Record<string, RequestRecord>>, clock: RequestClock = NO_CLOCK, completed = 0): GoldenRequest | null {
+export function waitingRequest(seen: readonly string[], records: Readonly<Record<string, RequestRecord>>, clock: RequestClock = NO_CLOCK, completed = 0, feastReady = true): GoldenRequest | null {
   if (!seen.includes(STAGE2_KEY)) return null;
   const plays = totalPlays(records);
   if (plays > 0 && completed < clock.at + letterGap(plays)) return null;
   const fresh = REQUESTS.find((r) => !records[r.id]?.done);
   if (fresh) return fresh;
+  // All twelve visited: Ojiichan's gold letter for the World Apple Feast (once Festival Pie is known).
+  if (!records[FEAST_ID]?.done && feastReady) return FEAST;
   const pool = REQUESTS.filter((r) => r.id !== clock.last);
   return pool[Math.floor(hash01(plays, 23) * pool.length)];
 }
@@ -191,6 +239,14 @@ export function requestDishName(id: string, planIndex: number): string {
   const name = r.dishes[item.dish].name;
   return r.twist.kind === 'bigParty' ? `${name} (round ${item.round})` : name;
 }
+/** Who stands at the counter: the visitor, or in the feast the friend whose dish is cooking. */
+export function requestCustomer(id: string, planIndex: number): string {
+  const r = requestById(id);
+  if (!isFeast(id)) return r.customer;
+  const from = r.dishes[menuPlan(r)[planIndex]?.dish ?? 0]?.from;
+  // Ojiichan helps behind the counter, so Grandma Rosa orders the pie for everyone.
+  return from && from !== 'O' ? from : 'R';
+}
 /** Big party: later rounds run faster (the ring closes sooner). */
 export const ROUND_SPEED = 0.8;
 
@@ -207,7 +263,7 @@ export function sanitizeClock(v: unknown): RequestClock {
   if (typeof v !== 'object' || v === null) return { ...NO_CLOCK };
   const o = v as Record<string, unknown>;
   const at = typeof o.at === 'number' && Number.isInteger(o.at) && o.at >= 0 ? o.at : 0;
-  const last = typeof o.last === 'string' && REQUESTS.some((r) => r.id === o.last) ? o.last : null;
+  const last = typeof o.last === 'string' && ALL_REQUESTS.some((r) => r.id === o.last) ? o.last : null;
   return { at, last };
 }
 
@@ -215,7 +271,7 @@ export function sanitizeRequests(v: unknown): Record<string, RequestRecord> {
   const out: Record<string, RequestRecord> = {};
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return out;
   for (const [id, raw] of Object.entries(v as Record<string, unknown>)) {
-    if (!REQUESTS.some((r) => r.id === id) || typeof raw !== 'object' || raw === null) continue;
+    if (!ALL_REQUESTS.some((r) => r.id === id) || typeof raw !== 'object' || raw === null) continue;
     const x = raw as Record<string, unknown>;
     const int = (n: unknown) => (typeof n === 'number' && Number.isInteger(n) && n >= 0 ? n : 0);
     out[id] = { done: x.done === true, seal: x.seal === true, plays: int(x.plays), bestStars: Math.min(9, int(x.bestStars)) };

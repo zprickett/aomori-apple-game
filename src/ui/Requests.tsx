@@ -3,11 +3,15 @@
  * screens (letter, menu card, apple matching, tasting reveal, rewards), the menu strip while
  * cooking, and the passport with the world map (My chef).
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import {
-  APPLE_ORDER, REQUESTS, STAGE2_INTRO, apple, appleMatch, menuCombo, menuPlan, menuPoints, requestById, withName,
+  APPLE_ORDER, FEAST, FEAST_FINALE, PIE_APPLES, PIE_RECIPE, REGULARS, REQUESTS, STAGE2_INTRO, apple, appleMatch, isFeast, menuCombo, menuGolds, menuPlan, menuPoints,
+  requestById, skinFamily, withName,
   type ClueKey, type GameAction, type GameState, type GoldenRequest, type StatKey, type TwistRule,
 } from '../core/index.ts';
+import { ChefContext } from '../game/chef.ts';
+import { ChefPreview } from '../three/ChefPreview.tsx';
+import { PieSlots } from './Screens.tsx';
 import { emitCue } from '../game/bus.ts';
 import { sfx, unlockAudio } from '../game/audio.ts';
 import { appleIcon, dishIcon, portrait, Stars } from './icons.tsx';
@@ -70,11 +74,12 @@ export function Stage2Intro({ name, reduced, onDone }: { name: string; reduced: 
 
 /** A letter waiting on the counter: the kid can open it or keep serving customers. */
 export function RequestLetterButton({ req, onOpen }: { req: GoldenRequest; onOpen: () => void }) {
+  const feast = isFeast(req.id);
   return (
-    <button className="req-letter-btn" data-testid="request-letter" onClick={() => { tap(); onOpen(); }}
-      aria-label={`A letter from ${req.place}: open it`}>
+    <button className={`req-letter-btn ${feast ? 'feast' : ''}`} data-testid="request-letter" onClick={() => { tap(); onOpen(); }}
+      aria-label={feast ? 'A gold letter from Ojiichan: open it' : `A letter from ${req.place}: open it`}>
       <span className="rl-env" aria-hidden>✉️<span className="rl-stamp">{req.stamp}</span></span>
-      <span className="rl-text"><b>Letter!</b><small>from {req.place}</small></span>
+      <span className="rl-text"><b>{feast ? 'Gold letter!' : 'Letter!'}</b><small>from {feast ? 'Ojiichan' : req.place}</small></span>
     </button>
   );
 }
@@ -94,14 +99,16 @@ export function RequestScreen({ state, dispatch, name, reduced }: { state: GameS
     case 'letter': return <RequestLetter req={req} name={name} dispatch={dispatch} />;
     case 'brief': return <RequestBrief req={req} first={run.first} dispatch={dispatch} />;
     case 'match': return <AppleMatchScreen state={state} req={req} dispatch={dispatch} />;
-    case 'reveal': return <RequestReveal state={state} req={req} reduced={reduced} dispatch={dispatch} />;
+    case 'reveal': return isFeast(req.id)
+      ? <FeastReveal state={state} req={req} name={name} reduced={reduced} dispatch={dispatch} />
+      : <RequestReveal state={state} req={req} reduced={reduced} dispatch={dispatch} />;
     case 'rewards': return <RequestRewards state={state} req={req} name={name} reduced={reduced} dispatch={dispatch} />;
   }
 }
 
 function RequestLetter({ req, name, dispatch }: { req: GoldenRequest; name: string; dispatch: D }) {
   return (
-    <div className="req-backdrop" role="dialog" aria-label={`Letter from ${req.visitor}`} data-testid="request-letter-card">
+    <div className={`req-backdrop ${isFeast(req.id) ? 'feast' : ''}`} role="dialog" aria-label={`Letter from ${req.visitor}`} data-testid="request-letter-card">
       <div className="req-postcard" style={{ ['--req' as string]: req.color }}>
         <div className="rp-stamp" aria-hidden><span>{req.stamp}</span><small>{req.place}</small></div>
         <img className="rp-face" src={portrait(req.customer)} alt={req.visitor} />
@@ -120,19 +127,20 @@ function RequestBrief({ req, first, dispatch }: { req: GoldenRequest; first: boo
   return (
     <div className="req-backdrop" role="dialog" aria-label={req.title} data-testid="request-brief">
       <div className="req-menu" style={{ ['--req' as string]: req.color }}>
-        <div className="rm-kicker">✨ Golden Request</div>
+        <div className="rm-kicker">{isFeast(req.id) ? '🎆 Hirosaki Apple Festival' : '✨ Golden Request'}</div>
         <h2 className="rm-title">{req.title}</h2>
         <ol className="rm-dishes">
           {req.dishes.map((d) => (
             <li key={d.name}>
               <img src={dishIcon(d.recipe)} alt="" />
+              {d.from && <img className="rm-from" src={portrait(d.from)} alt="" />}
               <span className="rm-name">{d.name}</span>
               <span className="rm-clue">🍎 {d.clueText}</span>
             </li>
           ))}
         </ol>
         <div className="rm-twist"><b>{req.twist.name}:</b> {req.twist.text}</div>
-        {first && (
+        {first && !isFeast(req.id) && (
           <div className="rm-tip"><img src={portrait('O')} alt="Ojiichan" /><span>{STAGE2_INTRO.tip}</span></div>
         )}
       </div>
@@ -156,9 +164,15 @@ function AppleMatchScreen({ state, req, dispatch }: { state: GameState; req: Gol
   const stats = useMemo(() => [...new Set([...d.clue.map((c) => CLUE_STAT[c]), TWIST_STAT[req.twist.rule]].filter((x): x is StatKey => !!x))], [d, req]);
   const apples = APPLE_ORDER.filter((id) => state.progress.unlockedApples.includes(id));
   const ready = run.apples.every((a) => a !== null);
+  const pie = d.recipe === PIE_RECIPE;
+  const golds = menuGolds(req, run.apples, run.pie);
   const pick = (id: string) => {
     tap();
     dispatch({ type: 'REQUEST_PICK', dish, appleId: id });
+    if (pie) {
+      if (!run.pie.includes(id) && run.pie.length === PIE_APPLES - 1 && menuGolds(req, [], [...run.pie, id])[dish]) sfx.bell();
+      return;
+    }
     const m = appleMatch(id, d, req.twist.rule);
     if (m.gold) sfx.bell();
     // Move on to the next dish still without an apple.
@@ -167,30 +181,35 @@ function AppleMatchScreen({ state, req, dispatch }: { state: GameState; req: Gol
   };
   return (
     <div className="req-match" data-testid="request-match">
-      <div className="am-slots">
+      <div className={`am-slots ${req.dishes.length > 3 ? 'compact' : ''}`}>
         {req.dishes.map((x, i) => {
           const a = run.apples[i];
-          const m = a ? appleMatch(a, x, req.twist.rule) : null;
+          const m = a ? { gold: golds[i] } : null;
           return (
             <button key={x.name} className={`am-slot ${i === dish ? 'sel' : ''} ${m?.gold ? 'gold' : m ? 'miss' : ''}`}
               data-testid={`match-dish-${i}`} onClick={() => { tap(); setDish(i); }}>
               <img className="am-dish" src={dishIcon(x.recipe)} alt="" />
+              {x.from && <img className="am-from" src={portrait(x.from)} alt="" />}
               <span className="am-name">{x.name}</span>
               <span className="am-clue">🍎 {x.clueText}</span>
-              {a ? <img className="am-apple" src={appleIcon(a)} alt={apple(a).nameEn} /> : <span className="am-empty">?</span>}
+              {x.recipe === PIE_RECIPE && run.pie.length
+                ? <span className="am-pie">{run.pie.map((id) => <img key={id} src={appleIcon(id)} alt={apple(id).nameEn} />)}</span>
+                : a ? <img className="am-apple" src={appleIcon(a)} alt={apple(a).nameEn} /> : <span className="am-empty">?</span>}
             </button>
           );
         })}
       </div>
+      {req.dishes.length > 3 && <div className="am-current" data-testid="match-current"><b>{d.name}</b> · 🍎 {d.clueText}</div>}
       <div className="am-twist"><b>{req.twist.name}:</b> {req.twist.text}</div>
+      {pie && <PieSlots ids={run.pie} onRemove={(id) => { tap(); dispatch({ type: 'REQUEST_PICK', dish, appleId: id }); }} />}
       {run.apples[dish] && (() => {
-        const m = appleMatch(run.apples[dish]!, d, req.twist.rule);
-        return <div className={`am-verdict ${m.gold ? 'gold' : 'miss'}`} data-testid="match-verdict">{m.gold ? `✨ ${req.matchGood}` : req.matchMiss}</div>;
+        const gold = golds[dish];
+        return <div className={`am-verdict ${gold ? 'gold' : 'miss'}`} data-testid="match-verdict">{gold ? `✨ ${req.matchGood}` : req.matchMiss}</div>;
       })()}
       <div className="am-grid" role="list" aria-label={`Apples for ${d.name}`}>
         {apples.map((id) => {
           const a = apple(id);
-          const chosen = run.apples[dish] === id;
+          const chosen = pie ? run.pie.includes(id) : run.apples[dish] === id;
           return (
             <button key={id} role="listitem" className={`am-card ${chosen ? 'chosen' : ''}`} data-testid={`match-apple-${id}`} onClick={() => pick(id)}>
               <img src={appleIcon(id)} alt="" />
@@ -198,6 +217,7 @@ function AppleMatchScreen({ state, req, dispatch }: { state: GameState; req: Gol
               {stats.map((k) => <span key={k} className="am-stat">{STAT_WORD[k]} <Dots n={a.stats[k]} /></span>)}
               {(d.clue.includes('pinkInside') || req.twist.rule === 'pinkInside') && a.fleshRed && <span className="am-stat">Pink inside</span>}
               {(d.clue.includes('tiny') || d.clue.includes('big') || req.twist.rule === 'tiny' || req.twist.rule === 'big') && <span className="am-stat">Size {a.sizeLabel}</span>}
+              {pie && <span className={`am-stat skin-${skinFamily(a)}`}>{skinFamily(a) === 'red' ? 'Red' : skinFamily(a) === 'yellow' ? 'Yellow' : 'Green'} skin</span>}
             </button>
           );
         })}
@@ -220,7 +240,7 @@ export function MenuStrip({ state }: { state: GameState }) {
   const plan = menuPlan(req);
   const now = plan[run.dishIndex];
   return (
-    <div className="menu-strip" data-testid="menu-strip">
+    <div className={`menu-strip ${req.dishes.length > 3 ? 'long' : ''}`} data-testid="menu-strip">
       {req.dishes.map((d, i) => (
         <span key={d.name} className={`ms-dish ${i < now.dish ? 'done' : i === now.dish ? 'now' : ''}`}>
           <img src={dishIcon(d.recipe)} alt={d.name} />
@@ -255,7 +275,7 @@ function RequestReveal({ state, req, reduced, dispatch }: { state: GameState; re
       <div className="rr-score">
         {run.evaluations.map((e, i) => {
           const dish = menuPlan(req)[i].dish;
-          const gold = appleMatch(run.apples[dish]!, req.dishes[dish], req.twist.rule).gold;
+          const gold = menuGolds(req, run.apples, run.pie)[dish];
           return (
             <div key={i} className="rr-row">
               <img src={dishIcon(e.recipeId)} alt="" />
@@ -274,6 +294,117 @@ function RequestReveal({ state, req, reduced, dispatch }: { state: GameState; re
   );
 }
 
+// ---------------------------------------------------------------------------
+// The World Apple Feast's ending
+// ---------------------------------------------------------------------------
+
+/** Everyone the chef cooked for: the twelve visitors, the four regulars, and Ojiichan. */
+const FEAST_CROWD = [...REQUESTS.map((r) => ({ id: r.customer, name: r.visitor })), ...REGULARS.map((r) => ({ id: r.customer, name: r.name }))];
+
+type FeastBeat = 'taste' | 'fireworks' | 'map' | 'page' | 'photo';
+
+/**
+ * The feast's ending, one tap per beat: everyone tastes (with the menu's score), fireworks over
+ * Hirosaki, the world map lights up, Ojiichan's last notebook page, and the group photo for the
+ * scrapbook. A replay shows the tasting and the fireworks only.
+ */
+function FeastReveal({ state, req, name, reduced, dispatch }: { state: GameState; req: GoldenRequest; name: string; reduced: boolean; dispatch: D }) {
+  const run = state.request!;
+  const beats: FeastBeat[] = run.first ? ['taste', 'fireworks', 'map', 'page', 'photo'] : ['taste', 'fireworks'];
+  const [i, setI] = useState(0);
+  const beat = beats[i];
+  const last = i === beats.length - 1;
+  useEffect(() => {
+    if (beat === 'taste') emitCue({ type: 'customer', anim: 'joy' });
+    if (!reduced && (beat === 'taste' || beat === 'fireworks')) sfx.fanfare();
+    if (beat === 'map' || beat === 'page') sfx.swish();
+  }, [beat, reduced]);
+  const next = () => { tap(); if (last) dispatch({ type: 'REQUEST_NEXT' }); else setI(i + 1); };
+  const golds = menuGolds(req, run.apples, run.pie);
+  const m = menuPoints(run.evaluations.map((e) => e.score.total), run.seal);
+  return (
+    <div className={`reveal feast-reveal fb-${beat} ${reduced ? 'still' : ''}`} role="dialog" aria-label={req.title} data-testid="feast-reveal" data-beat={beat}>
+      {beat === 'taste' && (
+        <div className="fr-taste" key="taste">
+          <div className="fr-cheer"><b>{FEAST_FINALE.cheerTitle}</b><span lang="ja">{FEAST_FINALE.cheerJa}</span></div>
+          <div className="fr-crowd" aria-label="Everyone you cooked for">
+            {FEAST_CROWD.map((c, k) => <img key={c.id} src={portrait(c.id)} alt={c.name} title={c.name} style={{ ['--i' as string]: k }} />)}
+          </div>
+          <div className="fr-oji"><img src={portrait('O')} alt="Ojiichan" /><div className="rr-say">{req.tasting[0]}</div></div>
+          <div className="rr-say big">{withName(req.tasting[1], name)}</div>
+          <div className="rr-score">
+            {run.evaluations.map((e, k) => (
+              <div key={k} className="rr-row">
+                <img src={dishIcon(e.recipeId)} alt="" />
+                {e.pieApples
+                  ? e.pieApples.map((id) => <img key={id} src={appleIcon(id)} alt={apple(id).nameEn} className={golds[k] ? 'gold' : ''} />)
+                  : <img src={appleIcon(e.appleId)} alt={apple(e.appleId).nameEn} className={golds[k] ? 'gold' : ''} />}
+                <Stars n={e.score.stars} size={16} />
+              </div>
+            ))}
+            {run.seal && <div className="rr-seal" data-testid="golden-seal">GOLDEN<br />SEAL</div>}
+            <div className="rr-points" data-testid="menu-points">⭐ {m.base.toLocaleString()} × {m.mult} = <b>{m.total.toLocaleString()}</b></div>
+          </div>
+        </div>
+      )}
+      {beat === 'fireworks' && (
+        <div className="fr-sky" key="fireworks">
+          {Array.from({ length: 7 }, (_, k) => (
+            <span key={k} className="fw" style={{ ['--i' as string]: k, left: `${14 + ((k * 37) % 72)}%`, top: `${10 + ((k * 29) % 56)}%`,
+              ['--c' as string]: ['#FFD84A', '#FF6B5A', '#7CD14E', '#7FB2D8', '#F49AC1', '#FFFFFF', '#E8A92A'][k] }} aria-hidden>
+              {Array.from({ length: 12 }, (_, j) => <i key={j} style={{ ['--a' as string]: `${j * 30}deg` }} />)}
+            </span>
+          ))}
+          <div className="fr-kanpai">{withName(req.tasting[2], name)}</div>
+          <div className="fr-line">{FEAST_FINALE.fireworks}</div>
+        </div>
+      )}
+      {beat === 'map' && (
+        <div className="fr-map" key="map">
+          <WorldMap pins={REQUESTS.map((r) => ({ ...r.pin, label: r.place }))} home />
+          <div className="fr-stamps" aria-hidden>{REQUESTS.map((r, k) => <span key={r.id} style={{ ['--i' as string]: k }}>{r.stamp}</span>)}</div>
+          <div className="fr-line">{FEAST_FINALE.map}</div>
+        </div>
+      )}
+      {beat === 'page' && <FeastPage name={name} />}
+      {beat === 'photo' && <FeastPhoto name={name} reduced={reduced} />}
+      <button className="btn primary huge" data-testid="feast-next" onClick={next}>
+        {beat === 'photo' ? 'Put it in my scrapbook' : 'Next'}
+      </button>
+    </div>
+  );
+}
+
+/** Ojiichan's last notebook page, written for the chef (also in the notebook once the feast is done). */
+export function FeastPage({ name }: { name: string }) {
+  return (
+    <div className="feast-page" data-testid="feast-page">
+      <div className="fp-title">{FEAST_FINALE.pageTitle}</div>
+      {FEAST_FINALE.page.map((l) => <p key={l}>{withName(l, name || 'Chef')}</p>)}
+      <div className="fp-sign"><img src={portrait('O')} alt="" />{withName(FEAST_FINALE.pageSign, name || 'Chef')}</div>
+    </div>
+  );
+}
+
+/** The feast photo: the chef and Ojiichan with every friend from around the world (kept in the scrapbook). */
+export function FeastPhoto({ name, reduced, small = false }: { name: string; reduced: boolean; small?: boolean }) {
+  const chef = useContext(ChefContext);
+  return (
+    <div className={`fp-card feast ${small ? 'small' : ''}`} data-testid="feast-photo">
+      <div className="fp-pic">
+        <div className="fp-back">
+          <ChefPreview look={chef.look} reduced={reduced} framing="bust" rank={5} className="fp-chef" />
+          <img className="fp-oji" src={portrait('O')} alt="Ojiichan" />
+        </div>
+        <div className="fp-front fp-crowd">
+          {FEAST_CROWD.map((c) => <img key={c.id} src={portrait(c.id)} alt={c.name} title={c.name} />)}
+        </div>
+      </div>
+      <div className="fp-caption">{withName(FEAST_FINALE.photo, name || 'Chef')}</div>
+    </div>
+  );
+}
+
 function RequestRewards({ state, req, name, reduced, dispatch }: { state: GameState; req: GoldenRequest; name: string; reduced: boolean; dispatch: D }) {
   const run = state.request!;
   useEffect(() => { if (run.first && !reduced) sfx.bell(); }, [run.first, reduced]);
@@ -281,7 +412,13 @@ function RequestRewards({ state, req, name, reduced, dispatch }: { state: GameSt
     <div className={`req-rewards ${reduced ? 'still' : ''}`} role="dialog" aria-label="Rewards" data-testid="request-rewards">
       <div className="rw-card">
         <p className="rw-thanks">“{withName(req.thanks, name)}” <span>— {req.visitor}</span></p>
-        {run.first ? (
+        {run.first && isFeast(req.id) ? (
+          <div className="rw-items">
+            <div className="rw-stamp" aria-label="Passport stamp: the World Apple Feast"><span>{req.stamp}</span><small>{req.place}</small></div>
+            <div className="rw-gift">📖 {req.gift.name}<small>in your notebook</small></div>
+            <div className="rw-soon">{FEAST_FINALE.season2}</div>
+          </div>
+        ) : run.first ? (
           <div className="rw-items">
             <div className="rw-stamp" aria-label={`Passport stamp: ${req.place}`}><span>{req.stamp}</span><small>{req.place}</small></div>
             <div className="rw-gift">🎁 {req.gift.name}<small>on your gift shelf</small></div>
@@ -344,10 +481,20 @@ export function Passport({ state, onReplay }: { state: GameState; onReplay: (id:
   const recs = state.progress.requests;
   const done = REQUESTS.filter((r) => recs[r.id]?.done);
   if (!done.length) return null;
+  const feast = recs[FEAST.id]?.done;
   return (
     <div className="passport" data-testid="passport">
       <WorldMap pins={done.map((r) => ({ ...r.pin, label: r.place }))} />
       <div className="pp-stamps">
+        {feast && (
+          <div className="pp-stamp feast">
+            <span className="pp-icon" aria-hidden>{FEAST.stamp}</span>
+            <span className="pp-place">{FEAST.place}</span>
+            <span className="pp-title">{FEAST.title}</span>
+            {recs[FEAST.id].seal ? <span className="pp-seal">Golden Seal</span> : null}
+            <button className="btn small" data-testid="replay-feast" onClick={() => { tap(); onReplay(FEAST.id); }}>Play again</button>
+          </div>
+        )}
         {done.map((r) => (
           <div key={r.id} className="pp-stamp">
             <span className="pp-icon" aria-hidden>{r.stamp}</span>

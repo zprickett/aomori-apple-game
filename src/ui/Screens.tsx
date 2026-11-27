@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { DAY_LENGTH, GOLDEN_LABEL, apple, fitReason, nextGoal, recipe, requestDishName, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
+import { DAY_LENGTH, GOLDEN_LABEL, PIE_APPLES, PIE_RECIPE, apple, fitReason, nextGoal, pieFit, recipe, skinFamily, threeColours, requestDishName, selectors, withName, type GameAction, type GameState } from '../core/index.ts';
 import { LadderBar, stepReward } from './Ranks.tsx';
 import { ChefContext } from '../game/chef.ts';
 import { useAnchors, emitCue } from '../game/bus.ts';
@@ -161,6 +161,32 @@ function StoryBubble({ state, tailX, name }: { state: GameState; tailX?: React.C
 }
 
 // ---------------------------------------------------------------------------
+const SKIN_WORD = { red: 'Red', yellow: 'Yellow', green: 'Green' } as const;
+
+/** Festival Pie: the three apples picked so far, their pie fit and the colour hint. */
+export function PieSlots({ ids, onRemove }: { ids: readonly string[]; onRemove?: (id: string) => void }) {
+  const full = ids.length === PIE_APPLES;
+  const colours = threeColours(ids);
+  return (
+    <div className="pie-slots" data-testid="pie-slots">
+      <div className="ps-row">
+        {Array.from({ length: PIE_APPLES }, (_, k) => {
+          const id = ids[k];
+          return id ? (
+            <button key={k} type="button" className={`ps-slot s-${skinFamily(apple(id))}`} onClick={() => onRemove?.(id)} aria-label={`Take out ${apple(id).nameEn}`}>
+              <img src={appleIcon(id)} alt="" /><span>{SKIN_WORD[skinFamily(apple(id))]}</span>
+            </button>
+          ) : <span key={k} className="ps-slot empty">{k + 1}</span>;
+        })}
+      </div>
+      <div className={`ps-hint ${colours ? 'gold' : ''}`}>
+        {colours ? '✨ Red, yellow and green: a festival of colour!' : 'Pick 3 different apples. Red, yellow and green make the best pie!'}
+      </div>
+      {full && <div className="ps-fit"><Stars n={pieFit(ids)} size={14} label={`Pie fit ${pieFit(ids)} of 3`} /></div>}
+    </div>
+  );
+}
+
 export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D }) {
   const cards = selectors.appleCards(state);
   const cooked = selectors.cookedApples(state);
@@ -170,6 +196,8 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
   const sizeMismatch = r.id === 'ringo_ame' && sel && sel.sizeClass !== 'mini';
   const detailRef = useRef<HTMLDivElement>(null);
   useEffect(() => { detailRef.current?.scrollIntoView?.({ block: 'nearest' }); }, [state.previewAppleId]);
+  const pie = state.mode === 'order' && r.id === PIE_RECIPE;
+  const pick = (id: string) => dispatch(pie ? { type: 'PIE_PICK', appleId: id } : { type: 'PREVIEW_APPLE', appleId: id });
   return (
     <div className="drawer" role="dialog" aria-label="Choose an apple" data-testid="apple-drawer">
       <div className="drawer-head">
@@ -183,14 +211,15 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
         {cards.map((c) => (
           <button
             key={c.apple.id}
-            className={`apple-card ${c.unlocked ? '' : 'locked'} ${state.previewAppleId === c.apple.id ? 'sel' : ''}`}
+            className={`apple-card ${c.unlocked ? '' : 'locked'} ${(pie ? state.pieApples.includes(c.apple.id) : state.previewAppleId === c.apple.id) ? 'sel' : ''}`}
             disabled={!c.unlocked}
-            onClick={() => { sfx.tap(); dispatch({ type: 'PREVIEW_APPLE', appleId: c.apple.id }); }}
-            aria-pressed={state.previewAppleId === c.apple.id}
+            onClick={() => { sfx.tap(); pick(c.apple.id); }}
+            aria-pressed={pie ? state.pieApples.includes(c.apple.id) : state.previewAppleId === c.apple.id}
             aria-label={c.unlocked ? `${c.apple.nameEn}, ${FIT_WORD[c.fitStars ?? 0]} for ${r.name}${cooked.has(c.apple.id) ? ', cooked before' : ''}` : `Locked apple. ${c.unlockText}`}
             data-testid={`apple-${c.apple.id}`}
           >
             {c.unlocked && cooked.has(c.apple.id) && <span className="cooked-tick" aria-hidden>✓</span>}
+            {pie && state.pieApples.includes(c.apple.id) && <span className="pie-no" aria-hidden>{state.pieApples.indexOf(c.apple.id) + 1}</span>}
             <img src={appleIcon(c.apple.id)} alt="" className={c.unlocked ? '' : 'sil'} />
             {c.unlocked ? (
               <>
@@ -204,7 +233,12 @@ export function AppleDrawer({ state, dispatch }: { state: GameState; dispatch: D
         ))}
       </div>
       <div className="apple-detail" ref={detailRef} aria-live="polite">
-        {sel ? (
+        {pie && <PieSlots ids={state.pieApples} onRemove={(id) => { sfx.tap(); dispatch({ type: 'PIE_PICK', appleId: id }); }} />}
+        {pie && state.pieApples.length === PIE_APPLES ? (
+          <button className="btn primary huge" data-testid="confirm-apple" onClick={() => { unlockAudio(); sfx.pop(); dispatch({ type: 'CONFIRM_APPLE' }); }}>
+            Bake with these 3!
+          </button>
+        ) : pie ? null : sel ? (
           <>
             <div className="ad-head">
               <img src={appleIcon(sel.id)} alt="" />

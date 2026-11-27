@@ -17,6 +17,7 @@ import { RECIPE_ORDER,
   type FitStars,
 } from './content.ts';
 import { summarizeTechnique, type Grade } from './timing.ts';
+import { PIE_APPLES, PIE_RECIPE, pieFit } from './requests.ts';
 import { scoreDish, type DishScore } from './points.ts';
 
 export interface StepResult {
@@ -52,6 +53,8 @@ export interface DishEvaluation {
   sizeMismatch?: boolean;
   /** Points shown to the player. */
   score: DishScore;
+  /** Festival Pie: the three apples it was baked with. */
+  pieApples?: string[];
 }
 
 export interface EvaluateDishInput {
@@ -63,6 +66,8 @@ export interface EvaluateDishInput {
   /** Optional: restrict tip suggestions to these apple / recipe ids (e.g. unlocked). */
   availableApples?: readonly string[];
   availableRecipes?: readonly string[];
+  /** Festival Pie: its three apples (appleId is the first); the fit comes from all three. */
+  pieApples?: readonly string[];
 }
 
 /**
@@ -95,7 +100,8 @@ export function evaluateDish(input: EvaluateDishInput): DishEvaluation {
   const { appleId, recipeId, assisted } = input;
   const a = apple(appleId);
   const rec = recipe(recipeId);
-  const fit = fitStarsOf(appleId, recipeId);
+  const pie = recipeId === PIE_RECIPE && input.pieApples?.length === PIE_APPLES ? input.pieApples : null;
+  const fit = pie ? pieFit(pie) : fitStarsOf(appleId, recipeId);
   const accepted = acceptedResults(recipeId, input.results);
   const tech = summarizeTechnique(accepted, { assisted });
   const techniqueBonus = tech.techniqueBonus;
@@ -153,8 +159,9 @@ export function evaluateDish(input: EvaluateDishInput): DishEvaluation {
     explanation,
     childFeedback,
     tip,
-    score: scoreDish(appleId, recipeId, accepted.map((r) => r.grade)),
+    score: scoreDish(appleId, recipeId, accepted.map((r) => r.grade), pie ? fit : undefined),
   };
+  if (pie) result.pieApples = [...pie];
   if (sizeMismatch) result.sizeMismatch = true;
   return result;
 }

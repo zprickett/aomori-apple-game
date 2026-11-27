@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { apple, recipe } from '../content.ts';
-import { gameReducer, initialStateFromSave, selectors, toSaveData, type GameAction, type GameState } from '../gameReducer.ts';
+import { gameReducer, initialStateFromSave, selectors, toSaveData, trophyInput, type GameAction, type GameState } from '../gameReducer.ts';
 import { defaultSave, parseSave } from '../persistence.ts';
 import { unlockedApples } from '../progression.ts';
 import { typicalLadder, typicalPoints } from '../ranks.ts';
-import { REQUESTS, STAGE2_KEY, appleMatch, clueHolds, letterGap, menuCombo, menuPlan, menuPoints, requestById, sealEarned, skinFamily, twistHolds, waitingRequest } from '../requests.ts';
+import { FEAST, FEAST_ID, PIE_RECIPE, REQUESTS, STAGE2_KEY, appleMatch, menuGolds, pieFit, threeColours, clueHolds, letterGap, menuCombo, menuPlan, menuPoints, requestById, sealEarned, skinFamily, twistHolds, waitingRequest } from '../requests.ts';
 import { pendingDelivery } from '../gameReducer.ts';
 import { DEFAULT_SEED, orderForIndex } from '../progression.ts';
 import { JOURNEY_RECIPES, goldenRankOf, goldenRankPoints, ladderProgress } from '../ranks.ts';
@@ -305,5 +305,105 @@ describe('after Golden Chef', () => {
       expect(o.line).toBe(RECIPE_INTROS[j.id].line);
       expect(o.customerId).toBe(RECIPE_INTROS[j.id].who);
     }
+  });
+});
+
+describe('the World Apple Feast', () => {
+  const all = unlockedApples(200);
+  const byColour = (c: 'red' | 'yellow' | 'green', have = all) => have.filter((id) => skinFamily(apple(id)) === c);
+  const rgb = (have = all) => [byColour('red', have)[0], byColour('yellow', have)[0], byColour('green', have)[0]];
+  /** Everyone has visited: all twelve requests done, Festival Pie known. */
+  function allVisited(): GameState {
+    let s = afterFinale([STAGE2_KEY]);
+    const requests = Object.fromEntries(REQUESTS.map((r) => [r.id, { done: true, seal: false, plays: 1, bestStars: 6 }]));
+    s = { ...s, progress: { ...s.progress, completedOrders: 140, unlockedApples: unlockedApples(140), unlockedRecipes: [...s.progress.unlockedRecipes, PIE_RECIPE],
+      requests, requestClock: { at: 120, last: 'carnival' } } };
+    return s;
+  }
+
+  it('five dishes from five friends, ending with Festival Pie; every dish can be gold by the time it arrives', () => {
+    expect(FEAST.dishes.map((d) => d.recipe)).toEqual(['rabbit_apples', 'ringo_ame', 'fresh_juice', 'apple_jam', PIE_RECIPE]);
+    expect(REQUESTS.some((r) => r.id === FEAST_ID)).toBe(false);
+    const have = unlockedApples(100);
+    for (const d of FEAST.dishes.slice(0, 4)) expect(have.filter((a) => appleMatch(a, d, FEAST.twist.rule).gold).length, d.name).toBeGreaterThanOrEqual(2);
+    expect(threeColours(rgb(have))).toBe(true);
+  });
+
+  it('Festival Pie: three different apples, red, yellow and green for gold and the top fit', () => {
+    const [r, y, g] = rgb();
+    expect(threeColours([r, y, g])).toBe(true);
+    expect(threeColours([r, byColour('red')[1], g])).toBe(false);
+    expect(threeColours([r, r, g])).toBe(false);
+    expect(pieFit([r, y, g])).toBeGreaterThanOrEqual(pieFit([r, byColour('red')[1], byColour('red')[2]]));
+    expect(menuGolds(FEAST, [null, null, null, null, r], [r, y, g])[4]).toBe(true);
+    expect(menuGolds(FEAST, [null, null, null, null, r], [r, byColour('red')[1], g])[4]).toBe(false);
+  });
+
+  it("Ojiichan's gold letter comes after all twelve, once Festival Pie is known, then visitors return", () => {
+    const s = allVisited();
+    expect(selectors.waitingRequest(s)?.id).toBe(FEAST_ID);
+    const noPie = { ...s, progress: { ...s.progress, unlockedRecipes: s.progress.unlockedRecipes.filter((r) => r !== PIE_RECIPE) } };
+    expect(selectors.waitingRequest(noPie)?.id).not.toBe(FEAST_ID);
+    expect(waitingRequest([STAGE2_KEY], s.progress.requests, s.progress.requestClock, 140, true)).toBe(FEAST);
+    const done = { ...s.progress.requests, [FEAST_ID]: { done: true, seal: false, plays: 1, bestStars: 10 } };
+    expect(waitingRequest([STAGE2_KEY], done, { at: 140, last: FEAST_ID }, 160, true)?.id).not.toBe(FEAST_ID);
+  });
+
+  it('plays start to finish: pick three pie apples, cook five dishes, the feast is saved but is not a stamp', () => {
+    let s = run(allVisited(), { type: 'OPEN_REQUEST', id: FEAST_ID }, { type: 'REQUEST_VIEW', view: 'match' });
+    expect(s.request?.id).toBe(FEAST_ID);
+    for (const [i, d] of FEAST.dishes.entries()) {
+      if (d.recipe === PIE_RECIPE) {
+        const [r, y, g] = rgb(s.progress.unlockedApples);
+        s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: r }, { type: 'REQUEST_PICK', dish: i, appleId: y });
+        expect(s.request!.apples[i]).toBeNull();
+        s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: y }); // a second tap takes it out
+        expect(s.request!.pie).toEqual([r]);
+        s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: y }, { type: 'REQUEST_PICK', dish: i, appleId: g });
+        expect(s.request!.pie).toEqual([r, y, g]);
+        expect(s.request!.apples[i]).toBe(r);
+      } else {
+        const gold = s.progress.unlockedApples.find((a) => appleMatch(a, d, FEAST.twist.rule).gold)!;
+        s = run(s, { type: 'REQUEST_PICK', dish: i, appleId: gold });
+      }
+    }
+    s = run(s, { type: 'REQUEST_COOK' });
+    while (s.phase === 'cook') s = cookDish(s);
+    expect(s.request?.view).toBe('reveal');
+    expect(s.request?.seal).toBe(true);
+    const pie = s.request!.evaluations[4];
+    expect(pie.pieApples).toEqual(s.request!.pie);
+    expect(pie.fitStars).toBe(pieFit(s.request!.pie));
+    s = run(s, { type: 'REQUEST_NEXT' }, { type: 'REQUEST_NEXT' });
+    expect(s.phase).toBe('shop');
+    expect(s.progress.requests[FEAST_ID]).toMatchObject({ done: true, seal: true, plays: 1 });
+    expect(trophyInput(s.progress)).toMatchObject({ stamps: 12, requestCount: 12 });
+    // Replays come from the passport.
+    expect(run(s, { type: 'OPEN_REQUEST', id: FEAST_ID }).request?.first).toBe(false);
+  });
+});
+
+describe('Festival Pie orders take three apples', () => {
+  it('PIE_PICK adds and removes apples; the pie cooks only with three and scores all three', () => {
+    let s = afterFinale();
+    const order = { ...s.order, recipeId: PIE_RECIPE } as typeof s.order;
+    s = { ...s, order, choice: { main: order, offer: null }, progress: { ...s.progress, unlockedApples: unlockedApples(200) } };
+    s = run(s, { type: 'ACCEPT_ORDER' });
+    const have = s.progress.unlockedApples;
+    const [a, b, c, d] = have;
+    s = run(s, { type: 'PIE_PICK', appleId: a }, { type: 'PIE_PICK', appleId: b });
+    expect(run(s, { type: 'CONFIRM_APPLE' }).phase).toBe('choose');
+    s = run(s, { type: 'PIE_PICK', appleId: c });
+    expect(run(s, { type: 'PIE_PICK', appleId: d }).pieApples).toEqual([a, b, c]); // three at most
+    expect(run(s, { type: 'PIE_PICK', appleId: b }).pieApples).toEqual([a, c]);
+    s = run(s, { type: 'CONFIRM_APPLE' });
+    expect(s.phase).toBe('cook');
+    expect(s.appleId).toBe(a);
+    // A reload mid-pie keeps all three apples.
+    const re = initialStateFromSave(parseSave(JSON.stringify(toSaveData(s))).data);
+    expect(re.pieApples).toEqual([a, b, c]);
+    s = cookDish(s);
+    expect(s.result?.pieApples).toEqual([a, b, c]);
+    expect(s.result?.fitStars).toBe(pieFit([a, b, c]));
   });
 });

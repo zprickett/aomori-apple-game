@@ -55,7 +55,7 @@ import { HISTORY_LIMIT, type OrderRecord } from './points.ts';
 import { LADDER, advanceLadder, cleanLadder, goldenRankOf, rankOf, rankUpsOf, type Rank } from './ranks.ts';
 import { newsFor, nextDayStart, type NewsItem } from './story.ts';
 import { addDish, sanitizeStats, trophyKey, trophyStatus, type TrophyInput, type TrophyStats, type TrophyStatus } from './trophies.ts';
-import { REQUESTS, ROUND_SPEED, STAGE2_KEY, appleMatch, menuPlan, menuPoints, requestById, sanitizeClock, sanitizeRequests, sealEarned, waitingRequest, type RequestClock, type RequestRecord } from './requests.ts';
+import { PIE_APPLES, PIE_RECIPE, REQUESTS, ROUND_SPEED, STAGE2_KEY, isFeast, menuGolds, menuPlan, menuPoints, requestById, sanitizeClock, sanitizeRequests, sealEarned, waitingRequest, type RequestClock, type RequestRecord } from './requests.ts';
 
 export type Phase = 'shop' | 'choose' | 'cook' | 'serve' | 'result' | 'delivery' | 'day' | 'request';
 export type CookSub = 'bridge' | 'instruction' | 'countin' | 'active' | 'feedback' | 'miss';
@@ -77,6 +77,8 @@ export interface RequestRun {
   /** Accepted step results of each finished dish. */
   steps: StepResult[][];
   evaluations: DishEvaluation[];
+  /** Festival Pie's three apples (a dish of the World Apple Feast). */
+  pie: string[];
   /** First time this request is played (rewards and the tip show). */
   first: boolean;
   /** Golden Seal earned on this play (set at the reveal). */
@@ -152,6 +154,8 @@ export interface GameState {
   /** Recipe being practised (mode 'practice'). */
   practiceRecipeId: string | null;
   previewAppleId: string | null;
+  /** Festival Pie orders: the three apples picked (appleId is the first). */
+  pieApples: string[];
   appleId: string | null;
   cook: CookState | null;
   result: DishEvaluation | null;
@@ -199,7 +203,9 @@ export type GameAction =
   | { type: 'REQUEST_PICK'; dish: number; appleId: string }
   | { type: 'REQUEST_COOK' }
   | { type: 'REQUEST_NEXT' }
-  | { type: 'REQUEST_EXIT' };
+  | { type: 'REQUEST_EXIT' }
+  /** Festival Pie orders: add an apple to the three, or take it out again. */
+  | { type: 'PIE_PICK'; appleId: string };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -238,6 +244,7 @@ function nextOrderState(state: GameState): GameState {
     choice,
     practiceRecipeId: null,
     previewAppleId: null,
+    pieApples: [],
     appleId: null,
     cook: null,
     result: null,
@@ -309,7 +316,8 @@ export function pendingDelivery(progress: Progress, completed: number = progress
 
 export function trophyInput(p: Progress): TrophyInput {
   const cooked = [...new Set(Object.keys(p.discoveredPairings).map((k) => k.split(':')[0]))];
-  const recs = Object.values(p.requests);
+  // The World Apple Feast is not a passport stamp or a seal of the twelve requests.
+  const recs = REQUESTS.map((r) => p.requests[r.id]).filter((r): r is RequestRecord => !!r);
   return { stats: p.trophyStats, cookedApples: cooked, unlockedApples: p.unlockedApples,
     stamps: recs.filter((r) => r.done).length, seals: recs.filter((r) => r.seal).length, requestCount: REQUESTS.length };
 }
@@ -424,6 +432,7 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
     choice: { main: orderForIndex(progress.completedOrders + 1, progress.seed, progress.ladder), offer: null },
     practiceRecipeId: null,
     previewAppleId: null,
+    pieApples: [],
     appleId: null,
     cook: null,
     result: null,
@@ -456,10 +465,11 @@ export function initialStateFromSave(save: SaveData, notice: string | null = nul
   const picked = cur.pick === 'offer' ? base.choice.offer : base.choice.main;
   const order = picked && picked.recipeId === cur.recipeId
     ? picked : customOrder(cur.orderNumber, cur.recipeId as Order['recipeId'], progress.seed, progress.ladder);
-  const state: GameState = { ...base, order };
+  const state: GameState = { ...base, order, pieApples: order.recipeId === PIE_RECIPE && cur.pieApples ? [...cur.pieApples] : [] };
   const appleOk = cur.appleId !== null && progress.unlockedApples.includes(cur.appleId);
   if (cur.phase === 'shop') return state;
-  if (cur.phase === 'choose' || !appleOk) {
+  // A pie being cooked without its three apples goes back to picking them.
+  if (cur.phase === 'choose' || !appleOk || (order.recipeId === PIE_RECIPE && state.pieApples.length !== PIE_APPLES)) {
     return { ...state, phase: 'choose', previewAppleId: appleOk ? cur.appleId : null };
   }
   // cook
@@ -517,6 +527,7 @@ export function toSaveData(state: GameState): SaveData {
       stepIndex: done,
       stepResults: cook.stepResults.filter((r) => doneIds.includes(r.stepId)).map((r) => ({ ...r })),
       attemptId: cook.attemptId,
+      ...(isPieOrder(state) && state.pieApples.length === PIE_APPLES ? { pieApples: [...state.pieApples] } : {}),
     };
   } else {
     current = {
@@ -564,7 +575,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'ACCEPT_ORDER':
       if (state.phase !== 'shop' || state.mode !== 'order') return state;
       if (action.pick === 'offer' && !state.choice.offer) return state;
-      return { ...state, order: action.pick === 'offer' ? state.choice.offer! : state.choice.main, phase: 'choose', previewAppleId: null, appleId: null };
+      return { ...state, order: action.pick === 'offer' ? state.choice.offer! : state.choice.main, phase: 'choose', previewAppleId: null, pieApples: [], appleId: null };
 
     case 'PREVIEW_APPLE':
       if (state.phase !== 'choose' || !isAppleId(action.appleId)) return state;
@@ -572,14 +583,27 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.previewAppleId === action.appleId) return state;
       return { ...state, previewAppleId: action.appleId };
 
+    case 'PIE_PICK': {
+      // Festival Pie orders take three different apples: a tap adds an apple, or takes it out again.
+      if (state.phase !== 'choose' || !isPieOrder(state) || !state.progress.unlockedApples.includes(action.appleId)) return state;
+      const has = state.pieApples.includes(action.appleId);
+      if (!has && state.pieApples.length >= PIE_APPLES) return state;
+      const pieApples = has ? state.pieApples.filter((a) => a !== action.appleId) : [...state.pieApples, action.appleId];
+      return { ...state, pieApples, previewAppleId: has ? pieApples[pieApples.length - 1] ?? null : action.appleId };
+    }
+
     case 'CONFIRM_APPLE':
       if (state.phase !== 'choose' || !state.previewAppleId) return state;
+      if (isPieOrder(state)) {
+        if (state.pieApples.length !== PIE_APPLES) return state;
+        return { ...state, phase: 'cook', appleId: state.pieApples[0], cook: newCook() };
+      }
       return { ...state, phase: 'cook', appleId: state.previewAppleId, cook: newCook() };
 
     case 'BACK':
       if (state.phase !== 'choose') return state;
       if (state.mode === 'practice') return exitPractice(state);
-      return { ...state, phase: 'shop', order: state.choice.main, previewAppleId: null };
+      return { ...state, phase: 'shop', order: state.choice.main, previewAppleId: null, pieApples: [] };
 
     case 'BRIDGE_DONE':
       return withCook(state, 'bridge', (cook) => ({ ...state, cook: { ...cook, sub: 'instruction' } }));
@@ -685,6 +709,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         assisted: isAssistedDish(state),
         availableApples: state.progress.unlockedApples,
         availableRecipes: state.progress.unlockedRecipes,
+        ...(isPieOrder(state) && state.pieApples.length === PIE_APPLES ? { pieApples: state.pieApples } : {}),
       });
       const committed = commitCompletedOrder(state.progress, state.order, evaluation);
       const progress = committed === state.progress ? committed
@@ -772,7 +797,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'OPEN_REQUEST': {
       if (state.phase !== 'shop' || state.mode !== 'order') return state;
-      if (!state.progress.seenUnlockRewards.includes(STAGE2_KEY) || !REQUESTS.some((r) => r.id === action.id)) return state;
+      if (!state.progress.seenUnlockRewards.includes(STAGE2_KEY) || !(REQUESTS.some((r) => r.id === action.id) || isFeast(action.id))) return state;
       const r = requestById(action.id);
       // A new request opens only when it is the one waiting; finished ones can be replayed.
       const rec = state.progress.requests[r.id];
@@ -784,7 +809,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         appleId: null,
         previewAppleId: null,
         cook: null,
-        request: { id: r.id, view: 'letter', apples: r.dishes.map(() => null), dishIndex: 0, steps: [], evaluations: [], first: !rec?.done, seal: false,
+        request: { id: r.id, view: 'letter', apples: r.dishes.map(() => null), pie: [], dishIndex: 0, steps: [], evaluations: [], first: !rec?.done, seal: false,
           retriesLeft: r.twist.kind === 'rush' ? r.twist.retries ?? 1 : null },
       };
     }
@@ -799,6 +824,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const run = state.request;
       if (state.phase !== 'request' || !run || run.view !== 'match') return state;
       if (action.dish < 0 || action.dish >= run.apples.length || !state.progress.unlockedApples.includes(action.appleId)) return state;
+      if (requestById(run.id).dishes[action.dish].recipe === PIE_RECIPE) {
+        // Festival Pie: three different apples; a tap adds one or takes it out again.
+        const has = run.pie.includes(action.appleId);
+        if (!has && run.pie.length >= PIE_APPLES) return state;
+        const pie = has ? run.pie.filter((a) => a !== action.appleId) : [...run.pie, action.appleId];
+        const apples = run.apples.map((a, i) => (i === action.dish ? (pie.length === PIE_APPLES ? pie[0] : null) : a));
+        return { ...state, request: { ...run, pie, apples } };
+      }
       if (run.apples[action.dish] === action.appleId) return state;
       const apples = run.apples.map((a, i) => (i === action.dish ? action.appleId : a));
       return { ...state, request: { ...run, apples } };
@@ -857,6 +890,7 @@ function serveRequestDish(state: GameState, run: RequestRun, recipeId: string): 
     assisted: state.settings.assistance,
     availableApples: state.progress.unlockedApples,
     availableRecipes: state.progress.unlockedRecipes,
+    ...(recipeId === PIE_RECIPE && run.pie.length === PIE_APPLES ? { pieApples: run.pie } : {}),
   });
   const steps = [...run.steps, state.cook!.stepResults.map((r) => ({ ...r }))];
   const evaluations = [...run.evaluations, evaluation];
@@ -866,7 +900,7 @@ function serveRequestDish(state: GameState, run: RequestRun, recipeId: string): 
     const dishIndex = run.dishIndex + 1;
     return { ...state, phase: 'cook', appleId: run.apples[plan[dishIndex].dish], cook: newCook(), request: { ...run, dishIndex, steps, evaluations } };
   }
-  const golds = r.dishes.map((d, i) => appleMatch(run.apples[i]!, d, r.twist.rule).gold);
+  const golds = menuGolds(r, run.apples, run.pie);
   return { ...state, phase: 'request', cook: null, request: { ...run, steps, evaluations, view: 'reveal', seal: sealEarned(golds, steps) } };
 }
 
@@ -883,7 +917,7 @@ function finishRequest(state: GameState, run: RequestRun): GameState {
     discoveredPairings[key] = { bestStars: Math.max(discoveredPairings[key]?.bestStars ?? 0, e.score.stars), fit: e.fitStars };
   });
   const req = requestById(run.id);
-  const golds = req.dishes.filter((d, i) => appleMatch(run.apples[i]!, d, req.twist.rule).gold).length;
+  const golds = menuGolds(req, run.apples, run.pie).filter(Boolean).length;
   trophyStats = { ...trophyStats, goldMatches: trophyStats.goldMatches + golds };
   const totalPoints = p.totalPoints + menuPoints(run.evaluations.map((e) => e.score.total), run.seal).total;
   const record: RequestRecord = {
@@ -895,6 +929,11 @@ function finishRequest(state: GameState, run: RequestRun): GameState {
   const progress: Progress = { ...p, trophyStats, discoveredPairings, totalPoints, requests: { ...p.requests, [run.id]: record },
     requestClock: { at: p.completedOrders, last: run.id } };
   return leaveRequest({ ...state, progress });
+}
+
+/** A Festival Pie order (not practice): it takes three apples. */
+function isPieOrder(state: GameState): boolean {
+  return state.mode === 'order' && state.order.recipeId === PIE_RECIPE;
 }
 
 function leaveRequest(state: GameState): GameState {
@@ -1096,7 +1135,7 @@ export const selectors = {
   waitingRequest(state: GameState) {
     if (state.phase !== 'shop' || state.mode !== 'order') return null;
     const p = state.progress;
-    return waitingRequest(p.seenUnlockRewards, p.requests, p.requestClock, p.completedOrders);
+    return waitingRequest(p.seenUnlockRewards, p.requests, p.requestClock, p.completedOrders, p.unlockedRecipes.includes(PIE_RECIPE));
   },
   /** Golden Chef rank (0 before Golden Chef). */
   goldenRank(state: GameState): number {

@@ -1116,5 +1116,106 @@
   "goldenRank": {
     "title": "Golden Chef rank {n}!",
     "line": "Keep cooking, Chef {name}! The world is watching."
+  },
+  "feast": {
+    "id": "world_feast",
+    "title": "The World Apple Feast",
+    "visitor": "Ojiichan",
+    "place": "Hirosaki",
+    "stamp": "🎆",
+    "customer": "O",
+    "color": "#C9922A",
+    "pin": {
+      "lat": 40.6,
+      "lon": 140.5
+    },
+    "letter": [
+      "My dear {name},",
+      "Every friend you cooked for is coming back to Aomori! They heard about the Hirosaki Apple Festival and want to celebrate with you.",
+      "Let's cook the World Apple Feast together: one dish for each friend, and a Festival Pie for everyone."
+    ],
+    "dishes": [
+      {
+        "recipe": "rabbit_apples",
+        "name": "Captain Ingrid's Longship Wedges",
+        "clue": [
+          "crisp",
+          "redSkin"
+        ],
+        "clueText": "Crisp, with red skin",
+        "from": "I"
+      },
+      {
+        "recipe": "ringo_ame",
+        "name": "Mr. Ōgane's Candy Apple Tower",
+        "clue": [
+          "tiny"
+        ],
+        "clueText": "Tiny (size S)",
+        "from": "G"
+      },
+      {
+        "recipe": "fresh_juice",
+        "name": "Carer Mia's Flying-Fox Juice",
+        "clue": [
+          "sweet"
+        ],
+        "clueText": "Naturally sweet",
+        "from": "M"
+      },
+      {
+        "recipe": "apple_jam",
+        "name": "Princess Amara's Pink Jam",
+        "clue": [
+          "pinkInside"
+        ],
+        "clueText": "Pink inside",
+        "from": "P"
+      },
+      {
+        "recipe": "festival_pie",
+        "name": "The Festival Pie",
+        "clue": [],
+        "clueText": "Three apples: one red, one yellow, one green",
+        "from": "O"
+      }
+    ],
+    "twist": {
+      "kind": "gentle",
+      "rule": "none",
+      "name": "Festival fun",
+      "text": "No rush and no big party today. Just cook your best!"
+    },
+    "crew": {
+      "kind": "family",
+      "count": 0
+    },
+    "matchGood": "Your friends will love it!",
+    "matchMiss": "That works, but another apple fits the clue better.",
+    "tasting": [
+      "Everyone, dig in!",
+      "It tastes like the whole world came to Aomori!",
+      "Kanpai! To Chef {name}!"
+    ],
+    "thanks": "You did it, {name}. Every friend, every apple, one big feast. I'm so proud of you.",
+    "gift": {
+      "name": "The last notebook page",
+      "node": ""
+    },
+    "finale": {
+      "cheerTitle": "WORLD APPLE FEAST!",
+      "cheerJa": "世界りんご祭り！",
+      "fireworks": "The sky over Hirosaki lights up!",
+      "map": "Friends from all over the world, all thanks to your apples.",
+      "pageTitle": "The last page",
+      "page": [
+        "I filled this notebook with riddles so you could find every dish yourself.",
+        "Now you have cooked for the whole world. This last page is yours to write.",
+        "Keep cooking, keep exploring, and save me a slice of Festival Pie!"
+      ],
+      "pageSign": "Ojiichan and Chef {name}",
+      "season2": "More adventures coming soon!",
+      "photo": "Chef {name} & friends from around the world · Hirosaki"
+    }
   }
 }
